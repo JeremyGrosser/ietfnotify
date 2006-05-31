@@ -1,0 +1,44 @@
+This format will be used when submitting new events to the IETF notification
+service over a UNIX domain socket.
+
+Required fields for all types of events:
+	- Tag		(draft-ietf-subj-00) http://www.internet2.edu/~shalunov/ietf-tools/draft-ietf-tools-notification-03.txt
+	- Date		(2006-27-05T08:42:00-05:00) - RFC3339 format
+	- Event-type	(draft|wg|area|announcement)
+	- Source	(tracker|rfc-queue|id-announce|ietf-announce|
+			 internet-drafts|rfc)
+
+Required fields for specific event types:
+Event-type: draft
+	- Revision
+	- Author (repeat for multiple authors)
+	- Title
+	- URL (repeat for multiple URLs)
+	- Pages
+Event-type: wg
+	- Name
+	- Chair
+	- Charter
+	- List-email
+	- List-archive
+	- List-subscribe
+	- Area (app|gen|int|ops|rtg|sec|tsv)
+Event-type: area
+	- Name
+	- Director
+	- Advisor
+Event-type: announcement
+	- Date
+	- Text
+
+Example:
+	Tag: draft-ietf-opsec-current-practices
+	Date: 2006-25-05T15:50:01-04:00
+	Event-type: draft
+	Source: id-announce
+	Revision: 03
+	Author: M. Kaeo
+	Title: Operational Security Current Practices
+	URL: http://www.ietf.org/internet-drafts/draft-ietf-opsec-current-practices-03.txt
+	Pages: 39
+	Abstract: This document is a survey of the current practices used in today's large ISP operational networks to secure layer 2 and layer 3 infrastructure devices.  The information listed here is the result of information gathered from people directly responsible for defining and implementing secure infrastructures in Internet Service Provider environments.
