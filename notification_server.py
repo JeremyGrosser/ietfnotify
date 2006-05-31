@@ -38,12 +38,14 @@ def checkRequired(parsed):
 				required_fields = i[1].split(', ')
 				for field in required_fields:
 					if not field in parsed:
-						print 'Required field ' + i[0] + ' is missing'
+						print 'Required field ' + field + ' is missing'
+					else:
+						print 'Required field ' + field + ' received'
 			elif i[0] == 'optional':
 				optional_fields = i[1].split(', ')
 				for field in optional_fields:
-					if not field in parsed:
-						print 'Optional field ' + i[0] + ' received'
+					if field in parsed:
+						print 'Optional field ' + field + ' received'
 			else:
 				print 'Unknown definition in config: ' + repr(i)
 	else:
