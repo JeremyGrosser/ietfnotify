@@ -34,12 +34,16 @@ def checkRequired(parsed):
 	if config.has_section('fields-' + event_type):
 		items = config.items('fields-' + event_type)
 		for i in items:
-			if i[1] == 'required':
-				if not i[0] in parsed:
-					print 'Required field ' + i[0] + ' is missing'
-			elif i[1] == 'optional':
-				if i[0] in parsed:
-					print 'Optional field ' + i[0] + ' received'
+			if i[0] == 'required':
+				required_fields = i[1].split(', ')
+				for field in required_fields:
+					if not field in parsed:
+						print 'Required field ' + i[0] + ' is missing'
+			elif i[0] == 'optional':
+				optional_fields = i[1].split(', ')
+				for field in optional_fields:
+					if not field in parsed:
+						print 'Optional field ' + i[0] + ' received'
 			else:
 				print 'Unknown definition in config: ' + repr(i)
 	else:
