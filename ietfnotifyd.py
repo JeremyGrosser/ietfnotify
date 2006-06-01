@@ -1,8 +1,10 @@
 import ConfigParser
 import socket
 
+CONFIG_FILE = 'server.conf'
+
 config = ConfigParser.ConfigParser()
-fp = open('server.conf', 'r')
+fp = open(CONFIG_FILE, 'r')
 config.readfp(fp)
 fp.close()
 
@@ -50,7 +52,13 @@ def checkRequired(parsed):
 			else:
 				print 'Unknown definition in config: ' + repr(i)
 	else:
-		print 'Unknown event type, not found in config file'
+		print 'Event type not specified in config file. Adding section. All fields will be added as optional. Fix this soon.'
+		config.add_section('fields-' + event_type)
+		for key in parsed:
+			config.set('fields-' + event_type, key, 'optional')
+		fd = open(CONFIG_FILE, 'w')
+		config.write(fd)
+		fd.close()
 
 if config.get('general', 'socktype') == 'inet':
 	domain = socket.AF_INET
