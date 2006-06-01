@@ -3,6 +3,7 @@ import socket
 import os
 
 CONFIG_FILE = 'server.conf'
+DATA_DIR = '/Users/jeremy/src/ietfnotify/data/'
 
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
@@ -37,7 +38,13 @@ def archiveMessage(parsed):
 	uuid = os.popen('uuidgen', 'r').readlines()
 	uuid = uuid[0]
 	uuid = uuid[:-1]
-	print 'New uuid: ' + uuid
+
+	os.chdir(DATA_DIR)
+	fd = open(uuid, 'w+')
+	for key in parsed:
+		for i in range(0, len(parsed[key])):
+			fd.write(key + ': ' + parsed[key][i] + '\n')
+	fd.close()
 
 def checkRequired(parsed):
 	tag = parsed['tag'][0].split('-', 1)
