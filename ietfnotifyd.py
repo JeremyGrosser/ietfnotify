@@ -1,5 +1,6 @@
 import ConfigParser
 import socket
+import os
 
 CONFIG_FILE = 'server.conf'
 
@@ -28,6 +29,15 @@ def parseMessage(msg):
 		else:
 			parsed[line[0]] = [line[1]]
 	checkRequired(parsed)
+	archiveMessage(parsed)
+	#sendNotifications(parsed)
+
+def archiveMessage(parsed):
+	# Generate a new UUID
+	uuid = os.popen('uuidgen', 'r').readlines()
+	uuid = uuid[0]
+	uuid = uuid[:-1]
+	print 'New uuid: ' + uuid
 
 def checkRequired(parsed):
 	tag = parsed['tag'][0].split('-', 1)
@@ -54,8 +64,14 @@ def checkRequired(parsed):
 	else:
 		print 'Event type not specified in config file. Adding section. All fields will be added as optional. Fix this soon.'
 		config.add_section('fields-' + event_type)
+		oldkey = ''
 		for key in parsed:
-			config.set('fields-' + event_type, key, 'optional')
+			if oldkey == '':
+				newkey = key
+			else:
+				newkey = oldkey + ', ' + key
+			config.set('fields-' + event_type, 'optional', newkey)
+			oldkey = config.get('fields-' + event_type, 'optional')
 		fd = open(CONFIG_FILE, 'w')
 		config.write(fd)
 		fd.close()
