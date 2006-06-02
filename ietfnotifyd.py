@@ -7,11 +7,14 @@ CONFIG_FILE = 'server.conf'
 DATA_DIR = '/Users/jeremy/src/ietfnotify/data'
 UUID_DIR = DATA_DIR + '/uuid'
 DATE_DIR = DATA_DIR + '/date'
+SUBSCRIPTIONS_FILE = '/Users/jeremy/src/ietfnotify/subscriptions.csv'
 
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
 config.readfp(fp)
 fp.close()
+
+notifyCallbacks = {}
 
 def getMessage(sock):
 	msg = ''
@@ -57,8 +60,22 @@ def parseMessage(msg):
 	# Archive the message
 	uuid = archiveMessage(parsed)
 	
-	#sendNotifications(parsed)
+	# Send notifications to subscribed entities
+	sendNotifications(parsed)
 	return uuid
+
+def sendNotifications(parsed):
+	subsfd = open(SUBSCRIPTIONS_FILE, 'r')
+	subs = subsfd.readlines()
+	subsfd.close()
+
+	for subscription in subs:
+		subscription = subscription.split(',')
+		if subscription[0] in notifyCallbacks:
+			f = notifyCallbacks[subscription[0]]
+			f(subscription, parsed)
+		else:
+			print 'Unknown notification type: ' + repr(subscription)
 
 def archiveMessage(parsed):
 	global errmsg
@@ -134,12 +151,25 @@ def checkRequired(parsed):
 		fd.close()
 		return 0
 
+
+# Main method type stuff
 if config.get('general', 'socktype') == 'inet':
 	domain = socket.AF_INET
 	bindaddr = (config.get('general', 'bindaddr'), config.getint('general', 'bindport'))
 else:
 	domain = socket.AF_UNIX
 	bindaddr = '/tmp/ietf_eventfd'
+
+# Register notification types
+def emailNotification(subscriber, parsed):
+	print 'Email: ' + repr(subscriber)
+def rssNotification(subscriber, parsed):
+	print 'RSS: ' + repr(subscriber)
+def atomNotification(subscriber, parsed):
+	print 'Atom: ' + repr(subscriber)
+notifyCallbacks['email'] = emailNotification
+notifyCallbacks['rss'] = rssNotification
+notifyCallbacks['atom'] = atomNotification
 
 sd = socket.socket(domain, socket.SOCK_STREAM)
 sd.bind(bindaddr)
