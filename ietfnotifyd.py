@@ -127,15 +127,17 @@ sd = socket.socket(domain, socket.SOCK_STREAM)
 sd.bind(bindaddr)
 sd.listen(20)
 
-while 1:
-	accepted = sd.accept()
-	afd = accepted[0]
-	ret = parseMessage(getMessage(afd))
-	if ret == 1:
-		sendMessage(afd, 'ERR-' + errmsg)
-		afd.close()
-	else:
-		sendMessage(afd, 'OK-' + ret + '\n')
-		afd.close()
-
-sd.close()
+try:
+	while 1:
+		accepted = sd.accept()
+		afd = accepted[0]
+		ret = parseMessage(getMessage(afd))
+		if ret == 1:
+			sendMessage(afd, 'ERR-' + errmsg)
+			afd.close()
+		else:
+			sendMessage(afd, 'OK-' + ret + '\n')
+			afd.close()
+except KeyboardInterrupt:
+	print 'Caught keyboard interrupt, cleaning up.'
+	sd.close()
