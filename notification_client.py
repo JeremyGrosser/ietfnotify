@@ -10,7 +10,6 @@ import socket
 #Pages: 9"""
 
 msg = """Tag: event-ietf-tools-meetup-00
-Date: 2006-07-05T00:00:00-00:00
 Source: internet-drafts
 Source: id-announce
 Source: other
@@ -20,6 +19,6 @@ URL: http://www.example.org/"""
 
 sd = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 sd.connect('/tmp/ietf_eventfd')
-print "Sending message: ", msg
+print "Sending message:\n", msg
 sd.send(msg)
-sd.close()
+print '> ' + sd.recv(1024)
