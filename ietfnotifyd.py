@@ -1,6 +1,7 @@
 import ConfigParser
 import socket
 import os
+import time
 
 CONFIG_FILE = 'server.conf'
 DATA_DIR = '/Users/jeremy/src/ietfnotify/data/'
@@ -29,6 +30,13 @@ def parseMessage(msg):
 			parsed[line[0]].append(line[1])
 		else:
 			parsed[line[0]] = [line[1]]
+	# Generate a timestamp
+	timezone = time.timezone / 36
+	if timezone < 0:
+		timezone += timezone * 2
+	else:
+		timezone -= timezone * 2
+	parsed['date'] = [time.strftime('%Y-%d-%mT%H:%M:%S%z')]
 	checkRequired(parsed)
 	archiveMessage(parsed)
 	#sendNotifications(parsed)
