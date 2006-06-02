@@ -4,7 +4,9 @@ import os
 import time
 
 CONFIG_FILE = 'server.conf'
-DATA_DIR = '/Users/jeremy/src/ietfnotify/uuid/'
+DATA_DIR = '/Users/jeremy/src/ietfnotify/data'
+UUID_DIR = DATA_DIR + '/uuid'
+DATE_DIR = DATA_DIR + '/date'
 
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
@@ -59,18 +61,34 @@ def parseMessage(msg):
 	return uuid
 
 def archiveMessage(parsed):
+	global errmsg
 	# Generate a new UUID
 	uuid = os.popen('uuidgen', 'r').readlines()
 	uuid = uuid[0]
 	uuid = uuid[:-1]
 
 	# Write the event to a file named with the UUID
-	os.chdir(DATA_DIR)
+	os.chdir(UUID_DIR)
 	fd = open(uuid, 'w+')
 	for key in parsed:
 		for i in range(0, len(parsed[key])):
 			fd.write(key + ': ' + parsed[key][i] + '\n')
 	fd.close()
+
+	year = parsed['date'][0][:4]
+	month = parsed['date'][0][8:10]
+	symlink_source = UUID_DIR + '/' + uuid
+	symlink_dest = DATE_DIR + '/' + year + '/' + month + '/' + uuid
+	try:
+		os.makedirs(DATE_DIR + '/' + year + '/' + month)
+	except OSError: pass
+
+	try:
+		os.symlink(symlink_source, symlink_dest)
+	except OSError:
+		errmsg = 'Unable to symlink the same uuid twice!'
+		os.remove(UUID_DIR + '/' + uuid)
+		return 1
 	return uuid
 
 def checkRequired(parsed):
@@ -133,7 +151,7 @@ try:
 		afd = accepted[0]
 		ret = parseMessage(getMessage(afd))
 		if ret == 1:
-			sendMessage(afd, 'ERR-' + errmsg)
+			sendMessage(afd, 'ERR-' + errmsg + '\n')
 			afd.close()
 		else:
 			sendMessage(afd, 'OK-' + ret + '\n')
