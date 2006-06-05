@@ -3,15 +3,16 @@ import socket
 import os
 import time
 import smtplib
+from email.MIMEText import MIMEText
 
 CONFIG_FILE = 'server.conf'
-DATA_DIR = '/Users/jeremy/src/ietfnotify/data'
+DATA_DIR = '/home/synack/ietfnotify/data'
 UUID_DIR = DATA_DIR + '/uuid'
 DATE_DIR = DATA_DIR + '/date'
-SUBSCRIPTIONS_FILE = '/Users/jeremy/src/ietfnotify/subscriptions.csv'
+SUBSCRIPTIONS_FILE = '/home/synack/ietfnotify/subscriptions.csv'
 SMTP_HOST = '127.0.0.1'
-SMTP_PORT = '2500'
-SMTP_FROM = 'synack@csh.rit.edu'
+SMTP_PORT = '25'
+SMTP_FROM = 'notifications@tools.ietf.org'
 
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
@@ -74,6 +75,7 @@ def sendNotifications(parsed):
 	subsfd.close()
 
 	for subscription in subs:
+		subscription = subscription[:-1]
 		subscription = subscription.split(',')
 		if subscription[0] in notifyCallbacks:
 			f = notifyCallbacks[subscription[0]]
@@ -166,15 +168,25 @@ else:
 
 # Register notification types
 def emailNotification(subscriber, parsed):
-	print 'Sending email notification: ', repr(subscriber)
-	msg = ''
-	for field in parsed:
-		for i in parsed[field]:
-			msg += field + ' - ' + i + '\n'
-	smtp = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
-	smtp.sendmail(SMTP_FROM, subscriber[0], msg)
-	smtp.quit()
-	print 'Error sending email notitification: ', repr(subscriber)
+	try:
+		print 'Sending notification: ' + subscriber[0]
+		msg = ''
+		for field in parsed:
+			for i in parsed[field]:
+				msg += field + ' - ' + i + '\n'
+
+		msg = MIMEText(msg)
+		msg = msg.as_string()
+		message = 'To: ' + subscriber[0] + '\n'
+		message += 'From: ' + SMTP_FROM + '\n'
+		message += msg
+		print 'Sending -> ' + message
+
+		smtp = smtplib.SMTP(SMTP_HOST)
+		smtp.sendmail(SMTP_FROM, subscriber[0], message)
+		smtp.quit()
+	except smtplib.SMTPDataError:
+		print 'Error sending email notitification: ' + subscriber[0]
 def rssNotification(subscriber, parsed):
 	print 'RSS: ' + repr(subscriber)
 def atomNotification(subscriber, parsed):
