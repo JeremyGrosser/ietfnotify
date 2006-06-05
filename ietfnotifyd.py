@@ -243,13 +243,17 @@ try:
 	while 1:
 		accepted = sd.accept()
 		afd = accepted[0]
+		print 'Accepted connection: ' + repr(afd)
 		msg = parseMessage(getMessage(afd), 0)
 		if checkRequired(msg):
+			print 'Message error: ' + errmsg
 			sendMessage(afd, 'ERR-' + errmsg + '\n')
 			afd.close()
 		else:
+			print 'Message OK!'
 			sendMessage(afd, 'OK-' + archiveMessage(msg) + '\n')
 			afd.close()
+		print 'Sending notifications'
 		sendNotifications(msg)
 except KeyboardInterrupt:
 	print 'Caught keyboard interrupt, cleaning up.'
