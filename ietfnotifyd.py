@@ -177,12 +177,12 @@ def emailNotification(subscriber, parsed):
 		msg = ''
 		for field in parsed:
 			for i in parsed[field]:
-				msg += field + ' - ' + i + '\n'
+				msg += field + ' - ' + i + '\r\n'
 
 		msg = MIMEText(msg)
 		msg = msg.as_string()
-		message = 'To: ' + subscriber[0] + '\n'
-		message += 'From: ' + SMTP_FROM + '\n'
+		message = 'To: ' + subscriber[0] + '\r\n'
+		message += 'From: ' + SMTP_FROM + '\r\n'
 		message += msg
 		print 'Sending -> ' + message
 
