@@ -3,6 +3,7 @@ import socket
 import os
 import time
 import smtplib
+import sys
 from email.MIMEText import MIMEText
 
 CONFIG_FILE = 'server.conf'
@@ -184,13 +185,13 @@ def emailNotification(subscriber, parsed):
 		message = 'To: ' + subscriber[0] + '\r\n'
 		message += 'From: ' + SMTP_FROM + '\r\n'
 		message += msg
-		print 'Sending -> ' + message
 
 		smtp = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
 		smtp.sendmail(SMTP_FROM, subscriber[0], message)
 		smtp.quit()
 	except smtplib.SMTPDataError:
 		print 'Error sending email notitification: ' + subscriber[0]
+		print sys.exc_info()[1]
 def rssNotification(subscriber, parsed):
 	print 'RSS: ' + repr(subscriber)
 def atomNotification(subscriber, parsed):
