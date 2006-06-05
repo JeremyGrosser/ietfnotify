@@ -11,9 +11,7 @@ DATA_DIR = '/home/synack/ietfnotify/data'
 UUID_DIR = DATA_DIR + '/uuid'
 DATE_DIR = DATA_DIR + '/date'
 SUBSCRIPTIONS_FILE = '/home/synack/ietfnotify/subscriptions.csv'
-SMTP_HOST = '127.0.0.1'
-SMTP_PORT = '25'
-SMTP_FROM = 'notifications@tools.ietf.org'
+FEED_LENGTH = 10
 
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
@@ -25,6 +23,7 @@ SMTP_PORT = config.getint('general', 'smtpport')
 SMTP_FROM = config.get('general', 'smtpfrom')
 
 notifyCallbacks = {}
+uuidcache = []
 
 def getMessage(sock):
 	msg = ''
@@ -41,6 +40,19 @@ def sendMessage(sock, message):
 		message = message[sent:]
 		msglen -= sent
 
+def makeTimestamp():
+        timezone = time.timezone / 36
+	if timezone < 0:
+		timezone += timezone * 2
+	else:
+		timezone -= timezone * 2
+	return [time.strftime('%Y-%d-%mT%H:%M:%S%z')]
+
+def makeUUID():
+        uuid = os.popen('uuidgen -t', 'r').readlines()
+	uuid = uuid[0]
+	return uuid[:-1]
+
 def parseMessage(msg):
 	lines = msg.split('\n')
 	parsed = {}
@@ -56,23 +68,8 @@ def parseMessage(msg):
 		else:
 			parsed[line[0]] = [line[1]]
 	# Generate a timestamp
-	timezone = time.timezone / 36
-	if timezone < 0:
-		timezone += timezone * 2
-	else:
-		timezone -= timezone * 2
-	parsed['date'] = [time.strftime('%Y-%d-%mT%H:%M:%S%z')]
-
-	# Check the event's required fields based on the config file
-	if checkRequired(parsed):
-		return 1
-
-	# Archive the message
-	uuid = archiveMessage(parsed)
-	
-	# Send notifications to subscribed entities
-	sendNotifications(parsed)
-	return uuid
+	parsed['date'] = makeTimestamp()
+	return parsed
 
 def sendNotifications(parsed):
 	subsfd = open(SUBSCRIPTIONS_FILE, 'r')
@@ -91,9 +88,7 @@ def sendNotifications(parsed):
 def archiveMessage(parsed):
 	global errmsg
 	# Generate a new UUID
-	uuid = os.popen('uuidgen', 'r').readlines()
-	uuid = uuid[0]
-	uuid = uuid[:-1]
+	uuid = makeUUID()
 
 	# Write the event to a file named with the UUID
 	os.chdir(UUID_DIR)
@@ -117,6 +112,10 @@ def archiveMessage(parsed):
 		errmsg = 'Unable to symlink the same uuid twice!'
 		os.remove(UUID_DIR + '/' + uuid)
 		return 1
+
+	# Update the uuid cache
+	uuidcache = uuidcache[:-1]
+	uuidcache.insert(0, (uuid, 0))
 	return uuid
 
 def checkRequired(parsed):
@@ -196,10 +195,42 @@ def emailNotification(subscriber, parsed):
 def rssNotification(subscriber, parsed):
 	print 'RSS: ' + repr(subscriber)
 def atomNotification(subscriber, parsed):
-	print 'Atom: ' + repr(subscriber)
+	fd = open(subscriber, 'w')
+	fd.write("""<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>IETF Notification Feed</title>
+	<link href="http://tools.ietf.org/"/>
+	<updated>""" + makeTimestamp() + """</updated>
+	<author>
+		<name>IETF Tools Server</name>
+	</author>
+	<id>urn:uuid:""" + makeUUID() + """</id>
+
+	"""
+
+	for entry in uuidcache:
+		e = open(UUID_DIR + '/' + entry[0], 'r')
+		ent = parseMessage(e.readlines())
+		fd.write("""<entry>
+		<title>""" + ent['title'] + """</title>
+		<link href=\"http://tools.ietf.org/ietfnotify/events/""" + entry[0] + """\"/>
+		<id>urn:uuid:""" + entry[0] + """</id>
+		<updated>""" + ent['date'] + """</updated>
+		<summary>""" + repr(ent) + """</summary>
+	</entry>"""
+	fd.write('</feed>')
+	fd.close()
 notifyCallbacks['email'] = emailNotification
 notifyCallbacks['rss'] = rssNotification
 notifyCallbacks['atom'] = atomNotification
+
+# Build a uuid cache for feeds
+listing = listdir(UUID_DIR)
+for file in listing:
+	st = stat(UUID_DIR + '/' + file)
+	uuidcache.append( (file, st[9]) ) # ctime
+uuidcache.sort(key=lambda x: return x[1])
+uuidcache = uuidcache[:FEED_LENGTH]
 
 sd = socket.socket(domain, socket.SOCK_STREAM)
 sd.bind(bindaddr)
@@ -209,13 +240,14 @@ try:
 	while 1:
 		accepted = sd.accept()
 		afd = accepted[0]
-		ret = parseMessage(getMessage(afd))
-		if ret == 1:
+		msg = parseMessage(getMessage(afd))
+		if checkRequired(msg):
 			sendMessage(afd, 'ERR-' + errmsg + '\n')
 			afd.close()
 		else:
-			sendMessage(afd, 'OK-' + ret + '\n')
+			sendMessage(afd, 'OK-' + archiveMessage(msg) + '\n')
 			afd.close()
+		sendNotifications(msg)
 except KeyboardInterrupt:
 	print 'Caught keyboard interrupt, cleaning up.'
 	sd.close()
