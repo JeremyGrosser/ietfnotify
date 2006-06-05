@@ -186,7 +186,7 @@ def emailNotification(subscriber, parsed):
 		message += msg
 		print 'Sending -> ' + message
 
-		smtp = smtplib.SMTP(SMTP_HOST)
+		smtp = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
 		smtp.sendmail(SMTP_FROM, subscriber[0], message)
 		smtp.quit()
 	except smtplib.SMTPDataError:
