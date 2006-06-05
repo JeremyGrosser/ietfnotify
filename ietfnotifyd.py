@@ -19,6 +19,10 @@ fp = open(CONFIG_FILE, 'r')
 config.readfp(fp)
 fp.close()
 
+SMTP_HOST = config.get('general', 'smtphost')
+SMTP_PORT = config.getint('general', 'smtpport')
+SMTP_FROM = config.get('general', 'smtpfrom')
+
 notifyCallbacks = {}
 
 def getMessage(sock):
