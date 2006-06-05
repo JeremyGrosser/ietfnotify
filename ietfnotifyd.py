@@ -46,7 +46,7 @@ def makeTimestamp():
 		timezone += timezone * 2
 	else:
 		timezone -= timezone * 2
-	return [time.strftime('%Y-%d-%mT%H:%M:%S%z')]
+	return time.strftime('%Y-%d-%mT%H:%M:%S%z')
 
 def makeUUID():
         uuid = os.popen('uuidgen -t', 'r').readlines()
@@ -68,7 +68,7 @@ def parseMessage(msg):
 		else:
 			parsed[line[0]] = [line[1]]
 	# Generate a timestamp
-	parsed['date'] = makeTimestamp()
+	parsed['date'] = [makeTimestamp()]
 	return parsed
 
 def sendNotifications(parsed):
@@ -114,7 +114,6 @@ def archiveMessage(parsed):
 		return 1
 
 	# Update the uuid cache
-	uuidcache = uuidcache[:-1]
 	uuidcache.insert(0, (uuid, 0))
 	return uuid
 
@@ -172,8 +171,8 @@ else:
 
 # Register notification types
 def emailNotification(subscriber, parsed):
+	print 'Email: ' + repr(subscriber)
 	try:
-		print 'Sending notification: ' + subscriber[0]
 		msg = ''
 		for field in parsed:
 			for i in parsed[field]:
@@ -195,41 +194,46 @@ def emailNotification(subscriber, parsed):
 def rssNotification(subscriber, parsed):
 	print 'RSS: ' + repr(subscriber)
 def atomNotification(subscriber, parsed):
-	fd = open(subscriber, 'w')
-	fd.write("""<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
+	print 'Atom: ' + repr(subscriber)
+	fd = open(subscriber[0], 'w')
+	fd.write("""<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<feed xmlns=\"http://www.w3.org/2005/Atom\">
 	<title>IETF Notification Feed</title>
-	<link href="http://tools.ietf.org/"/>
+	<link href=\"http://tools.ietf.org/\"/>
 	<updated>""" + makeTimestamp() + """</updated>
 	<author>
 		<name>IETF Tools Server</name>
 	</author>
 	<id>urn:uuid:""" + makeUUID() + """</id>
-
-	"""
+	""")
 
 	for entry in uuidcache:
 		e = open(UUID_DIR + '/' + entry[0], 'r')
-		ent = parseMessage(e.readlines())
+		message = ''
+		for line in e.readlines():
+			message += line + '\n'
+		e.close()
+		ent = parseMessage(message)
 		fd.write("""<entry>
-		<title>""" + ent['title'] + """</title>
+		<title>""" + ent['title'][0] + """</title>
 		<link href=\"http://tools.ietf.org/ietfnotify/events/""" + entry[0] + """\"/>
 		<id>urn:uuid:""" + entry[0] + """</id>
-		<updated>""" + ent['date'] + """</updated>
+		<updated>""" + ent['date'][0] + """</updated>
 		<summary>""" + repr(ent) + """</summary>
-	</entry>"""
-	fd.write('</feed>')
+	</entry>
+""")
+	fd.write('</feed>\n')
 	fd.close()
 notifyCallbacks['email'] = emailNotification
 notifyCallbacks['rss'] = rssNotification
 notifyCallbacks['atom'] = atomNotification
 
 # Build a uuid cache for feeds
-listing = listdir(UUID_DIR)
+listing = os.listdir(UUID_DIR)
 for file in listing:
-	st = stat(UUID_DIR + '/' + file)
+	st = os.stat(UUID_DIR + '/' + file)
 	uuidcache.append( (file, st[9]) ) # ctime
-uuidcache.sort(key=lambda x: return x[1])
+uuidcache.sort()
 uuidcache = uuidcache[:FEED_LENGTH]
 
 sd = socket.socket(domain, socket.SOCK_STREAM)
