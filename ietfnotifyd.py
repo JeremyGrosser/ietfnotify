@@ -41,19 +41,17 @@ def sendMessage(sock, message):
 		msglen -= sent
 
 def makeTimestamp():
-        timezone = time.timezone / 36
-	if timezone < 0:
-		timezone += timezone * 2
-	else:
-		timezone -= timezone * 2
-	return time.strftime('%Y-%d-%mT%H:%M:%S%z')
+	tz = time.strftime('%z')
+	tz = '-' + tz[1:]
+	tz = tz[:3] + ':' + tz[3:]
+	return time.strftime('%Y-%d-%mT%H:%M:%S') + tz
 
 def makeUUID():
         uuid = os.popen('uuidgen -t', 'r').readlines()
 	uuid = uuid[0]
 	return uuid[:-1]
 
-def parseMessage(msg):
+def parseMessage(msg, keepdate):
 	lines = msg.split('\n')
 	parsed = {}
 	# Make some sense of the data
@@ -68,7 +66,8 @@ def parseMessage(msg):
 		else:
 			parsed[line[0]] = [line[1]]
 	# Generate a timestamp
-	parsed['date'] = [makeTimestamp()]
+	if not keepdate:
+		parsed['date'] = [makeTimestamp()]
 	return parsed
 
 def sendNotifications(parsed):
@@ -199,7 +198,7 @@ def atomNotification(subscriber, parsed):
 	fd.write("""<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <feed xmlns=\"http://www.w3.org/2005/Atom\">
 	<title>IETF Notification Feed</title>
-	<link href=\"http://tools.ietf.org/\"/>
+	<link href=\"http://shiraz.tools.ietf.org/events/atom.xml\" rel="self"/>
 	<updated>""" + makeTimestamp() + """</updated>
 	<author>
 		<name>IETF Tools Server</name>
@@ -211,10 +210,10 @@ def atomNotification(subscriber, parsed):
 		e = open(UUID_DIR + '/' + entry[0], 'r')
 		message = ''
 		for line in e.readlines():
-			message += line + '\n'
+			message += line
 		e.close()
-		ent = parseMessage(message)
-		fd.write("""<entry>
+		ent = parseMessage(message, 1)
+		fd.write("""	<entry>
 		<title>""" + ent['title'][0] + """</title>
 		<link href=\"http://tools.ietf.org/ietfnotify/events/""" + entry[0] + """\"/>
 		<id>urn:uuid:""" + entry[0] + """</id>
@@ -244,7 +243,7 @@ try:
 	while 1:
 		accepted = sd.accept()
 		afd = accepted[0]
-		msg = parseMessage(getMessage(afd))
+		msg = parseMessage(getMessage(afd), 0)
 		if checkRequired(msg):
 			sendMessage(afd, 'ERR-' + errmsg + '\n')
 			afd.close()

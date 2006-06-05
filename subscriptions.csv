@@ -1,3 +1,4 @@
 email,synack@csh.rit.edu
 rss,/path/to/static.rss
-atom,/home/synack/ietfnotify/atom.xml
+atom,/www/tools.ietf.org/events/atom.xml
+email,henrik@tools.ietf.org
