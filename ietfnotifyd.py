@@ -183,7 +183,8 @@ def emailNotification(subscriber, parsed):
 		msg = MIMEText(msg)
 		msg = msg.as_string()
 		message = 'To: ' + subscriber[0] + '\r\n'
-		message += 'From: ' + SMTP_FROM + '\r\n'
+		message += 'From: IETF Notifier <' + SMTP_FROM + '>\r\n'
+		message += 'Subject: Notification: ' + parsed['tag'][0] + ' has been updated\r\n'
 		message += msg
 
 		smtp = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
