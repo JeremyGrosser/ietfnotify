@@ -15,7 +15,9 @@ Source: id-announce
 Source: other
 Author: J. Grosser
 Title: IETF Tools Meetup Event
-URL: http://www.example.org/"""
+URL: http://www.example.org/
+
+"""
 
 sd = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 sd.connect('/tmp/ietf_eventfd')

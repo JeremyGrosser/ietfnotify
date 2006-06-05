@@ -2,12 +2,16 @@ import ConfigParser
 import socket
 import os
 import time
+import smtplib
 
 CONFIG_FILE = 'server.conf'
 DATA_DIR = '/Users/jeremy/src/ietfnotify/data'
 UUID_DIR = DATA_DIR + '/uuid'
 DATE_DIR = DATA_DIR + '/date'
 SUBSCRIPTIONS_FILE = '/Users/jeremy/src/ietfnotify/subscriptions.csv'
+SMTP_HOST = '127.0.0.1'
+SMTP_PORT = '2500'
+SMTP_FROM = 'synack@csh.rit.edu'
 
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
@@ -73,7 +77,7 @@ def sendNotifications(parsed):
 		subscription = subscription.split(',')
 		if subscription[0] in notifyCallbacks:
 			f = notifyCallbacks[subscription[0]]
-			f(subscription, parsed)
+			f(subscription[1:], parsed)
 		else:
 			print 'Unknown notification type: ' + repr(subscription)
 
@@ -162,7 +166,15 @@ else:
 
 # Register notification types
 def emailNotification(subscriber, parsed):
-	print 'Email: ' + repr(subscriber)
+	print 'Sending email notification: ', repr(subscriber)
+	msg = ''
+	for field in parsed:
+		for i in parsed[field]:
+			msg += field + ' - ' + i + '\n'
+	smtp = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+	smtp.sendmail(SMTP_FROM, subscriber[0], msg)
+	smtp.quit()
+	print 'Error sending email notitification: ', repr(subscriber)
 def rssNotification(subscriber, parsed):
 	print 'RSS: ' + repr(subscriber)
 def atomNotification(subscriber, parsed):
