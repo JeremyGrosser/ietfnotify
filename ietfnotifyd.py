@@ -80,6 +80,7 @@ def sendNotifications(parsed):
 	for subscription in subs:
 		subscription = subscription[:-1]
 		subscription = subscription.split(',')
+		subscription = subscription[1:]
 		if subscription[0] in notifyCallbacks:
 			f = notifyCallbacks[subscription[0]]
 			f(subscription[1:], parsed)
