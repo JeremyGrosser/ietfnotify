@@ -23,7 +23,7 @@ def header():
  }
 
  #logo {
- 	font-family: "Futura";
+ 	font-family: "Futura", "Andale Mono", "Trebuchet MS", sans-serif;
 	font-size: 18pt;
 	color: #FFF;
  }
