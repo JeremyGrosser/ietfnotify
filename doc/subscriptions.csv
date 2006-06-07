@@ -1,4 +1,3 @@
-email,synack@csh.rit.edu
+email,somebody@example.org
 rss,/path/to/static.rss
-atom,/www/tools.ietf.org/events/atom.xml
-email,henrik@tools.ietf.org
+atom,/path/to/atom.xml
