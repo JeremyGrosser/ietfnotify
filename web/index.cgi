@@ -15,7 +15,11 @@ if account.getUser() == '':
 	forms.showLoginMessage()
 
 if form.getfirst('action') == 'modify' and 'eventType' in form and 'param' in form:
-	forms.showModifyForm(form.getfirst('eventType'), form.getfirst('param'))
+	if not 'pattern' in form:
+		pattern = ''
+	else:
+		pattern = form.getfirst('pattern')
+	forms.showModifyForm(form.getfirst('eventType'), form.getfirst('param'), pattern)
 elif not account.getUser() == '':
 	forms.showSubscriptions(account.getUser())
 	#forms.showSubscriptions('synack@csh.rit.edu')

@@ -81,10 +81,13 @@ def sendNotifications(parsed):
 	for subscription in subs:
 		subscription = subscription[:-1]
 		subscription = subscription.split(',')
-		subscription = subscription[1:]
+		if len(subscription) > 3:
+			regex = re.compile(subscription[2])
+			if not regex.match(parsed['tag'][0]):
+				return
 		if subscription[0] in notifyCallbacks:
 			f = notifyCallbacks[subscription[0]]
-			f(subscription[1:], parsed)
+			f(subscription[2:], parsed)
 		else:
 			print 'Unknown notification type: ' + repr(subscription)
 
@@ -175,16 +178,6 @@ else:
 # Register notification types
 def emailNotification(subscriber, parsed):
 	print 'Email: ' + repr(subscriber)
-
-	if len(subscriber) > 1:
-		regex = re.compile(subscriber[1])
-		if regex.match(parsed['tag'][0]):
-			doEmail(subscriber, parsed)
-		else:
-			return
-	doEmail(subscriber, parsed)
-
-def doEmail(subscriber, parsed):
 	try:
 		msg = ''
 		for field in parsed:

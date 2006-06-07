@@ -49,6 +49,9 @@ def header():
 	font-size: 12pt;
  }
 
+ tr.gray { background-color: #999; }
+ tr.white { background-color: #FFF; }
+
  a:link { color: #0000FF; text-decoration: none; }
  a:active { text-decoration: none; }
  a:visited { text-decoration: none; }
