@@ -62,11 +62,15 @@ def header():
 </div>
 
 <div id="navigation">
- <strong>''' + account.getUser() + '''</strong>
- <p><a href="?">List subscriptions</a>
- <br /><a href="?action=editprofile">Edit profile</a>
- <br /><a href="?action=signout">Sign out</a></p>
-</div>
+'''
+	if account.getUser() == '':
+		print '<strong>Not logged in</strong>'
+	else:
+		print '<strong>' + account.getUser() + '</strong>'
+		print '''<p><a href="?">List subscriptions</a>
+<br /><a href="?action=editprofile">Edit profile</a>
+<br /><a href="?action=signout">Sign out</a></p>'''
+	print '''</div>
 
 <div id="content">'''
 

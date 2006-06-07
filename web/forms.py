@@ -1,5 +1,8 @@
 import account
 
+def showLoginMessage():
+	print 'You must be logged in to edit your notifier settings.'
+
 def showSubscriptions(username):
 	subs = account.getSubscriptions(username)
 	print '''<table cellspacing="1" cellpadding="2">
