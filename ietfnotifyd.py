@@ -27,10 +27,12 @@ uuidcache = []
 
 def getMessage(sock):
 	msg = ''
-	buf = ' ' * 1024
-	while buf != '\n':
+	buf = ''
+	while buf != 0:
 		buf = sock.recv(1024)
 		msg += buf
+		if msg[-2:] == '\n\n':
+			return msg
 	return msg
 
 def sendMessage(sock, message):
@@ -213,8 +215,12 @@ def atomNotification(subscriber, parsed):
 			message += line
 		e.close()
 		ent = parseMessage(message, 1)
+		if 'title' in ent:
+			title = ent['title'][0]
+		else:
+			title = 'No title'
 		fd.write("""	<entry>
-		<title>""" + ent['title'][0] + """</title>
+		<title>""" + title + """</title>
 		<link href=\"http://tools.ietf.org/ietfnotify/events/""" + entry[0] + """\"/>
 		<id>urn:uuid:""" + entry[0] + """</id>
 		<updated>""" + ent['date'][0] + """</updated>
