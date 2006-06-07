@@ -1,3 +1,5 @@
+import account
+
 def header():
 	print '''Content-type: text/html\n\n
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -60,10 +62,8 @@ def header():
 </div>
 
 <div id="navigation">
- <strong>nobody@example.org</strong>
- <p><a href="?action=add">Add notification</a>
- <br /><a href="?action=remove">Remove notification</a>
- <br /><a href="?action=modify">Modify notification</a>
+ <strong>''' + account.getUser() + '''</strong>
+ <p><a href="?">List subscriptions</a>
  <br /><a href="?action=editprofile">Edit profile</a>
  <br /><a href="?action=signout">Sign out</a></p>
 </div>
