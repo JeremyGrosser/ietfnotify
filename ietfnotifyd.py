@@ -4,6 +4,7 @@ import os
 import time
 import smtplib
 import sys
+import re
 from email.MIMEText import MIMEText
 
 CONFIG_FILE = 'server.conf'
@@ -174,17 +175,26 @@ else:
 # Register notification types
 def emailNotification(subscriber, parsed):
 	print 'Email: ' + repr(subscriber)
+
+	if len(subscriber) > 1:
+		regex = re.compile(subscriber[1])
+		if regex.match(parsed['tag'][0]):
+			doEmail(subscriber, parsed)
+		else:
+			return
+	doEmail(subscriber, parsed)
+
+def doEmail(subscriber, parsed):
 	try:
 		msg = ''
 		for field in parsed:
 			for i in parsed[field]:
 				msg += field + ' - ' + i + '\r\n'
-
-		msg = MIMEText(msg)
-		msg = msg.as_string()
+				msg = MIMEText(msg)
+				msg = msg.as_string()
 		message = 'To: ' + subscriber[0] + '\r\n'
 		message += 'From: IETF Notifier <' + SMTP_FROM + '>\r\n'
-		message += 'Subject: Notification: ' + parsed['tag'][0] + ' has been updated\r\n'
+		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
 		message += msg
 
 		smtp = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
@@ -193,6 +203,7 @@ def emailNotification(subscriber, parsed):
 	except smtplib.SMTPDataError:
 		print 'Error sending email notitification: ' + subscriber[0]
 		print sys.exc_info()[1]
+
 def rssNotification(subscriber, parsed):
 	print 'RSS: ' + repr(subscriber)
 def atomNotification(subscriber, parsed):
