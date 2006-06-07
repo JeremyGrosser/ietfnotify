@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import template, account
+import template, account, edit
 import cgi, os
 
 # DEBUGGING ONLY
@@ -12,6 +12,9 @@ form = cgi.FieldStorage()
 subs = account.getSubscriptions('synack@csh.rit.edu')
 
 template.header()
+
+if form.getfirst('action') == 'modify' and 'eventType' in form and 'param' in form:
+	edit.showModifyForm(form.getfirst('eventType'), form.getfirst('param'))
 print '''<table>
 	<tr>
 		<td><strong>Notification Type</strong></td>

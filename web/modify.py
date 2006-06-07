@@ -1,4 +1,3 @@
-#!/usr/bin/python
 def showModifyForm(eventType, param):
 	print '''<form action="modify.cgi" method="GET">
 	<table>
@@ -10,4 +9,6 @@ def showModifyForm(eventType, param):
 		</tr>
 		<tr>
 			<td>Arguments:</td>
-			<td><input type="text" name="param" value="''' + param + '''" /></td>'''
+			<td><input type="text" name="param" value="''' + param + '''" /></td>
+		</tr>
+	</table>'''
