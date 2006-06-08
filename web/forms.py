@@ -9,7 +9,7 @@ def showSubscriptions(username):
 	print '<table>'
 	for i in range(0, len(subs)):
 		subs[i] = subs[i][1:]
-		if i % 2:
+		if not i % 2:
 			print '	<tr class="gray">'
 		else:
 			print '	<tr class="white">'

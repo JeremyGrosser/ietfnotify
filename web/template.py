@@ -52,8 +52,15 @@ def header():
  tr.gray { background-color: #CCC; }
  tr.white { background-color: #FFF; }
 
+ table {
+	border-spacing: 0;
+	border-collapse: collapse;
+ }
+
  td {
-	margin: 0
+	border: 1px;
+	border-style: solid;
+	border-color: #000;
 	padding: 5px;
  }
 
