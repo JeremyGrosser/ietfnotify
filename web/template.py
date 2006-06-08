@@ -83,8 +83,7 @@ def header():
 	else:
 		print '<strong>' + account.getUser() + '</strong>'
 		print '''<p><a href="?">List subscriptions</a>
-<br /><a href="?action=add">New notification</a>
-<br /><a href="?action=signout">Sign out</a></p>'''
+<br /><a href="?action=add">New notification</a></p>'''
 	print '''</div>
 
 <div id="content">'''
