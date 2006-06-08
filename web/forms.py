@@ -6,31 +6,40 @@ def showLoginMessage():
 def showSubscriptions(username):
 	subs = account.getSubscriptions(username)
 	print '<strong>Your subscriptions</strong>'
-	print '<table border="1" cellspacing="1" cellpadding="2">'
-	count = 0
-	for sub in subs:
-		if count % 2:
+	print '<table>'
+	for i in range(0, len(subs)):
+		subs[i] = subs[i][1:]
+		if i % 2:
 			print '	<tr class="gray">'
 		else:
 			print '	<tr class="white">'
-		sub = sub[1:]
-		for i in sub:
-                	print '<td>' + i + '</td>'
-                print '''<td><a href="?action=modify&eventType=''' + sub[1] + '''&param=''' + sub[2] + '''">Modify</a></td>
-		<td><a href="?action=remove&eventType=''' + sub[1] + '''&param=''' + sub[2] + '''">Remove</a></td>
+		for field in subs[i]:
+                	print '<td>' + field + '</td>'
+		if len(subs[i]) > 2:
+			pattern = '&pattern=' + subs[i][2]
+		else:
+			pattern = ''
+                print '''<td><a href="?action=modify&id=''' + str(i) + '''">Modify</a></td>
+		<td><a href="?action=remove&id=''' + str(i) + '''">Remove</a></td>
         </tr>'''
-	count += 1
 
-def showModifyForm(eventType, param, pattern):
-	print '''<form action="index.cgi" method="GET">
+def showModifyForm(id):
+	subs = account.getSubscriptions(account.getUser())
+	if len(subs[id]) > 2:
+		pattern = subs[id][3]
+	else:
+		pattern = ''
+	print '''<form action="" method="GET">
+	<input type="hidden" name="action" value="update" />
+	<input type="hidden" name="id" value="''' + str(id) + '''" />
 	<table>
 		<tr>
 			<td>Event type:</td>
-			<td><input type="text" name="eventType" value="''' + eventType + '''" /></td>
+			<td><input type="text" name="eventType" value="''' + subs[id][1] + '''" /></td>
 		</tr>
 		<tr>
 			<td>Target:</td>
-			<td><input type="text" name="param" value="''' + param + '''" /></td>
+			<td><input type="text" name="param" value="''' + subs[id][2] + '''" /></td>
 		</tr>
 		<tr>
 			<td>Pattern:</td>

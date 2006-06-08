@@ -49,8 +49,13 @@ def header():
 	font-size: 12pt;
  }
 
- tr.gray { background-color: #999; }
+ tr.gray { background-color: #CCC; }
  tr.white { background-color: #FFF; }
+
+ td {
+	margin: 0
+	padding: 5px;
+ }
 
  a:link { color: #0000FF; text-decoration: none; }
  a:active { text-decoration: none; }
