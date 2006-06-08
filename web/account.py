@@ -37,13 +37,22 @@ def joinSub(line, delim):
 def updateSubscription(id, eventType, param, pattern):
 	user = getUser()
 
+	if eventType == None or param == None:
+		return
+
 	count = 0
 	allsubs = getAllSubscriptions()
 	for sub in allsubs:
 		if count == id:
 			sub[1] = eventType
 			sub[2] = param
-			sub[3] = pattern
+			if pattern == None and len(sub) > 3:
+				sub = sub[:-1]
+			elif len(sub) > 3:
+				sub[3] = pattern
+			else:
+				sub.append(pattern)
+pr(sub)
 			break
 		if sub[0] == user:
 			count += 1

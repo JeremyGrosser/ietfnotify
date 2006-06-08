@@ -25,7 +25,7 @@ def showSubscriptions(username):
 
 def showModifyForm(id):
 	subs = account.getSubscriptions(account.getUser())
-	if len(subs[id]) > 2:
+	if len(subs[id]) > 3:
 		pattern = subs[id][3]
 	else:
 		pattern = ''
