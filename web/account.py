@@ -7,6 +7,7 @@ def readSubscriptions():
 	fd.close()
 
 def getUser():
+	return 'synack@csh.rit.edu'
 	if 'REMOTE_USER' in os.environ:
 		return os.environ['REMOTE_USER']
 	return ''
@@ -40,20 +41,17 @@ def updateSubscription(id, eventType, param, pattern):
 	if eventType == None or param == None:
 		return
 
+	if pattern == None:
+		pattern = ''
+
 	count = 0
 	allsubs = getAllSubscriptions()
 	for sub in allsubs:
 		if count == id:
+			print 'Found subscription in file<br />'
 			sub[1] = eventType
 			sub[2] = param
-			if pattern == None and len(sub) > 3:
-				sub = sub[:-1]
-			elif len(sub) > 3:
-				sub[3] = pattern
-			else:
-				sub.append(pattern)
-pr(sub)
-			break
+			sub[3] = pattern
 		if sub[0] == user:
 			count += 1
 	subfile = open('../subscriptions.csv', 'w')

@@ -83,6 +83,8 @@ def sendNotifications(parsed):
 		subscription = subscription[:-1]
 		subscription = subscription.split(',')
 		if len(subscription) > 3:
+			if subscription[3] == '':
+				break
 			regex = re.compile(subscription[2])
 			if not regex.match(parsed['tag'][0]):
 				print 'Regex found but not matched (' + repr(subscription) + ')'
