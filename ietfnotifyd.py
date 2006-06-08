@@ -87,8 +87,8 @@ def sendNotifications(parsed):
 			if not regex.match(parsed['tag'][0]):
 				print 'Regex found but not matched (' + repr(subscription) + ')'
 				return
-		if subscription[0] in notifyCallbacks:
-			f = notifyCallbacks[subscription[0]]
+		if subscription[1] in notifyCallbacks:
+			f = notifyCallbacks[subscription[1]]
 			f(subscription[2:], parsed)
 		else:
 			print 'Unknown notification type: ' + repr(subscription)

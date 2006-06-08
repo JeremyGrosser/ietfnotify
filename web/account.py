@@ -31,7 +31,7 @@ def getAllSubscriptions():
 def joinSub(line, delim):
 	ret = ''
 	for i in line:
-		ret += i + delim
+		ret += str(i) + delim
 	return ret
 
 def updateSubscription(id, eventType, param, pattern):
