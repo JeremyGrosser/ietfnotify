@@ -25,21 +25,28 @@ def showSubscriptions(username):
 
 def showModifyForm(id):
 	subs = account.getSubscriptions(account.getUser())
-	if len(subs[id]) > 3:
-		pattern = subs[id][3]
-	else:
+	action = 'update'
+	if id == -1:
+		eventType = ''
+		param = ''
 		pattern = ''
+		action = 'add'
+	else:
+		eventType = subs[id][1]
+		param = subs[id][2]
+		pattern = subs[id][3]
 	print '''<form action="" method="GET">
-	<input type="hidden" name="action" value="update" />
-	<input type="hidden" name="id" value="''' + str(id) + '''" />
-	<table>
+	<input type="hidden" name="action" value="''' + action + '''" />'''
+	if not id == -1:
+		print '<input type="hidden" name="id" value="' + str(id) + '" />'
+	print '''<table>
 		<tr>
 			<td>Event type:</td>
-			<td><input type="text" name="eventType" value="''' + subs[id][1] + '''" /></td>
+			<td><select name="eventType" value="''' + eventType + '''"><option>email</option></select></td>
 		</tr>
 		<tr>
 			<td>Target:</td>
-			<td><input type="text" name="param" value="''' + subs[id][2] + '''" /></td>
+			<td><input type="text" name="param" value="''' + param + '''" /></td>
 		</tr>
 		<tr>
 			<td>Pattern:</td>

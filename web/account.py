@@ -35,6 +35,24 @@ def joinSub(line, delim):
 		ret += str(i) + delim
 	return ret
 
+def addSubscription(eventType, param, pattern):
+	user = getUser()
+
+	if eventType == None or param == None:
+		return
+	if pattern == None:
+		pattern = ''
+
+	allsubs = getAllSubscriptions()
+	allsubs.append([user, eventType, param, pattern])
+	subfile = open('../subscriptions.csv', 'w')
+	for line in allsubs:
+		newline = joinSub(line, ',')
+		newline = newline[:-1]
+		subfile.write(newline + '\n')
+	subfile.close()
+	readSubscriptions()
+
 def updateSubscription(id, eventType, param, pattern):
 	user = getUser()
 

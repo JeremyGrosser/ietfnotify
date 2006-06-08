@@ -11,17 +11,25 @@ form = cgi.FieldStorage()
 
 template.header()
 
+done = 0
 if account.getUser() == '':
 	forms.showLoginMessage()
-elif form.getfirst('action') == 'modify' and 'id' in form:
+	done = 1
+if form.getfirst('action') == 'modify' and 'id' in form:
 	forms.showModifyForm(int(form.getfirst('id')))
-elif form.getfirst('action') == 'update' and 'id' in form:
+	done = 1
+if form.getfirst('action') == 'update' and 'id' in form:
 	account.updateSubscription(int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), form.getfirst('pattern'))
-	forms.showSubscriptions(account.getUser())
-elif form.getfirst('action') == 'remove' and 'id' in form:
+if form.getfirst('action') == 'remove' and 'id' in form:
 	account.removeSubscription(int(form.getfirst('id')))
-	forms.showSubscriptions(account.getUser())
-else:
+if form.getfirst('action') == 'add':
+	if 'eventType' in form and 'param' in form:
+		account.addSubscription(form.getfirst('eventType'), form.getfirst('param'), form.getfirst('pattern'))
+	else:
+		forms.showModifyForm(-1)
+		done = 1
+
+if not done:
 	forms.showSubscriptions(account.getUser())
 
 template.footer()
