@@ -77,6 +77,7 @@ def sendNotifications(parsed):
 	subsfd = open(SUBSCRIPTIONS_FILE, 'r')
 	subs = subsfd.readlines()
 	subsfd.close()
+	print 'Sending notification: ' + repr(parsed)
 
 	for subscription in subs:
 		subscription = subscription[:-1]
@@ -84,6 +85,7 @@ def sendNotifications(parsed):
 		if len(subscription) > 3:
 			regex = re.compile(subscription[2])
 			if not regex.match(parsed['tag'][0]):
+				print 'Regex found but not matched (' + repr(subscription) + ')'
 				return
 		if subscription[0] in notifyCallbacks:
 			f = notifyCallbacks[subscription[0]]
