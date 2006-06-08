@@ -66,7 +66,6 @@ def updateSubscription(id, eventType, param, pattern):
 	allsubs = getAllSubscriptions()
 	for sub in allsubs:
 		if count == id:
-			print 'Found subscription in file<br />'
 			sub[1] = eventType
 			sub[2] = param
 			sub[3] = pattern
