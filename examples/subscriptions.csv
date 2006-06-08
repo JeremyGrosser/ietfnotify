@@ -1,3 +1,3 @@
-user@domain.org,email,somebody@example.org
-admin@notifier.net,rss,/path/to/static.rss
-admin@notifier.net,atom,/path/to/atom.xml
+user@domain.org,email,somebody@example.org,^draft.*$
+admin@notifier.net,rss,/path/to/static.rss,
+admin@notifier.net,atom,/path/to/atom.xml,
