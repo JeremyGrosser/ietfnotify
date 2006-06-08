@@ -185,8 +185,9 @@ def emailNotification(subscriber, parsed):
 		for field in parsed:
 			for i in parsed[field]:
 				msg += field + ' - ' + i + '\r\n'
-				msg = MIMEText(msg)
-				msg = msg.as_string()
+
+		msg = MIMEText(msg)
+		msg = msg.as_string()
 		message = 'To: ' + subscriber[0] + '\r\n'
 		message += 'From: IETF Notifier <' + SMTP_FROM + '>\r\n'
 		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
