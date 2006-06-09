@@ -7,7 +7,6 @@ def readSubscriptions():
 	fd.close()
 
 def getUser():
-	return 'synack@csh.rit.edu'
 	if 'REMOTE_USER' in os.environ:
 		return os.environ['REMOTE_USER']
 	return ''
