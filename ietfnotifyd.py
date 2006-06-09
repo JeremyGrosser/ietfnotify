@@ -250,18 +250,18 @@ try:
 		print 'Accepted connection: ' + repr(afd)
 		msg = parseMessage(getMessage(afd), 0)
 
-		err = checkRequired(msg)
-		if err[0]:
-			print 'Message error: ' + err[1]
-			sendMessage(afd, 'ERR-' + err[1] + '\n')
+		retnum, retmsg = checkRequired(msg)
+		if retnum:
+			print 'Message error: ' + retmsg
+			sendMessage(afd, 'ERR-' + retmsg + '\n')
 			afd.close()
 		else:
-			err = archiveMessage(msg)
-			if err[0]:
-				print 'Archive error: ' + err[1]
-				sendMessage(afd, 'ERR-', err[1] + '\n')
+			retnum, retmsg = archiveMessage(msg)
+			if retnum:
+				print 'Archive error: ' + retmsg
+				sendMessage(afd, 'ERR-', retmsg + '\n')
 			else:
-				sendMessage(afd, 'OK-' + err[1] + '\n')
+				sendMessage(afd, 'OK-' + retmsg + '\n')
 			afd.close()
 			print 'Sending notifications'
 			sendNotifications(msg)
