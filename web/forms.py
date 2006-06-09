@@ -41,15 +41,15 @@ def showModifyForm(id):
 		print '<input type="hidden" name="id" value="' + str(id) + '" />'
 	print '''<table>
 		<tr>
-			<td>Event type:</td>
+			<td>Notification type:</td>
 			<td><select name="eventType" value="''' + eventType + '''"><option>email</option></select></td>
 		</tr>
 		<tr>
-			<td>Target:</td>
+			<td>Address:</td>
 			<td><input type="text" name="param" value="''' + param + '''" /></td>
 		</tr>
 		<tr>
-			<td>Pattern:</td>
+			<td>Pattern (Regex):</td>
 			<td><input type="text" name="pattern" value="''' + pattern + '''" /></td>
 		</tr>
 		<tr>

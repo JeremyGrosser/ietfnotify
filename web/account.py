@@ -64,12 +64,12 @@ def updateSubscription(id, eventType, param, pattern):
 	count = 0
 	allsubs = getAllSubscriptions()
 	for sub in allsubs:
+		if sub[0] == user:
+			count += 1
 		if count == id:
 			sub[1] = eventType
 			sub[2] = param
 			sub[3] = pattern
-		if sub[0] == user:
-			count += 1
 	subfile = open('../subscriptions.csv', 'w')
 	for line in allsubs:
 		newline = joinSub(line, ',')
@@ -84,11 +84,11 @@ def removeSubscription(id):
         count = 0
         allsubs = getAllSubscriptions()
         for sub in allsubs:
+		if sub[0] == user:
+			count += 1
                 if count == id:
                         sub[1] = 'nosave'
                         break
-                if sub[0] == user:
-                        count += 1
         subfile = open('../subscriptions.csv', 'w')
         for line in allsubs:
 		if not line[1] == 'nosave':
