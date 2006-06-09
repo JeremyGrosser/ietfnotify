@@ -42,12 +42,12 @@ def showModifyForm(db, recordid):
 		<tr>
 			<td>Notification type:</td>
 			<td><select name="eventType" value="''' + eventType + '''"><option>email</option></select></td>
-		</tr>
-		<tr>
-			<td>Address:</td>
-			<td><input type="text" name="param" value="''' + param + '''" /></td>
-		</tr>
-		<tr>
+		</tr>'''
+#		<tr>
+#			<td>Address:</td>
+#			<td><input type="text" name="param" value="''' + param + '''" /></td>
+#		</tr>
+	print '''		<tr>
 			<td>Pattern (Regex):</td>
 			<td><input type="text" name="pattern" value="''' + pattern + '''" /></td>
 		</tr>
