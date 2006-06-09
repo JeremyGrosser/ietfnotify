@@ -136,7 +136,7 @@ def checkRequired(parsed):
 					if not field in parsed:
 						return (1, 'Required field \'' + field + '\' is missing')
 			elif i[0] == 'optional':
-				pass
+				return (0, '')
 			#	optional_fields = i[1].split(', ')
 			#	for field in optional_fields:
 			#		if field in parsed:
