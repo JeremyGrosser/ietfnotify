@@ -7,7 +7,6 @@ import sys
 import re
 import _mysql
 from email.MIMEText import MIMEText
-from types import isinstance
 
 CONFIG_FILE = 'server.conf'
 DATA_DIR = '/home/synack/ietfnotify/data'
