@@ -21,6 +21,24 @@ def showSubscriptions(db, username):
 		<td><a href="?action=remove&id=''' + sub[0] + '''">Remove</a></td>
         </tr>'''
 
+def showAllSubscriptions(db):
+	subs = account.getAllSubscriptions(db)
+	print '<strong>All subscriptions</strong>'
+	print '<table>'
+	count = 0
+
+        for sub in subs.fetch_row(0):
+                count += 1
+                if count % 2:
+                        print ' <tr class="gray">'
+                else:
+                        print ' <tr class="white">'
+                for field in sub[2:]:
+                        print '<td>' + str(field) + '</td>'
+                print '''<td><a href="?action=modify&id=''' + sub[0] + '''">Modify</a></td>
+                <td><a href="?action=remove&id=''' + sub[0] + '''">Remove</a></td>
+        </tr>'''
+
 def showModifyForm(db, recordid):
 	action = 'update'
 	if recordid == -1:
@@ -43,10 +61,11 @@ def showModifyForm(db, recordid):
 			<td>Notification type:</td>
 			<td><select name="eventType" value="''' + eventType + '''"><option>email</option></select></td>
 		</tr>'''
-#		<tr>
-#			<td>Address:</td>
-#			<td><input type="text" name="param" value="''' + param + '''" /></td>
-#		</tr>
+	if account.getAdmin(db):
+		print '''		<tr>
+			<td>Address:</td>
+			<td><input type="text" name="param" value="''' + param + '''" /></td>
+		</tr>'''
 	print '''		<tr>
 			<td>Pattern (Regex):</td>
 			<td><input type="text" name="pattern" value="''' + pattern + '''" /></td>

@@ -1,6 +1,6 @@
 import account
 
-def header():
+def header(db):
 	print '''Content-type: text/html\n\n
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -83,8 +83,10 @@ def header():
 		print '<strong>Not logged in</strong>'
 	else:
 		print '<strong>' + account.getUser() + '</strong>'
-		print '''<p><a href="?">List subscriptions</a>
-<br /><a href="?action=add">New notification</a></p>'''
+		print '<p><a href="?">List subscriptions</a>'
+		if account.getAdmin(db):
+			print '<br /><a href="?action=listall">List all subscriptions</a>'
+		print '<br /><a href="?action=add">New notification</a></p>'
 	print '''</div>
 
 <div id="content">'''
