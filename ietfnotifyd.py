@@ -179,12 +179,12 @@ def emailNotification(subscriber, parsed):
 		msg = MIMEText(msg)
 		msg = msg.as_string()
 		message = 'To: ' + subscriber[0] + '\r\n'
-		message += 'From: IETF Notifier <' + config.get('general', 'smtpfrom') + '>\r\n'
+		message += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
 		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
 		message += msg
 
-		smtp = smtplib.SMTP(config.get('general', 'smtphost'), config.getint('general', 'smtpport'))
-		smtp.sendmail(config.get('general', 'smtpfrom'), subscriber[0], message)
+		smtp = smtplib.SMTP(config.get('notify-email', 'smtphost'), config.getint('notify-email', 'smtpport'))
+		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber[0], message)
 		smtp.quit()
 	except smtplib.SMTPDataError:
 		print 'Error sending email notitification: ' + subscriber[0]
