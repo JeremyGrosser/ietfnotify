@@ -5,13 +5,13 @@ import time
 import smtplib
 import sys
 import re
+import _mysql
 from email.MIMEText import MIMEText
 
 CONFIG_FILE = 'server.conf'
 DATA_DIR = '/home/synack/ietfnotify/data'
 UUID_DIR = DATA_DIR + '/uuid'
 DATE_DIR = DATA_DIR + '/date'
-SUBSCRIPTIONS_FILE = '/home/synack/ietfnotify/subscriptions.csv'
 FEED_LENGTH = 10
 
 config = ConfigParser.ConfigParser()
@@ -74,24 +74,23 @@ def parseMessage(msg, keepdate):
 	return parsed
 
 def sendNotifications(parsed):
-	subsfd = open(SUBSCRIPTIONS_FILE, 'r')
-	subs = subsfd.readlines()
-	subsfd.close()
+	db = _mysql.connect('localhost', 'synack', 'rtz2096', 'ietfnotify')
+	db.query('SELECT type,target,pattern FROM subscriptions')
+	subs = db.store_result()
 	print 'Sending notification: ' + repr(parsed)
 
-	for subscription in subs:
-		subscription = subscription[:-1]
-		subscription = subscription.split(',')
-		if not subscription[3] == '':
-			regex = re.compile(subscription[3])
+	for subscription in subs.fetch_row(maxrows=0):
+		if not subscription[2] == '':
+			regex = re.compile(subscription[2])
 			if not regex.match(parsed['tag'][0]):
 				print 'Regex found but not matched (' + repr(subscription) + ')'
 				return
-		if subscription[1] in notifyCallbacks:
-			f = notifyCallbacks[subscription[1]]
-			f(subscription[2:], parsed)
+		if subscription[0] in notifyCallbacks:
+			f = notifyCallbacks[subscription[0]]
+			f(subscription[1:], parsed)
 		else:
 			print 'Unknown notification type: ' + repr(subscription)
+	db.close()
 
 def archiveMessage(parsed):
 	global errmsg
