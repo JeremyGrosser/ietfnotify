@@ -3,42 +3,41 @@ import account
 def showLoginMessage():
 	print 'You must be logged in to edit your notifier settings.'
 
-def showSubscriptions(username):
-	subs = account.getSubscriptions(username)
+def showSubscriptions(db, username):
+	subs = account.getSubscriptions(db, username)
 	print '<strong>Your subscriptions</strong>'
 	print '<table>'
-	for i in range(0, len(subs)):
-		subs[i] = subs[i][1:]
-		if not i % 2:
+	count = 0
+
+	for sub in subs.fetch_row(0):
+		count += 1
+		if count % 2:
 			print '	<tr class="gray">'
 		else:
 			print '	<tr class="white">'
-		for field in subs[i]:
+		for field in sub[2:]:
                 	print '<td>' + field + '</td>'
-		if len(subs[i]) > 2:
-			pattern = '&pattern=' + subs[i][2]
-		else:
-			pattern = ''
-                print '''<td><a href="?action=modify&id=''' + str(i) + '''">Modify</a></td>
-		<td><a href="?action=remove&id=''' + str(i) + '''">Remove</a></td>
+                print '''<td><a href="?action=modify&id=''' + sub[0] + '''">Modify</a></td>
+		<td><a href="?action=remove&id=''' + sub[0] + '''">Remove</a></td>
         </tr>'''
 
-def showModifyForm(id):
-	subs = account.getSubscriptions(account.getUser())
+def showModifyForm(db, recordid):
 	action = 'update'
-	if id == -1:
+	if recordid == -1:
 		eventType = ''
 		param = ''
 		pattern = ''
 		action = 'add'
 	else:
-		eventType = subs[id][1]
-		param = subs[id][2]
-		pattern = subs[id][3]
+		sub = account.getSubscription(db, recordid)
+		sub = sub.fetch_row()
+		eventType = sub[0][1]
+		param = sub[0][2]
+		pattern = sub[0][3]
 	print '''<form action="" method="GET">
 	<input type="hidden" name="action" value="''' + action + '''" />'''
-	if not id == -1:
-		print '<input type="hidden" name="id" value="' + str(id) + '" />'
+	if not recordid == -1:
+		print '<input type="hidden" name="id" value="' + str(recordid) + '" />'
 	print '''<table>
 		<tr>
 			<td>Notification type:</td>

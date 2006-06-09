@@ -1,101 +1,36 @@
 import os
-
-def readSubscriptions():
-	global subscriptions
-	fd = open('../subscriptions.csv', 'r')
-	subscriptions = fd.readlines()
-	fd.close()
+import _mysql
 
 def getUser():
 	if 'REMOTE_USER' in os.environ:
 		return os.environ['REMOTE_USER']
 	return ''
 
-def getSubscriptions(username):
+def getSubscriptions(db, username):
 	ret = []
-	for line in subscriptions:
-		line = line[:-1]
-		sub = line.split(',')
-		if sub[0] == username:
-			ret.append(sub)
-	return ret
+	db.query('SELECT id,username,type,target,pattern FROM subscriptions WHERE username=\'' + username + '\'')
+	subs = db.store_result()
+	return subs
 
-def getAllSubscriptions():
+def getSubscription(db, recordid):
 	ret = []
-	for line in subscriptions:
-		line = line[:-1]
-		sub = line.split(',')
-		ret.append(sub)
-	return ret
+	db.query('SELECT username,type,target,pattern FROM subscriptions WHERE username=\'' + getUser() + '\' AND id=' + str(recordid))
+	sub = db.store_result()
+	return sub
 
-def joinSub(line, delim):
-	ret = ''
-	for i in line:
-		ret += str(i) + delim
-	return ret
-
-def addSubscription(eventType, param, pattern):
-	user = getUser()
-
+def addSubscription(db, eventType, param, pattern):
 	if eventType == None or param == None:
 		return
 	if pattern == None:
 		pattern = ''
+	db.query('INSERT INTO subscriptions SET username=\'' + getUser() + '\', type=\'' + eventType + '\', target=\'' + param + '\', pattern=\'' + pattern + '\'')
 
-	allsubs = getAllSubscriptions()
-	allsubs.append([user, eventType, param, pattern])
-	subfile = open('../subscriptions.csv', 'w')
-	for line in allsubs:
-		newline = joinSub(line, ',')
-		newline = newline[:-1]
-		subfile.write(newline + '\n')
-	subfile.close()
-	readSubscriptions()
-
-def updateSubscription(id, eventType, param, pattern):
-	user = getUser()
-
+def updateSubscription(db, recordid, eventType, param, pattern):
 	if eventType == None or param == None:
 		return
-
 	if pattern == None:
 		pattern = ''
+	db.query('UPDATE subscriptions SET type=\'' + eventType + '\', target=\'' + param + '\', pattern=\'' + pattern + '\' WHERE id=' + str(recordid) + ' AND username=\'' + getUser() + '\'')
 
-	count = 0
-	allsubs = getAllSubscriptions()
-	for sub in allsubs:
-		if sub[0] == user:
-			count += 1
-		if count == id:
-			sub[1] = eventType
-			sub[2] = param
-			sub[3] = pattern
-	subfile = open('../subscriptions.csv', 'w')
-	for line in allsubs:
-		newline = joinSub(line, ',')
-		newline = newline[:-1]
-		subfile.write(newline + '\n')
-	subfile.close()
-	readSubscriptions()
-
-def removeSubscription(id):
-        user = getUser()
-
-        count = 0
-        allsubs = getAllSubscriptions()
-        for sub in allsubs:
-		if sub[0] == user:
-			count += 1
-                if count == id:
-                        sub[1] = 'nosave'
-                        break
-        subfile = open('../subscriptions.csv', 'w')
-        for line in allsubs:
-		if not line[1] == 'nosave':
-                	newline = joinSub(line, ',')
-                	newline = newline[:-1]
-                	subfile.write(newline + '\n')   
-        subfile.close()
-        readSubscriptions()
-
-readSubscriptions()
+def removeSubscription(db, recordid):
+	db.query('DELETE FROM subscriptions WHERE id=' + str(recordid) + ' AND username=\'' + getUser() + '\'')
