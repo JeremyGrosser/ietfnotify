@@ -7,6 +7,7 @@ import sys
 import re
 import _mysql
 from email.MIMEText import MIMEText
+from types import isinstance
 
 CONFIG_FILE = 'server.conf'
 DATA_DIR = '/home/synack/ietfnotify/data'
@@ -95,7 +96,6 @@ def sendNotifications(parsed):
 	db.close()
 
 def archiveMessage(parsed):
-	global errmsg
 	# Generate a new UUID
 	uuid = makeUUID()
 
@@ -118,18 +118,16 @@ def archiveMessage(parsed):
 	try:
 		os.symlink(symlink_source, symlink_dest)
 	except OSError:
-		errmsg = 'Unable to symlink the same uuid twice!'
 		os.remove(UUID_DIR + '/' + uuid)
-		return 1
+		return (1, 'Unable to symlink the same uuid twice!')
 
 	# Update the uuid cache
 	uuidcache.insert(0, (uuid, 0))
-	return uuid
+	return (0, uuid)
 
 def checkRequired(parsed):
-	global errmsg
 	if not 'tag' in parsed:
-		return 1
+		return (1, 'No tag specified')
 	tag = parsed['tag'][0].split('-', 1)
 	event_type = tag[0]
 
@@ -142,8 +140,7 @@ def checkRequired(parsed):
 				required_fields = i[1].split(', ')
 				for field in required_fields:
 					if not field in parsed:
-						errmsg = 'Required field \'' + field + '\' is missing'
-						return 1
+						return (1, 'Required field \'' + field + '\' is missing')
 			elif i[0] == 'optional':
 				pass
 			#	optional_fields = i[1].split(', ')
@@ -151,8 +148,7 @@ def checkRequired(parsed):
 			#		if field in parsed:
 			#			pass
 			else:
-				errmsg = 'Unknown definition in config: ' + repr(i)
-				return 1
+				return (1, 'Unknown definition in config: ' + repr(i))
 	else:
 		print 'Event type not specified in config file. Adding section. All fields will be added as optional. Fix this soon.'
 		config.add_section('fields-' + event_type)
@@ -167,8 +163,7 @@ def checkRequired(parsed):
 		fd = open(CONFIG_FILE, 'w')
 		config.write(fd)
 		fd.close()
-		return 0
-
+		return (0, '')
 
 # Main method type stuff
 if config.get('general', 'socktype') == 'inet':
@@ -260,16 +255,22 @@ try:
 		afd = accepted[0]
 		print 'Accepted connection: ' + repr(afd)
 		msg = parseMessage(getMessage(afd), 0)
-		if checkRequired(msg):
-			print 'Message error: ' + errmsg
-			sendMessage(afd, 'ERR-' + errmsg + '\n')
+
+		err = checkRequired(msg)
+		if err[0]:
+			print 'Message error: ' + err[1]
+			sendMessage(afd, 'ERR-' + err[1] + '\n')
 			afd.close()
 		else:
-			print 'Message OK!'
-			sendMessage(afd, 'OK-' + archiveMessage(msg) + '\n')
+			err = archiveMessage(msg)
+			if err[0]:
+				print 'Archive error: ' + err[1]
+				sendMessage(afd, 'ERR-', err[1] + '\n')
+			else:
+				sendMessage(afd, 'OK-' + err[1] + '\n')
 			afd.close()
-		print 'Sending notifications'
-		sendNotifications(msg)
+			print 'Sending notifications'
+			sendNotifications(msg)
 except KeyboardInterrupt:
 	print 'Caught keyboard interrupt, cleaning up.'
 	sd.close()
