@@ -37,6 +37,7 @@ def header():
 	border-style: solid;
 	border-color: #000;
 	margin: 5px;
+	margin-right: 10px;
 	padding: 5px;
  }
 
