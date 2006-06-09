@@ -9,7 +9,10 @@ def getUser():
 def getAdmin(db):
 	db.query('SELECT is_admin FROM subscriptions WHERE username=\'' + getUser() + '\'')
 	res = db.store_result()
-	return int(res.fetch_row()[0][0])
+	if res.num_rows() < 1:
+		return 0
+	else:
+		return int(res.fetch_row()[0][0])
 
 def getSubscriptions(db, username):
 	ret = []
