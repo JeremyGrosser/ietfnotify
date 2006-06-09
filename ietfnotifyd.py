@@ -12,16 +12,11 @@ CONFIG_FILE = 'server.conf'
 DATA_DIR = '/home/synack/ietfnotify/data'
 UUID_DIR = DATA_DIR + '/uuid'
 DATE_DIR = DATA_DIR + '/date'
-FEED_LENGTH = 10
 
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
 config.readfp(fp)
 fp.close()
-
-SMTP_HOST = config.get('general', 'smtphost')
-SMTP_PORT = config.getint('general', 'smtpport')
-SMTP_FROM = config.get('general', 'smtpfrom')
 
 notifyCallbacks = {}
 uuidcache = []
@@ -184,12 +179,12 @@ def emailNotification(subscriber, parsed):
 		msg = MIMEText(msg)
 		msg = msg.as_string()
 		message = 'To: ' + subscriber[0] + '\r\n'
-		message += 'From: IETF Notifier <' + SMTP_FROM + '>\r\n'
+		message += 'From: IETF Notifier <' + config.get('general', 'smtpfrom') + '>\r\n'
 		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
 		message += msg
 
-		smtp = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
-		smtp.sendmail(SMTP_FROM, subscriber[0], message)
+		smtp = smtplib.SMTP(config.get('general', 'smtphost'), config.getint('general', 'smtpport'))
+		smtp.sendmail(config.get('general', 'smtpfrom'), subscriber[0], message)
 		smtp.quit()
 	except smtplib.SMTPDataError:
 		print 'Error sending email notitification: ' + subscriber[0]
@@ -242,7 +237,7 @@ for file in listing:
 	st = os.stat(UUID_DIR + '/' + file)
 	uuidcache.append( (file, st[9]) ) # ctime
 uuidcache.sort()
-uuidcache = uuidcache[:FEED_LENGTH]
+uuidcache = uuidcache[:config.getint('notify-atom', 'feedlength')]
 
 sd = socket.socket(domain, socket.SOCK_STREAM)
 sd.bind(bindaddr)
