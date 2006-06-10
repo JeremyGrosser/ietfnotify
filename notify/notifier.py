@@ -15,10 +15,46 @@ def dummyNotification(subscriber, parsed):
 def emailNotification(subscriber, parsed):
 	print 'Email: ' + repr(subscriber)
 	try:
-		msg = ''
+		msg = '''<html>
+<head>
+ <title>''' + parsed['tag'][0] + '''</title>
+ <style type="text/css">
+ table {
+ 	border-spacing: 0;
+	border-collapse: collapse;
+ }
+
+ td.field1 { background-color: #D99; }
+ td.value1 { background-color: #9D9; }
+ td.field2 { background-color: #A66; }
+ td.value2 { background-color: #6A6; }
+
+ td {
+ 	border: 1px;
+	border-style: solid;
+	border-color: #000;
+	padding: 5px;
+ }
+ </style>
+</head>
+
+<body>
+<table>'''
+		color = 0
 		for field in parsed:
 			for i in parsed[field]:
-				msg += field + ' - ' + i + '\r\n'
+				if color:
+					color = str(1) 
+				else:
+					color = str(2) 
+				msg += '''<tr>
+ <td class="field''' + color + '''">''' + field + '''</td>
+ <td class="value''' + color + '''">''' + i + '''</td>
+</tr>'''
+
+		msg += '''</table>
+</body>
+</html>'''
 
 		msg = MIMEText(msg)
 		msg = msg.as_string()
