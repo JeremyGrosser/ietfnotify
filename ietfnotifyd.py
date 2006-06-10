@@ -8,11 +8,10 @@ import _mysql
 from email.MIMEText import MIMEText
 
 import notify.network
+import notify.util
+import notify.archive
 
 CONFIG_FILE = 'server.conf'
-DATA_DIR = '/home/synack/ietfnotify/data'
-UUID_DIR = DATA_DIR + '/uuid'
-DATE_DIR = DATA_DIR + '/date'
 
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
@@ -21,17 +20,6 @@ fp.close()
 
 notifyCallbacks = {}
 uuidcache = []
-
-def makeTimestamp():
-	tz = time.strftime('%z')
-	tz = '-' + tz[1:]
-	tz = tz[:3] + ':' + tz[3:]
-	return time.strftime('%Y-%d-%mT%H:%M:%S') + tz
-
-def makeUUID():
-        uuid = os.popen('uuidgen -t', 'r').readlines()
-	uuid = uuid[0]
-	return uuid[:-1]
 
 def parseMessage(msg, keepdate):
 	lines = msg.split('\n')
@@ -49,7 +37,7 @@ def parseMessage(msg, keepdate):
 			parsed[line[0]] = [line[1]]
 	# Generate a timestamp
 	if not keepdate:
-		parsed['date'] = [makeTimestamp()]
+		parsed['date'] = [notify.util.makeTimestamp()]
 	return parsed
 
 def sendNotifications(parsed):
@@ -72,36 +60,6 @@ def sendNotifications(parsed):
 			else:
 				print 'Unknown notification type: ' + repr(subscription)
 	db.close()
-
-def archiveMessage(parsed):
-	# Generate a new UUID
-	uuid = makeUUID()
-
-	# Write the event to a file named with the UUID
-	os.chdir(UUID_DIR)
-	fd = open(uuid, 'w+')
-	for key in parsed:
-		for i in range(0, len(parsed[key])):
-			fd.write(key + ': ' + parsed[key][i] + '\n')
-	fd.close()
-
-	year = parsed['date'][0][:4]
-	month = parsed['date'][0][8:10]
-	symlink_source = UUID_DIR + '/' + uuid
-	symlink_dest = DATE_DIR + '/' + year + '/' + month + '/' + uuid
-	try:
-		os.makedirs(DATE_DIR + '/' + year + '/' + month)
-	except OSError: pass
-
-	try:
-		os.symlink(symlink_source, symlink_dest)
-	except OSError:
-		os.remove(UUID_DIR + '/' + uuid)
-		return (1, 'Unable to symlink the same uuid twice!')
-
-	# Update the uuid cache
-	uuidcache.insert(0, (uuid, 0))
-	return (0, uuid)
 
 def checkRequired(parsed):
 	if not 'tag' in parsed:
@@ -177,15 +135,15 @@ def atomNotification(subscriber, parsed):
 <feed xmlns=\"http://www.w3.org/2005/Atom\">
 	<title>IETF Notification Feed</title>
 	<link href=\"http://shiraz.tools.ietf.org/events/atom.xml\" rel="self"/>
-	<updated>""" + makeTimestamp() + """</updated>
+	<updated>""" + notify.util.makeTimestamp() + """</updated>
 	<author>
 		<name>IETF Tools Server</name>
 	</author>
-	<id>urn:uuid:""" + makeUUID() + """</id>
+	<id>urn:uuid:""" + notify.util.makeUUID() + """</id>
 	""")
 
 	for entry in uuidcache:
-		e = open(UUID_DIR + '/' + entry[0], 'r')
+		e = open(config.get('archive', 'uuid_dir') + '/' + entry[0], 'r')
 		message = ''
 		for line in e.readlines():
 			message += line
@@ -210,9 +168,9 @@ notifyCallbacks['rss'] = rssNotification
 notifyCallbacks['atom'] = atomNotification
 
 # Build a uuid cache for feeds
-listing = os.listdir(UUID_DIR)
+listing = os.listdir(config.get('archive', 'uuid_dir'))
 for file in listing:
-	st = os.stat(UUID_DIR + '/' + file)
+	st = os.stat(config.get('archive', 'uuid_dir') + '/' + file)
 	uuidcache.append( (file, st[9]) ) # ctime
 uuidcache.sort()
 uuidcache = uuidcache[:config.getint('notify-atom', 'feedlength')]
@@ -233,7 +191,7 @@ try:
 			notify.network.sendMessage(afd, 'ERR-' + retmsg + '\n')
 			afd.close()
 		else:
-			retnum, retmsg = archiveMessage(msg)
+			retnum, retmsg = notify.archive.archiveMessage(msg)
 			if retnum:
 				print 'Archive error: ' + retmsg
 				notify.network.sendMessage(afd, 'ERR-', retmsg + '\n')
