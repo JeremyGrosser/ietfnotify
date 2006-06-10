@@ -7,8 +7,8 @@ fp = open(CONFIG_FILE, 'r')
 config.readfp(fp)
 fp.close()
 
-def getint(section, key)
+def getint(section, key):
 	return config.getint(section, key)
 
-def get(section, key)
+def get(section, key):
 	return config.get(section, key)
