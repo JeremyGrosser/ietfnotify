@@ -5,13 +5,6 @@ from email.MIMEText import MIMEText
 
 import config
 
-notifyCallbacks = {}
-
-notifyCallbacks['email'] = emailNotification
-notifyCallbacks['rss'] = dummyNotification
-notifyCallbacks['atom'] = dummyNotification
-notifyCallbacks['jabber'] = dummyNotification
-
 def dummyNotification(subscriber, parsed):
 	print 'Dummy: ' + repr(subscriber)
 
@@ -35,6 +28,12 @@ def emailNotification(subscriber, parsed):
 		smtp.quit()
 	except smtplib.SMTPDataError:
 		print 'Error sending email notification: ' + subscriber[0]
+
+notifyCallbacks = {}
+notifyCallbacks['email'] = emailNotification
+notifyCallbacks['rss'] = dummyNotification
+notifyCallbacks['atom'] = dummyNotification
+notifyCallbacks['jabber'] = dummyNotification
 
 def sendNotifications(parsed):
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
