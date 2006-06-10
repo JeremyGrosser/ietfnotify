@@ -10,13 +10,16 @@ from email.MIMEText import MIMEText
 import notify.network
 import notify.util
 import notify.archive
+import notify.notifier
 
+### REMOVE AFTER MODULARIZATION
 CONFIG_FILE = 'server.conf'
 
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
 config.readfp(fp)
 fp.close()
+### REMOVE AFTER MODULARIZATION
 
 notifyCallbacks = {}
 uuidcache = []
@@ -39,27 +42,6 @@ def parseMessage(msg, keepdate):
 	if not keepdate:
 		parsed['date'] = [notify.util.makeTimestamp()]
 	return parsed
-
-def sendNotifications(parsed):
-	db = _mysql.connect('localhost', 'synack', 'rtz2096', 'ietfnotify')
-	db.query('SELECT type,target,pattern FROM subscriptions')
-	subs = db.store_result()
-	print 'Sending notification: ' + repr(parsed)
-
-	notified = []
-	for subscription in subs.fetch_row(maxrows=0):
-		if not subscription[2] in notified:
-			if not subscription[2] == '':
-				regex = re.compile(subscription[2])
-				if not regex.match(parsed['tag'][0]):
-					break
-			if subscription[0] in notifyCallbacks:
-				f = notifyCallbacks[subscription[0]]
-				f(subscription[1:], parsed)
-				notified.append(subscription[2])
-			else:
-				print 'Unknown notification type: ' + repr(subscription)
-	db.close()
 
 def checkRequired(parsed):
 	if not 'tag' in parsed:
@@ -199,7 +181,7 @@ try:
 				notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
 			afd.close()
 			print 'Sending notifications'
-			sendNotifications(msg)
+			notify.notifier.sendNotifications(msg)
 except KeyboardInterrupt:
 	print 'Caught keyboard interrupt, cleaning up.'
 	sd.close()
