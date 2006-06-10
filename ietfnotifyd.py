@@ -30,7 +30,7 @@ try:
 			else:
 				notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
 			afd.close()
-			print 'Sending notifications'
+			print 'Sending notifications...'
 			notify.notifier.sendNotifications(msg)
 except KeyboardInterrupt:
 	print 'Caught keyboard interrupt, cleaning up.'
