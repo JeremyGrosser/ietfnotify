@@ -1,7 +1,40 @@
 import _mysql
+import smtplib
 import re
+from email.MIMEText import MIMEText
 
 import config
+
+notifyCallbacks = {}
+
+notifyCallbacks['email'] = emailNotification
+notifyCallbacks['rss'] = dummyNotification
+notifyCallbacks['atom'] = dummyNotification
+notifyCallbacks['jabber'] = dummyNotification
+
+def dummyNotification(subscriber, parsed):
+	print 'Dummy: ' + repr(subscriber)
+
+def emailNotification(subscriber, parsed):
+	print 'Email: ' + repr(subscriber)
+	try:
+		msg = ''
+		for field in parsed:
+			for i in parsed[field]:
+				msg += field + ' - ' + i + '\r\n'
+
+		msg = MIMEText(msg)
+		msg = msg.as_string()
+		message = 'To: ' + subscriber[0] + '\r\n'
+		message += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
+		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
+		message += msg
+
+		smtp = smtplib.SMTP(config.get('notify-email', 'smtphost'), config.getint('notify-email', 'smtpport'))
+		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber[0], message)
+		smtp.quit()
+	except smtplib.SMTPDataError:
+		print 'Error sending email notification: ' + subscriber[0]
 
 def sendNotifications(parsed):
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
