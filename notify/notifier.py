@@ -18,16 +18,16 @@ def emailNotification(subscriber, parsed):
 
 		msg = MIMEText(msg)
 		msg = msg.as_string()
-		message = 'To: ' + subscriber[0] + '\r\n'
+		message = 'To: ' + subscriber + '\r\n'
 		message += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
 		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
 		message += msg
 
 		smtp = smtplib.SMTP(config.get('notify-email', 'smtphost'), config.getint('notify-email', 'smtpport'))
-		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber[0], message)
+		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber, message)
 		smtp.quit()
 	except smtplib.SMTPDataError:
-		print 'Error sending email notification: ' + subscriber[0]
+		print 'Error sending email notification: ' + subscriber
 
 notifyCallbacks = {}
 notifyCallbacks['email'] = emailNotification
@@ -45,11 +45,10 @@ def sendNotifications(parsed):
 	for subscription in subs.fetch_row(0):
 		regex = re.compile(subscription[2])
 		if (regex.match(parsed['tag'][0]) or subscription[2] == '') and not subscription[2] in notified:
-			print 'Notifying: ' + repr(subscription)
 			if subscription[0] in notifyCallbacks:
 				f = notifyCallbacks[subscription[0]]
-				f(subscription[1:], parsed)
-				notified.append(subscription[2])
+				f(subscription[1], parsed)
+				notified.append(subscription[1])
 			else:
 				print 'Unknown notification type: ' + repr(subscription)
 	db.close()
