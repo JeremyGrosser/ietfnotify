@@ -1,5 +1,4 @@
 import ConfigParser
-import socket
 import os
 import time
 import smtplib
@@ -7,6 +6,8 @@ import sys
 import re
 import _mysql
 from email.MIMEText import MIMEText
+
+import notify.network
 
 CONFIG_FILE = 'server.conf'
 DATA_DIR = '/home/synack/ietfnotify/data'
@@ -20,23 +21,6 @@ fp.close()
 
 notifyCallbacks = {}
 uuidcache = []
-
-def getMessage(sock):
-	msg = ''
-	buf = ''
-	while buf != 0:
-		buf = sock.recv(1024)
-		msg += buf
-		if msg[-2:] == '\n\n':
-			return msg
-	return msg
-
-def sendMessage(sock, message):
-	msglen = len(message)
-	while msglen > 0:
-		sent = sock.send(message)
-		message = message[sent:]
-		msglen -= sent
 
 def makeTimestamp():
 	tz = time.strftime('%z')
@@ -239,29 +223,28 @@ for file in listing:
 uuidcache.sort()
 uuidcache = uuidcache[:config.getint('notify-atom', 'feedlength')]
 
-sd = socket.socket(domain, socket.SOCK_STREAM)
-sd.bind(bindaddr)
-sd.listen(20)
+# Start a new listening socket
+sd = notify.network.startServer()
 
 try:
 	while 1:
 		accepted = sd.accept()
 		afd = accepted[0]
 		print 'Accepted connection: ' + repr(afd)
-		msg = parseMessage(getMessage(afd), 0)
+		msg = parseMessage(notify.network.getMessage(afd), 0)
 
 		retnum, retmsg = checkRequired(msg)
 		if retnum:
 			print 'Message error: ' + retmsg
-			sendMessage(afd, 'ERR-' + retmsg + '\n')
+			notify.network.sendMessage(afd, 'ERR-' + retmsg + '\n')
 			afd.close()
 		else:
 			retnum, retmsg = archiveMessage(msg)
 			if retnum:
 				print 'Archive error: ' + retmsg
-				sendMessage(afd, 'ERR-', retmsg + '\n')
+				notify.network.sendMessage(afd, 'ERR-', retmsg + '\n')
 			else:
-				sendMessage(afd, 'OK-' + retmsg + '\n')
+				notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
 			afd.close()
 			print 'Sending notifications'
 			sendNotifications(msg)
