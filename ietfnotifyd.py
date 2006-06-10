@@ -5,7 +5,7 @@ import notify.notifier
 import notify.message
 
 # Build a uuid cache for feeds
-archive.buildUUIDCache()
+notify.archive.buildUUIDCache()
 
 # Start a new listening socket
 sd = notify.network.startServer()
