@@ -2,6 +2,15 @@ import os
 
 import util
 import config
+import notifier
+
+def buildUUIDCache():
+	listing = os.listdir(config.get('archive', 'uuid_dir'))
+	for file in listing:
+		st = os.stat(config.get('archive', 'uuid_dir') + '/' + file)
+		notifier.uuidcache.append( (file, st[9]) ) # ctime
+	notifier.uuidcache.sort()
+	notifier.uuidcache = notifier.uuidcache[:config.getint('notify-atom', 'feedlength')]
 
 def archiveMessage(parsed):
 	# Generate a new UUID
@@ -32,5 +41,5 @@ def archiveMessage(parsed):
 		return (1, 'Unable to symlink the same uuid twice')
 
 	# Update the uuid cache
-	#uuidcache.insert(0, (uuid, 0))
+	notifier.uuidcache.insert(0, (uuid, 0))
 	return (0, uuid)
