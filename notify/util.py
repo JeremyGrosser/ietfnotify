@@ -1,3 +1,6 @@
+import time
+import os
+
 def makeTimestamp():
 	tz = time.strftime('%z')
 	tz = '-' + tz[1:]
