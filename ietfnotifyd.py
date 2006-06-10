@@ -122,9 +122,6 @@ def atomNotification(subscriber, parsed):
 """)
 	fd.write('</feed>\n')
 	fd.close()
-notifyCallbacks['email'] = emailNotification
-notifyCallbacks['rss'] = rssNotification
-notifyCallbacks['atom'] = atomNotification
 
 # Build a uuid cache for feeds
 listing = os.listdir(config.get('archive', 'uuid_dir'))
