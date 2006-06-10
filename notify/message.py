@@ -1,6 +1,53 @@
 import util
 import config
 
+def htmlMessage(msg):
+	msg = '''<html>
+<head>
+ <title>''' + msg['tag'][0] + '''</title>
+ <style type="text/css">
+ table {
+ 	border-spacing: 0;
+	border-collapse: collapse;
+ }
+
+ td.field1 { background-color: #AAF; }
+ td.value1 { background-color: #AFA; }
+ td.field2 { background-color: #99C; }
+ td.value2 { background-color: #9C9; }
+
+ td {
+ 	border: 1px;
+	border-style: solid;
+	border-color: #000;
+	padding: 5px;
+ }
+ </style>
+</head>
+
+<body>
+<table>'''
+	color = 1
+	for field in msg:
+		for i in msg[field]:
+			if color == '2':	color = str(1)
+			else:				color = str(2)
+			msg += '''<tr>
+ <td class="field''' + color + '''">''' + field + '''</td>
+ <td class="value''' + color + '''">''' + i + '''</td>
+</tr>'''
+	msg += '''</table>
+</body>
+</html>'''
+	return msg
+
+def textMessage(msg, newline='\n'):
+	msg = ''
+	for field in parsed:
+		for i in parsed[field]:
+			msg += field + ' - ' + i + newline
+	return msg
+
 def parseMessage(msg, keepdate):
 	lines = msg.split('\n')
 	parsed = {}

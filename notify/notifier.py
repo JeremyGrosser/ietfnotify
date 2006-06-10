@@ -33,11 +33,7 @@ def dummyNotification(subscriber, parsed):
 def emailNotification(subscriber, parsed):
 	print 'Plain email: ' + repr(subscriber)
 	try:
-		msg = ''
-		for field in parsed:
-			for i in parsed[field]:
-				msg += field + ' - ' + i + '\r\n'
-
+		msg = message.textMessage(parsed, '\r\n')
 		msg = MIMEText(msg)
 		msg = msg.as_string()
 		message = 'To: ' + subscriber + '\r\n'
@@ -54,46 +50,7 @@ def emailNotification(subscriber, parsed):
 def htmlEmailNotification(subscriber, parsed):
 	print 'HTML email: ' + repr(subscriber)
 	try:
-		msg = '''<html>
-<head>
- <title>''' + parsed['tag'][0] + '''</title>
- <style type="text/css">
- table {
- 	border-spacing: 0;
-	border-collapse: collapse;
- }
-
- td.field1 { background-color: #AAF; }
- td.value1 { background-color: #AFA; }
- td.field2 { background-color: #99C; }
- td.value2 { background-color: #9C9; }
-
- td {
- 	border: 1px;
-	border-style: solid;
-	border-color: #000;
-	padding: 5px;
- }
- </style>
-</head>
-
-<body>
-<table>'''
-		color = 1
-		for field in parsed:
-			for i in parsed[field]:
-				if color == '2':
-					color = str(1) 
-				else:
-					color = str(2) 
-				msg += '''<tr>
- <td class="field''' + color + '''">''' + field + '''</td>
- <td class="value''' + color + '''">''' + i + '''</td>
-</tr>'''
-		msg += '''</table>
-</body>
-</html>'''
-
+		msg = message.htmlMessage(parsed)
 		msg = MIMEText(msg)
 		msg = msg.as_string()
 		message = 'To: ' + subscriber + '\r\n'
