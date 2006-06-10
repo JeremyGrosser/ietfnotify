@@ -10,14 +10,14 @@ def sendNotifications(parsed):
 	notified = []
 	for subscription in subs.fetch_row(maxrows=0):
 		print 'Notifying: ' + repr(subscription)
-		#if not subscription[2] == '':
-		#	regex = re.compile(subscription[2])
-		#	if not regex.match(parsed['tag'][0])
-		#		break
-		#	if subscription[0] in notifyCallbacks:
-		#		f = notifyCallbacks[subscription[0]]
-		#		f(subscription[1:], parsed)
-		#		notified.append(subscription[2])
-		#	else:
-		#		print 'Unknown notification type: ' + repr(subscription)
+		if not subscription[2] == '':
+			regex = re.compile(subscription[2])
+			if not regex.match(parsed['tag'][0])
+				break
+			if subscription[0] in notifyCallbacks:
+				f = notifyCallbacks[subscription[0]]
+				f(subscription[1:], parsed)
+				notified.append(subscription[2])
+			else:
+				print 'Unknown notification type: ' + repr(subscription)
 	db.close()
