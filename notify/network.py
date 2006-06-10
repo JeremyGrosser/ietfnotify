@@ -1,11 +1,11 @@
 import socket
-import myconfig
+import config
 
 def getMessage(sock):
 	msg = ''
 	buf = ''
 	while buf != 0:
-		buf = sock.recv(myconfig.getint('general', 'recvbuffer'))
+		buf = sock.recv(config.getint('general', 'recvbuffer'))
 		msg += buf
 		if msg[-2:] == '\n\n':
 			return msg
@@ -19,12 +19,12 @@ def sendMessage(sock, message):
 		msglen -= sent
 
 def startServer():
-	if myconfig.get('general', 'socktype') == 'inet':
+	if config.get('general', 'socktype') == 'inet':
 		domain = socket.AF_INET
-		bindaddr = (myconfig.get('general', 'bindaddr'), config.getint('general', 'bindport'))
+		bindaddr = (config.get('general', 'bindaddr'), config.getint('general', 'bindport'))
 	else:
 		domain = socket.AF_UNIX
-		bindaddr = myconfig.get('general', 'bindaddr')
+		bindaddr = config.get('general', 'bindaddr')
 	
 	sd = socket.socket(domain, socket.SOCK_STREAM)
 	sd.bind(bindaddr)

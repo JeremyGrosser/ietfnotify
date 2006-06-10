@@ -1,1 +1,1 @@
-__all__ = ['network', 'myconfig']
+__all__ = ['network', 'config']

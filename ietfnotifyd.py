@@ -144,12 +144,6 @@ def checkRequired(parsed):
 		return (0, '')
 
 # Main method type stuff
-if config.get('general', 'socktype') == 'inet':
-	domain = socket.AF_INET
-	bindaddr = (config.get('general', 'bindaddr'), config.getint('general', 'bindport'))
-else:
-	domain = socket.AF_UNIX
-	bindaddr = '/tmp/ietf_eventfd'
 
 # Register notification types
 def emailNotification(subscriber, parsed):
