@@ -53,14 +53,14 @@ def htmlEmailNotification(subscriber, parsed):
 		msg = message.htmlMessage(parsed)
 		msg = MIMEText(msg)
 		msg = msg.as_string()
-		message = 'To: ' + subscriber + '\r\n'
-		message += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
-		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
-		message += 'Content-type: text/html; charset=utf-8\r\n'
-		message += msg
+		eml = 'To: ' + subscriber + '\r\n'
+		eml += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
+		eml += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
+		eml += 'Content-type: text/html; charset=utf-8\r\n'
+		eml += msg
 
 		smtp = smtplib.SMTP(config.get('notify-email', 'smtphost'), config.getint('notify-email', 'smtpport'))
-		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber, message)
+		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber, eml)
 		smtp.quit()
 	except smtplib.SMTPDataError:
 		print 'Error sending email notification: ' + subscriber

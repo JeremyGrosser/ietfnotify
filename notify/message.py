@@ -1,10 +1,10 @@
 import util
 import config
 
-def htmlMessage(msg):
+def htmlMessage(parsed):
 	msg = '''<html>
 <head>
- <title>''' + msg['tag'][0] + '''</title>
+ <title>''' + parsed['tag'][0] + '''</title>
  <style type="text/css">
  table {
  	border-spacing: 0;
@@ -28,8 +28,8 @@ def htmlMessage(msg):
 <body>
 <table>'''
 	color = 1
-	for field in msg:
-		for i in msg[field]:
+	for field in parsed:
+		for i in parsed[field]:
 			if color == '2':	color = str(1)
 			else:				color = str(2)
 			msg += '''<tr>
