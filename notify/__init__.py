@@ -1,1 +1,1 @@
-__all__ = ['network', 'config', 'util', 'archive', 'notifier']
+__all__ = ['network', 'config', 'util', 'archive', 'notifier', 'message']

@@ -11,6 +11,7 @@ import notify.network
 import notify.util
 import notify.archive
 import notify.notifier
+import notify.message
 
 ### REMOVE AFTER MODULARIZATION
 CONFIG_FILE = 'server.conf'
@@ -23,25 +24,6 @@ fp.close()
 
 notifyCallbacks = {}
 uuidcache = []
-
-def parseMessage(msg, keepdate):
-	lines = msg.split('\n')
-	parsed = {}
-	# Make some sense of the data
-	for line in lines:
-		if line.find(':') == -1:
-			break
-		line = line.split(':', 1)
-		line[0] = line[0].lower()
-		line[1] = line[1][1:]
-		if line[0] in parsed:
-			parsed[line[0]].append(line[1])
-		else:
-			parsed[line[0]] = [line[1]]
-	# Generate a timestamp
-	if not keepdate:
-		parsed['date'] = [notify.util.makeTimestamp()]
-	return parsed
 
 def checkRequired(parsed):
 	if not 'tag' in parsed:
@@ -107,7 +89,7 @@ def atomNotification(subscriber, parsed):
 		for line in e.readlines():
 			message += line
 		e.close()
-		ent = parseMessage(message, 1)
+		ent = notify.message.parseMessage(message, 1)
 		if 'title' in ent:
 			title = ent['title'][0]
 		else:
@@ -139,7 +121,7 @@ try:
 		accepted = sd.accept()
 		afd = accepted[0]
 		print 'Accepted connection: ' + repr(afd)
-		msg = parseMessage(notify.network.getMessage(afd), 0)
+		msg = notify.message.parseMessage(notify.network.getMessage(afd), 0)
 
 		retnum, retmsg = checkRequired(msg)
 		if retnum:
