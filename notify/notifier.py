@@ -5,7 +5,7 @@ from email.MIMEText import MIMEText
 
 import sys
 import os
-import xmpp
+#import xmpp
 
 import config
 import util
@@ -16,20 +16,19 @@ uuidcache = []
 def dummyNotification(subscriber, parsed):
 	print 'Dummy: ' + repr(subscriber)
 
-def jabberNotification(subscriber, parsed):
-	print 'Jabber: ' + repr(subscriber)
-
-	msg = ''
-	for field in parsed:
-		for i in parsed[field]:
-			msg += field + ' - ' + i + '\n'
-
-	jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
-	client = xmpp.Client(jid.getDomain(), debug=[])
-	client.connect()
-	client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
-	client.send(xmpp.protocol.Message(subscriber, msg))
-	client.disconnect()
+#def jabberNotification(subscriber, parsed):
+#	print 'Jabber: ' + repr(subscriber)
+#	msg = ''
+#	for field in parsed:
+#		for i in parsed[field]:
+#			msg += field + ' - ' + i + '\n'
+#
+#	jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
+#	client = xmpp.Client(jid.getDomain(), debug=[])
+#	client.connect()
+#	client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
+#	client.send(xmpp.protocol.Message(subscriber, msg))
+#	client.disconnect()
 
 def emailNotification(subscriber, parsed):
 	print 'Plain email: ' + repr(subscriber)
@@ -91,6 +90,10 @@ def htmlEmailNotification(subscriber, parsed):
  <td class="field''' + color + '''">''' + field + '''</td>
  <td class="value''' + color + '''">''' + i + '''</td>
 </tr>'''
+		msg += '''<tr>
+ <td class="field1">link</td>
+ <td class="value1"><a href="http://www1.tools.ietf.org/events/notify/data/uuid/''' + parsed['uuid'][0] + '''">''' + parsed['uuid'][0] + '''</a>
+</tr>'''
 
 		msg += '''</table>
 </body>
@@ -151,7 +154,7 @@ notifyCallbacks['plain_email'] = emailNotification
 notifyCallbacks['html_email'] = htmlEmailNotification
 notifyCallbacks['rss'] = dummyNotification
 notifyCallbacks['atom'] = dummyNotification
-notifyCallbacks['jabber'] = jabberNotification
+#notifyCallbacks['jabber'] = jabberNotification
 
 def sendNotifications(parsed):
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
