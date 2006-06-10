@@ -59,7 +59,7 @@ def showModifyForm(db, recordid):
 	print '''<table>
 		<tr>
 			<td>Notification type:</td>
-			<td><select name="eventType" value="''' + eventType + '''"><option>email</option>'''
+			<td><select name="eventType" value="''' + eventType + '''"><option>plain_email</option><option>html_email</option>'''
 	if account.getAdmin(db):
 		print '<option>atom</option>'
 		print '<option>rss</option>'
