@@ -24,10 +24,10 @@ def emailNotification(subscriber, parsed):
 	border-collapse: collapse;
  }
 
- td.field1 { background-color: #D99; }
- td.value1 { background-color: #9D9; }
- td.field2 { background-color: #A66; }
- td.value2 { background-color: #6A6; }
+ td.field1 { background-color: #AAF; }
+ td.value1 { background-color: #AFA; }
+ td.field2 { background-color: #99C; }
+ td.value2 { background-color: #9C9; }
 
  td {
  	border: 1px;
@@ -40,10 +40,10 @@ def emailNotification(subscriber, parsed):
 
 <body>
 <table>'''
-		color = 0
+		color = 1
 		for field in parsed:
 			for i in parsed[field]:
-				if color:
+				if color == '2':
 					color = str(1) 
 				else:
 					color = str(2) 
@@ -61,6 +61,7 @@ def emailNotification(subscriber, parsed):
 		message = 'To: ' + subscriber + '\r\n'
 		message += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
 		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
+		message += 'Content-type: text/html; charset=utf-8\r\n'
 		message += msg
 
 		smtp = smtplib.SMTP(config.get('notify-email', 'smtphost'), config.getint('notify-email', 'smtpport'))
