@@ -90,11 +90,6 @@ def htmlEmailNotification(subscriber, parsed):
  <td class="field''' + color + '''">''' + field + '''</td>
  <td class="value''' + color + '''">''' + i + '''</td>
 </tr>'''
-		msg += '''<tr>
- <td class="field1">link</td>
- <td class="value1"><a href="http://www1.tools.ietf.org/events/notify/data/uuid/''' + parsed['uuid'][0] + '''">''' + parsed['uuid'][0] + '''</a>
-</tr>'''
-
 		msg += '''</table>
 </body>
 </html>'''

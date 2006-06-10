@@ -28,7 +28,7 @@ try:
 				print 'Archive error: ' + retmsg
 				notify.network.sendMessage(afd, 'ERR-', retmsg + '\n')
 			else:
-				msg['uuid'][0] = retmsg
+				msg['uuid'] = [retmsg]
 				notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
 			afd.close()
 			print 'Sending notifications...'
