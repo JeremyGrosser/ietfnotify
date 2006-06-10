@@ -1,4 +1,4 @@
-import config
+import ConfigParser
 
 CONFIG_FILE = 'server.conf'
 
