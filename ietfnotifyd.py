@@ -85,29 +85,6 @@ def checkRequired(parsed):
 
 # Main method type stuff
 
-# Register notification types
-def emailNotification(subscriber, parsed):
-	print 'Email: ' + repr(subscriber)
-	try:
-		msg = ''
-		for field in parsed:
-			for i in parsed[field]:
-				msg += field + ' - ' + i + '\r\n'
-
-		msg = MIMEText(msg)
-		msg = msg.as_string()
-		message = 'To: ' + subscriber[0] + '\r\n'
-		message += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
-		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
-		message += msg
-
-		smtp = smtplib.SMTP(config.get('notify-email', 'smtphost'), config.getint('notify-email', 'smtpport'))
-		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber[0], message)
-		smtp.quit()
-	except smtplib.SMTPDataError:
-		print 'Error sending email notitification: ' + subscriber[0]
-		print sys.exc_info()[1]
-
 def rssNotification(subscriber, parsed):
 	print 'RSS: ' + repr(subscriber)
 def atomNotification(subscriber, parsed):
