@@ -83,7 +83,7 @@ try:
 		print 'Accepted connection: ' + repr(afd)
 		msg = notify.message.parseMessage(notify.network.getMessage(afd), 0)
 
-		retnum, retmsg = checkRequired(msg)
+		retnum, retmsg = notify.message.checkRequired(msg)
 		if retnum:
 			print 'Message error: ' + retmsg
 			notify.network.sendMessage(afd, 'ERR-' + retmsg + '\n')

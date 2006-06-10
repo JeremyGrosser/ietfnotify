@@ -1,4 +1,5 @@
 import util
+import config
 
 def parseMessage(msg, keepdate):
 	lines = msg.split('\n')
