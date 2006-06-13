@@ -1,3 +1,6 @@
+ietfnotify - Receives, archives, and sends notifications related to IETF
+             events, drafts, working groups, etc.
+			 Copyright (C) 2006 Jeremy Grosser
 import socket
 
 #msg = """Tag: draft-ietf-tools-document-tags-00

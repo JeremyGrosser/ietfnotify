@@ -1,4 +1,8 @@
 #!/usr/bin/python
+# ietfnotify - Receives, archives, and sends notifications related to IETF
+#              events, drafts, working groups, etc.
+# Copyright (C) 2006 Jeremy Grosser
+
 import sys
 sys.path.insert(0, '/home/synack/ietfnotify/webscript')
 
