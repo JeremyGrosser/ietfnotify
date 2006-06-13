@@ -1,11 +1,9 @@
 #!/usr/bin/python
 import template, account, forms
 import cgi, os, _mysql
+import sys
 
-# DEBUGGING ONLY
-import cgitb
-cgitb.enable()
-# DEBUGGING ONLY
+sys.path.insert(0, '/home/synack/ietfnotify/webscript')
 
 form = cgi.FieldStorage()
 db = _mysql.connect('localhost', 'synack', 'rtz2096', 'ietfnotify')
