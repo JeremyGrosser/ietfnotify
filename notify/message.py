@@ -41,7 +41,7 @@ def htmlMessage(parsed):
 </html>'''
 	return msg
 
-def textMessage(msg, newline='\n'):
+def textMessage(parsed, newline='\n'):
 	msg = ''
 	for field in parsed:
 		for i in parsed[field]:

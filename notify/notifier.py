@@ -5,7 +5,7 @@ from email.MIMEText import MIMEText
 
 import sys
 import os
-#import xmpp
+import xmpp
 
 import config
 import util
@@ -16,19 +16,19 @@ uuidcache = []
 def dummyNotification(subscriber, parsed):
 	print 'Dummy: ' + repr(subscriber)
 
-#def jabberNotification(subscriber, parsed):
-#	print 'Jabber: ' + repr(subscriber)
-#	msg = ''
-#	for field in parsed:
-#		for i in parsed[field]:
-#			msg += field + ' - ' + i + '\n'
-#
-#	jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
-#	client = xmpp.Client(jid.getDomain(), debug=[])
-#	client.connect()
-#	client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
-#	client.send(xmpp.protocol.Message(subscriber, msg))
-#	client.disconnect()
+def jabberNotification(subscriber, parsed):
+	print 'Jabber: ' + repr(subscriber)
+	msg = ''
+	for field in parsed:
+		for i in parsed[field]:
+			msg += field + ' - ' + i + '\n'
+
+	jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
+	client = xmpp.Client(jid.getDomain(), debug=[])
+	client.connect()
+	client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
+	client.send(xmpp.protocol.Message(subscriber, msg))
+	client.disconnect()
 
 def emailNotification(subscriber, parsed):
 	print 'Plain email: ' + repr(subscriber)
@@ -36,13 +36,13 @@ def emailNotification(subscriber, parsed):
 		msg = message.textMessage(parsed, '\r\n')
 		msg = MIMEText(msg)
 		msg = msg.as_string()
-		message = 'To: ' + subscriber + '\r\n'
-		message += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
-		message += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
-		message += msg
+		eml = 'To: ' + subscriber + '\r\n'
+		eml += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
+		eml += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
+		eml += msg
 
 		smtp = smtplib.SMTP(config.get('notify-email', 'smtphost'), config.getint('notify-email', 'smtpport'))
-		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber, message)
+		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber, eml)
 		smtp.quit()
 	except smtplib.SMTPDataError:
 		print 'Error sending email notification: ' + subscriber
@@ -106,7 +106,7 @@ notifyCallbacks['plain_email'] = emailNotification
 notifyCallbacks['html_email'] = htmlEmailNotification
 notifyCallbacks['rss'] = dummyNotification
 notifyCallbacks['atom'] = dummyNotification
-#notifyCallbacks['jabber'] = jabberNotification
+notifyCallbacks['jabber'] = jabberNotification
 
 def sendNotifications(parsed):
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
