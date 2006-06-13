@@ -42,6 +42,9 @@ if form.getfirst('action') == 'add':
 if form.getfirst('action') == 'listall' and account.getAdmin(db):
 	forms.showAllSubscriptions(db)
 	done = 1
+if form.getfirst('action') == 'help':
+	forms.showHelp()
+	done = 1
 
 if not done:
 	forms.showSubscriptions(db, account.getUser())

@@ -7,6 +7,12 @@ import account
 def showLoginMessage():
 	print 'You must be logged in to edit your notifier settings.'
 
+def showHelp():
+	print '''<h3>Subscription form</h3>
+The notification type sets the method in which you'll be notified. Address sets the address the notification will be sent to. Email notifications can only be sent to the address you're logged in with. The pattern is a <a href="http://www.python.org/doc/current/lib/re-syntax.html">regular expression</a> that is searched on the Tag field of the notification. An example tag is <em>draft-ietf-tools-draft-info-04</em>
+<h3>Your subscriptions</h3>
+A list of your current subscriptions is displayed. The fields correspond to the fields on the subscription form. You can modify an existing subscription or remove it using the links to the right.'''
+
 def showSubscriptions(db, username):
 	subs = account.getSubscriptions(db, username)
 	print '<strong>Your subscriptions</strong>'
