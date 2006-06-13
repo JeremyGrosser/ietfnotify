@@ -1,5 +1,20 @@
 import os
 import _mysql
+import re
+
+def regex_sanitize(pattern):
+	regex = re.compile('\\\\$|(\'|\")')
+	if regex.search(pattern):
+		return ''
+	else:
+		return pattern
+
+def sanitize(dirty):
+	regex = re.compile('^([a-z]|[A-Z]|[0-9]|[_@\\.])*$')
+	if regex.search(dirty):
+		return dirty
+	else:
+		return ''
 
 def getUser():
 	if 'REMOTE_USER' in os.environ:
@@ -39,16 +54,16 @@ def getAllSubscriptions(db):
 def addSubscription(db, eventType, param, pattern):
 	if eventType == None or param == None:
 		return
-	if pattern == None:
+	if pattern == None or len(pattern) > 128:
 		pattern = ''
-	db.query('INSERT INTO subscriptions SET username=\'' + getUser() + '\', type=\'' + eventType + '\', target=\'' + param + '\', pattern=\'' + pattern + '\'')
+	db.query('INSERT INTO subscriptions SET username=\'' + getUser() + '\', type=\'' + sanitize(eventType) + '\', target=\'' + sanitize(param) + '\', pattern=\'' + regex_sanitize(pattern) + '\'')
 
 def updateSubscription(db, recordid, eventType, param, pattern):
 	if eventType == None or param == None:
 		return
-	if pattern == None:
+	if pattern == None or len(pattern) > 128:
 		pattern = ''
-	db.query('UPDATE subscriptions SET type=\'' + eventType + '\', target=\'' + param + '\', pattern=\'' + pattern + '\' WHERE id=' + str(recordid) + ' AND username=\'' + getUser() + '\'')
+	db.query('UPDATE subscriptions SET type=\'' + sanitize(eventType) + '\', target=\'' + sanitize(param) + '\', pattern=\'' + regex_sanitize(pattern) + '\' WHERE id=' + str(recordid) + ' AND username=\'' + getUser() + '\'')
 
 def removeSubscription(db, recordid):
 	db.query('DELETE FROM subscriptions WHERE id=' + str(recordid) + ' AND username=\'' + getUser() + '\'')

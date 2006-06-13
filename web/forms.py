@@ -27,17 +27,18 @@ def showAllSubscriptions(db):
 	print '<table>'
 	count = 0
 
-        for sub in subs.fetch_row(0):
-                count += 1
-                if count % 2:
-                        print ' <tr class="gray">'
-                else:
-                        print ' <tr class="white">'
-                for field in sub[2:]:
-                        print '<td>' + str(field) + '</td>'
-                print '''<td><a href="?action=modify&id=''' + sub[0] + '''">Modify</a></td>
-                <td><a href="?action=remove&id=''' + sub[0] + '''">Remove</a></td>
-        </tr>'''
+	for sub in subs.fetch_row(0):
+		count += 1
+		if count % 2:
+			print ' <tr class="gray">'
+		else:
+			print ' <tr class="white">'
+		for field in sub[2:]:
+			print '<td>' + str(field) + '</td>'
+		print '<td><a href="?action=modify&id=' + sub[0] + '">Modify</a></td>'
+		print '<td><a href="?action=remove&id=' + sub[0] + '">Remove</a></td>'
+		print '</tr>'
+	print '</table>'
 
 def showModifyForm(db, recordid):
 	action = 'update'
@@ -52,21 +53,22 @@ def showModifyForm(db, recordid):
 		eventType = sub[0][1]
 		param = sub[0][2]
 		pattern = sub[0][3]
-	print '''<form action="" method="GET">
+	print '''<form action="" name="modifyForm" method="POST">
 	<input type="hidden" name="action" value="''' + action + '''" />'''
 	if not recordid == -1:
 		print '<input type="hidden" name="id" value="' + str(recordid) + '" />'
 	print '''<table>
 		<tr>
 			<td>Notification type:</td>
-			<td><select name="eventType" value="''' + eventType + '''"><option>plain_email</option><option>html_email</option>'''
+			<td><select name="eventType" onChange="disableAddress()">
+				<option>plain_email</option>
+				<option>html_email</option>
+				<option>jabber</option>'''
 	if account.getAdmin(db):
 		print '<option>atom</option>'
 		print '<option>rss</option>'
-		print '<option>jabber</option>'
 	print '</select></td></tr>'
-	if account.getAdmin(db):
-		print '''		<tr>
+	print '''		<tr>
 			<td>Address:</td>
 			<td><input type="text" name="param" value="''' + param + '''" /></td>
 		</tr>'''
@@ -77,4 +79,5 @@ def showModifyForm(db, recordid):
 		<tr>
 			<td colspan="2" align="center"><input type="submit" value="Submit" /></td>
 		</tr>
-	</table>'''
+	</table>
+	</form>'''

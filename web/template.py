@@ -2,6 +2,7 @@ import account
 
 def header(db):
 	print '''Content-type: text/html\n\n
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
@@ -70,8 +71,18 @@ def header(db):
  a:visited { text-decoration: none; }
  a:hover { text-decoration: underline; }
 </style>
+ <script language="JavaScript">
+ function disableAddress() {
+ 	if(document.modifyForm.eventType.value == "html_email" || document.modifyForm.eventType.value == "plain_email") {
+		document.modifyForm.param.disabled = true
+	}else{
+		document.modifyForm.param.disabled = false
+	}
+ }
+ </script>
+</head>
 
-<body>
+<body onLoad="disableAddress()">
 
 <div id="header">
  <div id="logo">IETF Event Notifier</div>
