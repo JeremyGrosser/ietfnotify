@@ -13,6 +13,7 @@ def showSubscriptions(db, username):
 	print '<table>'
 	count = 0
 
+	print ' <tr class="header">\n  <th>Notification</th>\n  <th>Address</th>\n  <th>Pattern</th>\n </tr>\n'
 	for sub in subs.fetch_row(0):
 		count += 1
 		if count % 2:
@@ -31,6 +32,7 @@ def showAllSubscriptions(db):
 	print '<table>'
 	count = 0
 
+	print ' <tr class="header">\n  <th>Notification</th>\n  <th>Address</th>\n  <th>Pattern</th>\n  <th>Admin</th>\n </tr>\n'
 	for sub in subs.fetch_row(0):
 		count += 1
 		if count % 2:
@@ -64,18 +66,25 @@ def showModifyForm(db, recordid):
 	print '''<table>
 		<tr>
 			<td>Notification type:</td>
-			<td><select name="eventType" onChange="disableAddress()">
-				<option>plain_email</option>
-				<option>html_email</option>
-				<option>jabber</option>'''
+			<td><select name="eventType" onChange="disableAddress()">'''
+	db.query('SELECT field FROM eventTypes WHERE type="event" AND admin=0')
+	res = db.store_result()
+	for type in res.fetch_row(0):
+		print '<option>' + type[0] + '</option>\n'
 	if account.getAdmin(db):
-		print '<option>atom</option>'
-		print '<option>rss</option>'
+		db.query('SELECT field FROM eventTypes WHERE type="event" AND admin=1')
+		res = db.store_result()
+		for type in res.fetch_row(0):
+			print '<option>' + type[0] + '</option>\n'
 	print '</select></td></tr>'
 	print '''		<tr>
 			<td>Address:</td>
 			<td><input type="text" name="param" value="''' + param + '''" /></td>
 		</tr>'''
+	#db.query('SELECT field FROM types WHERE type="filter" AND admin=0')
+	#res = db.store_result()
+	#for type in res.fetch_row(0):
+	#	print '<tr><td>' + type[0] + '</td><td><input type="text" name="pattern-' + type[0] + '" /></td></tr>\n'
 	print '''		<tr>
 			<td>Pattern (Regex):</td>
 			<td><input type="text" name="pattern" value="''' + pattern + '''" /></td>

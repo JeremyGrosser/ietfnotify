@@ -58,17 +58,21 @@ def header(db):
  tr.gray { background-color: #CCC; }
  tr.white { background-color: #FFF; }
 
+ tr.header { background-color: #BBF; }
+
  table {
 	border-spacing: 0;
 	border-collapse: collapse;
  }
 
- td {
+ td, th {
 	border: 1px;
 	border-style: solid;
 	border-color: #000;
 	padding: 5px;
  }
+
+ th { text-align: left; }
 
  a:link { color: #0000FF; text-decoration: none; }
  a:active { text-decoration: none; }

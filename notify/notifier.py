@@ -121,7 +121,7 @@ def sendNotifications(parsed):
 	notified = []
 	for subscription in subs.fetch_row(0):
 		regex = re.compile(subscription[2])
-		if (regex.match(parsed['tag'][0]) or subscription[2] == '') and not subscription[2] in notified:
+		if (regex.search(parsed['tag'][0]) or subscription[2] == '') and not subscription[2] in notified:
 			if subscription[0] in notifyCallbacks:
 				f = notifyCallbacks[subscription[0]]
 				f(subscription[1], parsed)
