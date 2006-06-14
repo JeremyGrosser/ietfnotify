@@ -8,7 +8,7 @@ import config
 def htmlMessage(parsed):
 	msg = '''<html>
 <head>
- <title>''' + parsed['tag'][0] + '''</title>
+ <title>''' + parsed['doc-tag'][0] + '''</title>
  <style type="text/css">
  table {
  	border-spacing: 0;
@@ -74,9 +74,9 @@ def parseMessage(msg, keepdate):
 	return parsed
 
 def checkRequired(parsed):
-	if not 'tag' in parsed:
+	if not 'doc-tag' in parsed:
 		return (1, 'No tag specified')
-	tag = parsed['tag'][0].split('-', 1)
+	tag = parsed['doc-tag'][0].split('-', 1)
 	event_type = tag[0]
 
 	if config.has_section('fields-' + event_type):

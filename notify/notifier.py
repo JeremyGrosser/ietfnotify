@@ -42,7 +42,7 @@ def emailNotification(subscriber, parsed):
 		msg = msg.as_string()
 		eml = 'To: ' + subscriber + '\r\n'
 		eml += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
-		eml += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
+		eml += 'Subject: ' + parsed['doc-tag'][0] + ' has been updated\r\n'
 		eml += msg
 
 		smtp = smtplib.SMTP(config.get('notify-email', 'smtphost'), config.getint('notify-email', 'smtpport'))
@@ -59,7 +59,7 @@ def htmlEmailNotification(subscriber, parsed):
 		msg = msg.as_string()
 		eml = 'To: ' + subscriber + '\r\n'
 		eml += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
-		eml += 'Subject: ' + parsed['tag'][0] + ' has been updated\r\n'
+		eml += 'Subject: ' + parsed['doc-tag'][0] + ' has been updated\r\n'
 		eml += 'Content-type: text/html; charset=utf-8\r\n'
 		eml += msg
 
@@ -121,7 +121,7 @@ def sendNotifications(parsed):
 	notified = []
 	for subscription in subs.fetch_row(0):
 		regex = re.compile(subscription[2])
-		if (regex.search(parsed['tag'][0]) or subscription[2] == '') and not subscription[2] in notified:
+		if (regex.search(parsed['doc-tag'][0]) or subscription[2] == '') and not subscription[2] in notified:
 			if subscription[0] in notifyCallbacks:
 				f = notifyCallbacks[subscription[0]]
 				f(subscription[1], parsed)
