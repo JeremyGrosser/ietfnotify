@@ -76,25 +76,28 @@ def showModifyForm(db, recordid):
 	db.query('SELECT field FROM eventTypes WHERE type="event" AND admin=0')
 	res = db.store_result()
 	for type in res.fetch_row(0):
-		print '<option>' + type[0] + '</option>\n'
+		if type[0] == eventType:
+			print '<option selected>' + type[0] + '</option>\n'
+		else:
+			print '<option>' + type[0] + '</option>\n'
 	if account.getAdmin(db):
 		db.query('SELECT field FROM eventTypes WHERE type="event" AND admin=1')
 		res = db.store_result()
 		for type in res.fetch_row(0):
-			print '<option>' + type[0] + '</option>\n'
+			if type[0] == eventType:
+				print '<option selected>' + type[0] + '</option>\n'
+			else:
+				print '<option>' + type[0] + '</option>\n'
 	print '</select></td></tr>'
 	print '''		<tr>
 			<td>Address:</td>
 			<td><input type="text" name="param" value="''' + param + '''" /></td>
 		</tr>'''
-	#db.query('SELECT field FROM types WHERE type="filter" AND admin=0')
-	#res = db.store_result()
-	#for type in res.fetch_row(0):
-	#	print '<tr><td>' + type[0] + '</td><td><input type="text" name="pattern-' + type[0] + '" /></td></tr>\n'
+	db.query('SELECT field FROM eventTypes WHERE type="filter" AND admin=0')
+	res = db.store_result()
+	for filter in res.fetch_row(0):
+		print '<tr><td>' + filter[0] + '</td><td><input type="text" name="filter-' + filter[0] + '" value="' + pattern + '" /></td></tr>\n'
 	print '''		<tr>
-			<td>Pattern (Regex):</td>
-			<td><input type="text" name="pattern" value="''' + pattern + '''" /></td>
-		</tr>
 		<tr>
 			<td colspan="2" align="center"><input type="submit" value="Submit" /></td>
 		</tr>

@@ -28,14 +28,14 @@ if form.getfirst('action') == 'modify' and 'id' in form:
 	done = 1
 if form.getfirst('action') == 'update' and 'id' in form:
 	if form.getfirst('eventType') == 'html_email' or form.getfirst('eventType') == 'plain_email':
-		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), form.getfirst('pattern'))
+		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), form.getfirst('filter-doc-tag'))
 	else:
 		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), form.getfirst('pattern'))
 if form.getfirst('action') == 'remove' and 'id' in form:
 	account.removeSubscription(db, int(form.getfirst('id')))
 if form.getfirst('action') == 'add':
 	if 'eventType' in form:
-		account.addSubscription(db, form.getfirst('eventType'), account.getUser(), form.getfirst('pattern'))
+		account.addSubscription(db, form.getfirst('eventType'), account.getUser(), form.getfirst('filter-doc-tag'))
 	else:
 		forms.showModifyForm(db, -1)
 		done = 1
