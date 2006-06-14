@@ -1,0 +1,29 @@
+The full list of fields I could be emitting today is:
+
+Event-Date		# Date of the event, in ISO format
+Event-Subject		# Event summary
+Event-Uuid		# UUID of the event
+Event-Source		# Source of the event
+Event-Url		# Url of the event
+
+Doc-Tag			# Tag of the document this event is related to
+Doc-Created
+Doc-Submitted
+Doc-Expires
+Doc-Published
+Doc-Authors
+Doc-Pages
+Doc-Bytes
+Doc-Source
+Doc-Rev
+Doc-State
+Doc-Title
+Doc-Refs
+Doc-Url
+Doc-Abstract
+
+Rfcq-Info
+Rfcq-Queue
+Rfcq-Date
+
+Rfc-Number
