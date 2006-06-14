@@ -70,7 +70,7 @@ def parseMessage(msg, keepdate):
 	
 	# Generate a timestamp
 	if not keepdate:
-		parsed['date'] = [util.makeTimestamp()]
+		parsed['event-date'] = [util.makeTimestamp()]
 	return parsed
 
 def checkRequired(parsed):

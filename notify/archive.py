@@ -17,8 +17,11 @@ def buildUUIDCache():
 	notifier.uuidcache = notifier.uuidcache[:config.getint('notify-atom', 'feedlength')]
 
 def archiveMessage(parsed):
-	# Generate a new UUID
-	uuid = util.makeUUID()
+	# Use the UUID from the event or generate one if the event didn't specify
+	if 'event-uuid' in parsed:
+		uuid = parsed['event-uuid'][0]
+	else:
+		uuid = util.makeUUID()
 
 	# Write the event to a file named with the UUID
 	os.chdir(config.get('archive', 'uuid_dir'))
@@ -29,8 +32,12 @@ def archiveMessage(parsed):
 	fd.close()
 
 	# Symlink from the date file structure to the uuid file
-	year = parsed['date'][0][:4]
-	month = parsed['date'][0][8:10]
+	if 'event-date' in parsed:
+		year = parsed['event-date'][0][:4]
+		month = parsed['event-date'][0][8:10]
+	else:
+		year = gmtime()[0]
+		month = gmtime()[1]
 	symlink_source = config.get('archive', 'uuid_dir') + '/' + uuid
 	symlink_dest = config.get('archive', 'date_dir') + '/' + year + '/' + month + '/' + uuid
 
