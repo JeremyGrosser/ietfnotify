@@ -12,7 +12,7 @@ ERROR = 10
 
 def log(priority, msg):
 	if DEBUGGING:
-		sys.stderr.write(str(priority) + ': ' + msg)
+		sys.stderr.write(str(priority) + ': ' + msg + '\n')
 
 	if priority == NORMAL: pass
 	if priority == ERROR: pass
