@@ -16,5 +16,3 @@ def log(priority, msg):
 
 	if priority == NORMAL: pass
 	if priority == ERROR: pass
-	if priority == CRITICAL: pass
-	if priority == FATAL: pass
