@@ -62,10 +62,24 @@ def addSubscription(db, eventType, param, pattern):
 		pattern = ''
 	db.query('INSERT INTO subscriptions SET username=\'' + getUser() + '\', type=\'' + sanitize(eventType) + '\', target=\'' + sanitize(param) + '\', pattern=\'' + regex_sanitize(pattern) + '\'')
 
-def updateSubscription(db, recordid, eventType, param, pattern):
+def updateSubscription(db, recordid, eventType, param, filters):
+	for field in filters:
+		db.query("SELECT id FROM filters WHERE type='regex' AND field='" + regex_sanitize(field) + "' AND parent_id=" + str(recordid))
+		res = db.store_result()
+		if res.num_rows() > 0:
+			row = res.fetch_row()
+			db.query("UPDATE filters SET type='regex', pattern='" + regex_sanitize(filters[field]) + "', field='" + regex_sanitize(field) + "', parent_id=" + str(recordid) + " WHERE id=" + row[0][0])
+		else:
+			db.query("INSERT INTO filters SET type='regex', pattern='" + regex_sanitize(filters[field]) + "', field='" + regex_sanitize(field) + "', parent_id=" + str(recordid))
+
 	if eventType == None or param == None:
 		return
-	if pattern == None or len(pattern) > 128:
+	if 'doc-tag' in filters:
+		if len(filters) > 128:
+			pattern = ''
+		else:
+			pattern = filters['doc-tag']
+	else:
 		pattern = ''
 	db.query('UPDATE subscriptions SET type=\'' + sanitize(eventType) + '\', target=\'' + sanitize(param) + '\', pattern=\'' + regex_sanitize(pattern) + '\' WHERE id=' + str(recordid) + ' AND username=\'' + getUser() + '\'')
 

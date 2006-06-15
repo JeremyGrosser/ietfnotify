@@ -27,10 +27,15 @@ if form.getfirst('action') == 'modify' and 'id' in form:
 	forms.showModifyForm(db, int(form.getfirst('id')))
 	done = 1
 if form.getfirst('action') == 'update' and 'id' in form:
+	filters = {} 
+	for field in form:
+		if field.startswith('filter-'):
+			filters[field[7:]] = form.getfirst(field)
+
 	if form.getfirst('eventType') == 'html_email' or form.getfirst('eventType') == 'plain_email':
-		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), form.getfirst('filter-doc-tag'))
+		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), filters)
 	else:
-		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), form.getfirst('pattern'))
+		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), filters)
 if form.getfirst('action') == 'remove' and 'id' in form:
 	account.removeSubscription(db, int(form.getfirst('id')))
 if form.getfirst('action') == 'add':
