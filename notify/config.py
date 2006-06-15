@@ -3,9 +3,11 @@
 # Copyright (C) 2006 Jeremy Grosser
 
 import ConfigParser
+import log
 
 CONFIG_FILE = 'server.conf'
 
+log.log(log.NORMAL, 'Reading config file: ' + CONFIG_FILE)
 config = ConfigParser.ConfigParser()
 fp = open(CONFIG_FILE, 'r')
 config.readfp(fp)

@@ -2,4 +2,4 @@
 #              events, drafts, working groups, etc.
 # Copyright (C) 2006 Jeremy Grosser
 
-__all__ = ['network', 'config', 'util', 'archive', 'notifier', 'message']
+__all__ = ['network', 'config', 'util', 'archive', 'notifier', 'message', 'log']

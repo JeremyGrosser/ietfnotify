@@ -4,8 +4,10 @@
 
 import socket
 import config
+import log
 
 def getMessage(sock):
+	log.log(log.NORMAL, 'Receiving message from socket')
 	msg = ''
 	buf = ''
 	while buf != 0:
@@ -16,6 +18,7 @@ def getMessage(sock):
 	return msg
 
 def sendMessage(sock, message):
+	log.log(log.NORMAL, 'Sending message to socket')
 	msglen = len(message)
 	while msglen > 0:
 		sent = sock.send(message)
@@ -23,6 +26,7 @@ def sendMessage(sock, message):
 		msglen -= sent
 
 def startServer():
+	log.log(log.NORMAL, 'Starting listening server')
 	if config.get('general', 'socktype') == 'inet':
 		domain = socket.AF_INET
 		bindaddr = (config.get('general', 'bindaddr'), config.getint('general', 'bindport'))

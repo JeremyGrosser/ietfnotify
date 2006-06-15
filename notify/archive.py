@@ -7,8 +7,10 @@ import os
 import util
 import config
 import notifier
+import log
 
 def buildUUIDCache():
+	log.log(log.NORMAL, 'Building UUID cache')
 	listing = os.listdir(config.get('archive', 'uuid_dir'))
 	for file in listing:
 		st = os.stat(config.get('archive', 'uuid_dir') + '/' + file)
@@ -17,6 +19,7 @@ def buildUUIDCache():
 	notifier.uuidcache = notifier.uuidcache[:config.getint('notify-atom', 'feedlength')]
 
 def archiveMessage(parsed):
+	log.log(log.NORMAL, 'Archiving message: ' + parsed['doc-tag'][0])
 	# Use the UUID from the event or generate one if the event didn't specify
 	if 'event-uuid' in parsed:
 		uuid = parsed['event-uuid'][0]
@@ -43,12 +46,13 @@ def archiveMessage(parsed):
 
 	try:
 		os.makedirs(config.get('archive', 'date_dir') + '/' + year + '/' + month)
-	except OSError: pass
+	except OSError: log.log(log.ERROR, 'Date directory already exists (' + config.get('archive', 'date_dir') + '/' + year + '/' + month + ')')
 
 	try:
 		os.symlink(symlink_source, symlink_dest)
 	except OSError:
 		os.remove(config.get('archive', 'uuid_dir') + '/' + uuid)
+		log.log(log.ERROR, 'Unable to symlink the same uuid twice')
 		return (1, 'Unable to symlink the same uuid twice')
 
 	# Update the uuid cache

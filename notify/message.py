@@ -4,8 +4,10 @@
 						  
 import util
 import config
+import log
 
 def htmlMessage(parsed):
+	log.log(log.NORMAL, 'Building HTML message: ' + parsed['doc-tag'][0])
 	msg = '''<html>
 <head>
  <title>''' + parsed['doc-tag'][0] + '''</title>
@@ -46,6 +48,7 @@ def htmlMessage(parsed):
 	return msg
 
 def textMessage(parsed, newline='\n'):
+	log.log(log.NORMAL, 'Building text message: ' + parsed['doc-tag'][0])
 	msg = ''
 	for field in parsed:
 		for i in parsed[field]:
@@ -53,6 +56,7 @@ def textMessage(parsed, newline='\n'):
 	return msg
 
 def parseMessage(msg, keepdate):
+	log.log(log.NORMAL, 'Parsing message')
 	lines = msg.split('\n')
 	parsed = {}
 
@@ -74,7 +78,9 @@ def parseMessage(msg, keepdate):
 	return parsed
 
 def checkRequired(parsed):
+	log.log(log.NORMAL, 'Checking required fields')
 	if not 'doc-tag' in parsed:
+		log.log(log.ERROR, 'No tag specified')
 		return (1, 'No tag specified')
 	tag = parsed['doc-tag'][0].split('-', 1)
 	event_type = tag[0]
@@ -86,6 +92,7 @@ def checkRequired(parsed):
 				required_fields = i[1].split(', ')
 				for field in required_fields:
 					if not field in parsed:
+						log.log(log.ERROR, 'Required field "' + field + '" is missing')
 						return (1, 'Required field "' + field + '" is missing')
 			elif i[0] == 'optional':
 				return (0, '')
@@ -94,9 +101,10 @@ def checkRequired(parsed):
 				#	if field in parsed:
 				#		pass
 			else:
+				log.log(log.ERROR, 'Unknown definition in config: ' + repr(i))
 				return (1, 'Unknown definition in config: ' + repr(i))
 	else:
-		print 'Event type not specified in config file. Adding section. All fields will be added as optional. Fix this soon.'
+		log.log(log.ERROR, 'Event type not specified in config file. Adding section. All fields will be added as optional. Fix this soon.')
 		config.add_section('fields-' + event_type)
 		oldkey = ''
 		for key in parsed:

@@ -14,14 +14,15 @@ import xmpp
 import config
 import util
 import message
+import log
 
 uuidcache = []
 
 def dummyNotification(subscriber, parsed):
-	print 'Dummy: ' + repr(subscriber)
+	log.log(log.NORMAL, 'Dummy: ' + repr(subscriber))
 
 def jabberNotification(subscriber, parsed):
-	print 'Jabber: ' + repr(subscriber)
+	log.log(log.NORMAL, 'Jabber: ' + repr(subscriber))
 	msg = ''
 	for field in parsed:
 		for i in parsed[field]:
@@ -35,7 +36,7 @@ def jabberNotification(subscriber, parsed):
 	client.disconnect()
 
 def emailNotification(subscriber, parsed):
-	print 'Plain email: ' + repr(subscriber)
+	log.log(log.NORMAL, 'Plain email: ' + repr(subscriber))
 	try:
 		msg = message.textMessage(parsed, '\r\n')
 		msg = MIMEText(msg)
@@ -49,10 +50,10 @@ def emailNotification(subscriber, parsed):
 		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber, eml)
 		smtp.quit()
 	except smtplib.SMTPDataError:
-		print 'Error sending email notification: ' + subscriber
+		log.log(log.ERROR, 'Error sending email notification: ' + subscriber)
 
 def htmlEmailNotification(subscriber, parsed):
-	print 'HTML email: ' + repr(subscriber)
+	log.log(log.NORMAL, 'HTML email: ' + repr(subscriber))
 	try:
 		msg = message.htmlMessage(parsed)
 		msg = MIMEText(msg)
@@ -67,10 +68,10 @@ def htmlEmailNotification(subscriber, parsed):
 		smtp.sendmail(config.get('notify-email', 'smtpfrom'), subscriber, eml)
 		smtp.quit()
 	except smtplib.SMTPDataError:
-		print 'Error sending email notification: ' + subscriber
+		log.log(log.ERROR, 'Error sending email notification: ' + subscriber)
 
 def atomNotification(subscriber, parsed):
-	print 'Atom: ' + repr(subscriber)
+	log.log(log.NORMAL, 'Atom: ' + repr(subscriber))
 	fd = open(subscriber[0], 'w')
 
 	if 'event-uuid' in parsed:
@@ -123,11 +124,11 @@ notifyCallbacks['atom'] = dummyNotification
 notifyCallbacks['jabber'] = jabberNotification
 
 def sendNotifications(parsed):
+	log.log(log.NORMAL, 'Sending notifications')
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
 	db.query('SELECT type,target,pattern FROM subscriptions')
 	subs = db.store_result()
 
-	
 	notified = []
 	for subscription in subs.fetch_row(0):
 		regex = re.compile(subscription[2])
@@ -137,5 +138,5 @@ def sendNotifications(parsed):
 				f(subscription[1], parsed)
 				notified.append(subscription[1])
 			else:
-				print 'Unknown notification type: ' + repr(subscription)
+				log.log(log.ERROR, 'Unknown notification type: ' + repr(subscription))
 	db.close()
