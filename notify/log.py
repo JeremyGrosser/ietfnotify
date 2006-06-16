@@ -7,12 +7,12 @@ import sys
 DEBUGGING = 1
 
 # Constants
-NORMAL = 0
-ERROR = 10
+NORMAL = 'NORMAL'
+ERROR = 'ERROR'
 
 def log(priority, msg):
 	if DEBUGGING:
-		sys.stderr.write(str(priority) + ': ' + msg + '\n')
+		sys.stderr.write(priority + ': ' + msg + '\n')
 
 	if priority == NORMAL: pass
 	if priority == ERROR: pass
