@@ -18,6 +18,15 @@ import log
 
 uuidcache = []
 
+# Login to jabber
+jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
+client = xmpp.Client(jid.getDomain(), debug=[])
+client.connect()
+client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
+
+def cleanup():
+	client.disconnect()
+
 def dummyNotification(subscriber, parsed):
 	log.log(log.NORMAL, 'Dummy: ' + repr(subscriber))
 
@@ -28,12 +37,7 @@ def jabberNotification(subscriber, parsed):
 		for i in parsed[field]:
 			msg += field + ' - ' + i + '\n'
 
-	jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
-	client = xmpp.Client(jid.getDomain(), debug=[])
-	client.connect()
-	client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
 	client.send(xmpp.protocol.Message(subscriber, msg))
-	client.disconnect()
 
 def emailNotification(subscriber, parsed):
 	log.log(log.NORMAL, 'Plain email: ' + repr(subscriber))

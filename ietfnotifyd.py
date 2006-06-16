@@ -35,4 +35,5 @@ try:
 			notify.notifier.sendNotifications(msg)
 except KeyboardInterrupt:
 	print 'Caught keyboard interrupt, cleaning up.'
+	notify.notifier.cleanup()
 	sd.close()
