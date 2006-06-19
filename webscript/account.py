@@ -49,7 +49,7 @@ def getSubscription(db, recordid):
 
 def getFilters(db, recordid):
 	# Get all possible filter types
-	db.query('SELECT field FROM eventTypes WHERE type="filter"')
+	db.query('SELECT field FROM eventTypes WHERE type="filter" AND admin=0')
 	fields = db.store_result()
 
 	if getAdmin(db):
@@ -118,6 +118,7 @@ def updateSubscription(db, recordid, eventType, param, filters):
 def removeSubscription(db, recordid):
 	db.query('DELETE FROM subscriptions WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
 	db.query('DELETE FROM filters WHERE parent_id=' + str(recordid))
+
 def removeFilters(db, fields):
 	for field in fields:
-		db.query('DELETE FROM eventTypes WHERE field="' + field + '" AND type="filter"')
+		db.query('UPDATE eventTypes SET admin=1 WHERE field="' + field + '" AND type="filter"')

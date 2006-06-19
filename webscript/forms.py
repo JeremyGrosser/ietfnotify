@@ -108,20 +108,24 @@ def showFieldsList(db):
 <input type="hidden" name="action" value="removefields" />
 <table>
  <tr class="header">
-  <th>Delete</th>
+  <th>Hidden</th>
   <th>Field</th>
  </tr>'''
 
-	db.query('SELECT field FROM eventTypes WHERE type="filter"')
+	db.query('SELECT field,admin FROM eventTypes WHERE type="filter"')
 	res = db.store_result()
 	count = 0
 	for field in res.fetch_row(0):
 		count += 1
+		if field[1] == '1':
+			checked = 'checked '
+		else:
+			checked = ''
 		if count % 2:
 			print '<tr class="white">'
 		else:
 			print '<tr class="gray">'
-		print '<td><input type="checkbox" name="filter-' + field[0] + '" /></td>'
+		print '<td><input type="checkbox" name="filter-' + field[0] + '" ' + checked + '/></td>'
 		print '<td>' + field[0] + '</td>'
-	print '<tr><td align="center" colspan="2"><input type="submit" value="Delete" /></td></tr>'
+	print '<tr><td align="center" colspan="2"><input type="submit" value="Hide" /></td></tr>'
 	print '</table>\n</form>'

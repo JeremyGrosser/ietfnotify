@@ -16,9 +16,13 @@ def updateFilters(parsed):
 	res = db.store_result()
 
 	matched = 0
+	store = []
+	for storedField in res.fetch_row(0):
+		store.append(storedField[0])
+
 	for eventField in parsed:
-		for storedField in res.fetch_row(0):
-			if eventField == storedField[0]:
+		for stored in store:
+			if eventField == stored:
 				matched = 1
 		if not matched:
 			log.log(log.NORMAL, 'Field "' + eventField + '" does not exist in the database, it will be added.')
