@@ -13,13 +13,13 @@ The notification type sets the method in which you'll be notified. Address sets 
 <h3>Your subscriptions</h3>
 A list of your current subscriptions is displayed. The fields correspond to the fields on the subscription form. You can modify an existing subscription or remove it using the links to the right.'''
 
-def showSubscriptions(db, username):
-	subs = account.getSubscriptions(db, username)
+def showSubscriptions(db):
+	subs = account.getSubscriptions(db)
 	print '<strong>Your subscriptions</strong>'
 	print '<table>'
 	count = 0
 
-	print ' <tr class="header">\n  <th>Notification</th>\n  <th>Address</th>\n  <th>Pattern</th>\n </tr>\n'
+	print ' <tr class="header">\n  <th>Notification</th>\n  <th>Address</th>\n  <th>doc-tag filter</th>\n </tr>\n'
 	for sub in subs.fetch_row(0):
 		count += 1
 		if count % 2:
@@ -27,8 +27,9 @@ def showSubscriptions(db, username):
 		else:
 			print '	<tr class="white">'
 		for field in sub[2:]:
-                	print '<td>' + field + '</td>'
-                print '''<td><a href="?action=modify&id=''' + sub[0] + '''">Modify</a></td>
+			print '<td>' + field + '</td>'
+		print '<td>' + account.getTagFilter(db, int(sub[0])) + '</td>'
+		print '''<td><a href="?action=modify&id=''' + sub[0] + '''">Modify</a></td>
 		<td><a href="?action=remove&id=''' + sub[0] + '''">Remove</a></td>
         </tr>'''
 
@@ -38,7 +39,7 @@ def showAllSubscriptions(db):
 	print '<table>'
 	count = 0
 
-	print ' <tr class="header">\n  <th>Notification</th>\n  <th>Address</th>\n  <th>Pattern</th>\n  <th>Admin</th>\n </tr>\n'
+	print ' <tr class="header">\n  <th>Notification</th>\n  <th>Address</th>\n  <th>Admin</th>\n  <th>doc-tag</th>\n </tr>\n'
 	for sub in subs.fetch_row(0):
 		count += 1
 		if count % 2:
@@ -47,6 +48,7 @@ def showAllSubscriptions(db):
 			print ' <tr class="white">'
 		for field in sub[2:]:
 			print '<td>' + str(field) + '</td>'
+		print '<td>' + account.getTagFilter(db, int(sub[0])) + '</td>'
 		print '<td><a href="?action=modify&id=' + sub[0] + '">Modify</a></td>'
 		print '<td><a href="?action=remove&id=' + sub[0] + '">Remove</a></td>'
 		print '</tr>'
@@ -57,14 +59,12 @@ def showModifyForm(db, recordid):
 	if recordid == -1:
 		eventType = ''
 		param = ''
-		pattern = ''
 		action = 'add'
 	else:
 		sub = account.getSubscription(db, recordid)
 		sub = sub.fetch_row()
 		eventType = sub[0][1]
 		param = sub[0][2]
-		pattern = sub[0][3]
 	print '''<form action="" name="modifyForm" method="POST">
 	<input type="hidden" name="action" value="''' + action + '''" />'''
 	if not recordid == -1:
@@ -93,10 +93,9 @@ def showModifyForm(db, recordid):
 			<td>Address:</td>
 			<td><input type="text" name="param" value="''' + param + '''" /></td>
 		</tr>'''
-	db.query('SELECT field FROM eventTypes WHERE type="filter" AND admin=0')
-	res = db.store_result()
-	for filter in res.fetch_row(0):
-		print '<tr><td>' + filter[0] + '</td><td><input type="text" name="filter-' + filter[0] + '" value="' + pattern + '" /></td></tr>\n'
+	res = account.getFilters(db, recordid)
+	for field in res:
+		print '<tr><td>' + field + '</td><td><input type="text" name="filter-' + field + '" value="' + res[field] + '" /></td></tr>\n'
 	print '''		<tr>
 		<tr>
 			<td colspan="2" align="center"><input type="submit" value="Submit" /></td>

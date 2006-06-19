@@ -46,7 +46,7 @@ def archiveMessage(parsed):
 
 	try:
 		os.makedirs(config.get('archive', 'date_dir') + '/' + year + '/' + month)
-	except OSError: log.log(log.ERROR, 'Date directory already exists (' + config.get('archive', 'date_dir') + '/' + year + '/' + month + ')')
+	except OSError: log.log(log.NORMAL, 'Date directory already exists (' + config.get('archive', 'date_dir') + '/' + year + '/' + month + ')')
 
 	try:
 		os.symlink(symlink_source, symlink_dest)

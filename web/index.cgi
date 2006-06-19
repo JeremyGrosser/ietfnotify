@@ -40,7 +40,7 @@ if form.getfirst('action') == 'remove' and 'id' in form:
 	account.removeSubscription(db, int(form.getfirst('id')))
 if form.getfirst('action') == 'add':
 	if 'eventType' in form:
-		account.addSubscription(db, form.getfirst('eventType'), account.getUser(), form.getfirst('filter-doc-tag'))
+		account.addSubscription(db, form.getfirst('eventType'), account.getUser())
 	else:
 		forms.showModifyForm(db, -1)
 		done = 1
@@ -52,7 +52,7 @@ if form.getfirst('action') == 'help':
 	done = 1
 
 if not done:
-	forms.showSubscriptions(db, account.getUser())
+	forms.showSubscriptions(db)
 
 template.footer()
 db.close()
