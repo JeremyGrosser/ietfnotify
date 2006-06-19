@@ -130,13 +130,21 @@ notifyCallbacks['jabber'] = jabberNotification
 def sendNotifications(parsed):
 	log.log(log.NORMAL, 'Sending notifications')
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
-	db.query('SELECT type,target,pattern FROM subscriptions')
+	db.query('SELECT type,target,id FROM subscriptions')
 	subs = db.store_result()
 
 	notified = []
 	for subscription in subs.fetch_row(0):
-		regex = re.compile(subscription[2])
-		if (regex.search(parsed['doc-tag'][0]) or subscription[2] == '') and not subscription[2] in notified:
+		db.query('SELECT field,pattern FROM filters WHERE parent_id=' + str(subscription[2]))
+		filter_res = db.store_result()
+		filtered = 0
+		for filter in filter_res.fetch_row(0):
+			regex = re.compile(filter[1])
+			if filter[0] in parsed:
+				if regex.search(parsed[filter[0]][0]):
+					filtered = 1
+
+		if not subscription[1] in notified and not filtered:
 			if subscription[0] in notifyCallbacks:
 				f = notifyCallbacks[subscription[0]]
 				f(subscription[1], parsed)
