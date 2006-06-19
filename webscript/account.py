@@ -118,3 +118,6 @@ def updateSubscription(db, recordid, eventType, param, filters):
 def removeSubscription(db, recordid):
 	db.query('DELETE FROM subscriptions WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
 	db.query('DELETE FROM filters WHERE parent_id=' + str(recordid))
+def removeFilters(db, fields):
+	for field in fields:
+		db.query('DELETE FROM eventTypes WHERE field="' + field + '" AND type="filter"')

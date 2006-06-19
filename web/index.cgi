@@ -50,6 +50,17 @@ if form.getfirst('action') == 'listall' and account.getAdmin(db):
 if form.getfirst('action') == 'help':
 	forms.showHelp()
 	done = 1
+if form.getfirst('action') == 'removefields' and account.getAdmin(db):
+	filters = []
+	for field in form:
+		if field.startswith('filter-') and form.getfirst(field) == 'on':
+			filters.append(field[7:])
+	account.removeFilters(db, filters)
+	forms.showFieldsList(db)
+	done = 1
+if form.getfirst('action') == 'listfields' and account.getAdmin(db):
+	forms.showFieldsList(db)
+	done = 1
 
 if not done:
 	forms.showSubscriptions(db)

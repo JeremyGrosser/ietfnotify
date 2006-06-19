@@ -102,3 +102,26 @@ def showModifyForm(db, recordid):
 		</tr>
 	</table>
 	</form>'''
+
+def showFieldsList(db):
+	print '''<form action="" method="GET">
+<input type="hidden" name="action" value="removefields" />
+<table>
+ <tr class="header">
+  <th>Delete</th>
+  <th>Field</th>
+ </tr>'''
+
+	db.query('SELECT field FROM eventTypes WHERE type="filter"')
+	res = db.store_result()
+	count = 0
+	for field in res.fetch_row(0):
+		count += 1
+		if count % 2:
+			print '<tr class="white">'
+		else:
+			print '<tr class="gray">'
+		print '<td><input type="checkbox" name="filter-' + field[0] + '" /></td>'
+		print '<td>' + field[0] + '</td>'
+	print '<tr><td align="center" colspan="2"><input type="submit" value="Delete" /></td></tr>'
+	print '</table>\n</form>'

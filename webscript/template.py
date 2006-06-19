@@ -105,6 +105,7 @@ def header(db):
 		print '<p><a href="?">List subscriptions</a>'
 		if account.getAdmin(db):
 			print '<br /><a href="?action=listall">List all subscriptions</a>'
+			print '<br /><a href="?action=listfields">Edit filter fields</a>'
 		print '<br /><a href="?action=add">New notification</a>'
 		print '<br /><a href="?action=help">Help</a></p>'
 	print '''</div>
