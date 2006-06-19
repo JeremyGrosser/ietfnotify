@@ -33,6 +33,7 @@ try:
 				notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
 			afd.close()
 			notify.notifier.sendNotifications(msg)
+			notify.message.updateFilters(msg)
 except KeyboardInterrupt:
 	print 'Caught keyboard interrupt, cleaning up.'
 	notify.notifier.cleanup()

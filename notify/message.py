@@ -1,10 +1,32 @@
 # ietfnotify - Receives, archives, and sends notifications related to IETF
 #              events, drafts, working groups, etc.
 # Copyright (C) 2006 Jeremy Grosser
-						  
+
+import _mysql
+
 import util
 import config
 import log
+
+def updateFilters(parsed):
+	log.log(log.NORMAL, 'Updating filters list in database')
+	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
+
+	db.query('SELECT field FROM eventTypes WHERE type="filter"')
+	res = db.store_result()
+
+	matched = 0
+	for eventField in parsed:
+		for storedField in res.fetch_row(0):
+			if eventField == storedField[0]:
+				matched = 1
+				break
+		if not matched:
+			log.log(log.NORMAL, 'Field "' + eventField + '" does not exist in the database, it will be added.')
+			db.query('INSERT INTO eventTypes SET field="' + eventField + '", type="filter", admin=0')
+			matched = 0
+	
+	db.close()
 
 def htmlMessage(parsed):
 	log.log(log.NORMAL, 'Building HTML message: ' + parsed['doc-tag'][0])
