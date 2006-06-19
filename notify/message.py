@@ -20,7 +20,6 @@ def updateFilters(parsed):
 		for storedField in res.fetch_row(0):
 			if eventField == storedField[0]:
 				matched = 1
-				break
 		if not matched:
 			log.log(log.NORMAL, 'Field "' + eventField + '" does not exist in the database, it will be added.')
 			db.query('INSERT INTO eventTypes SET field="' + eventField + '", type="filter", admin=0')
