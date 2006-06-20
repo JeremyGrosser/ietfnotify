@@ -18,15 +18,8 @@ def buildUUIDCache():
 	notifier.uuidcache.sort()
 	notifier.uuidcache = notifier.uuidcache[:config.getint('notify-atom', 'feedlength')]
 
-def archiveMessage(parsed):
-	log.log(log.NORMAL, 'Archiving message: ' + parsed['doc-tag'][0])
-	# Use the UUID from the event or generate one if the event didn't specify
-	if 'event-uuid' in parsed:
-		uuid = parsed['event-uuid'][0]
-	else:
-		uuid = util.makeUUID()
-
-	# Write the event to a file named with the UUID
+def uuidArchive(uuid, parsed):
+	log.log(log.NORMAL, 'Archive/UUID: ' + parsed['doc-tag'][0])
 	os.chdir(config.get('archive', 'uuid_dir'))
 	fd = open(uuid, 'w+')
 	for key in parsed:
@@ -34,7 +27,8 @@ def archiveMessage(parsed):
 			fd.write(key + ': ' + parsed[key][i] + '\n')
 	fd.close()
 
-	# Symlink from the date file structure to the uuid file
+def dateArchive(uuid, parsed):
+	log.log(log.NORMAL, 'Archive/Date: ' + parsed['doc-tag'][0])
 	if 'event-date' in parsed:
 		year = parsed['event-date'][0][:4]
 		month = parsed['event-date'][0][8:10]
@@ -46,7 +40,7 @@ def archiveMessage(parsed):
 
 	try:
 		os.makedirs(config.get('archive', 'date_dir') + '/' + year + '/' + month)
-	except OSError: log.log(log.NORMAL, 'Date directory already exists (' + config.get('archive', 'date_dir') + '/' + year + '/' + month + ')')
+	except OSError: pass
 
 	try:
 		os.symlink(symlink_source, symlink_dest)
@@ -54,6 +48,24 @@ def archiveMessage(parsed):
 		os.remove(config.get('archive', 'uuid_dir') + '/' + uuid)
 		log.log(log.ERROR, 'Unable to symlink the same uuid twice')
 		return (1, 'Unable to symlink the same uuid twice')
+
+archiveCallbacks = {}
+archiveCallbacks['date'] = dateArchive
+
+def archiveMessage(parsed):
+	log.log(log.NORMAL, 'Archiving message: ' + parsed['doc-tag'][0])
+	# Use the UUID from the event or generate one if the event didn't specify
+	if 'event-uuid' in parsed:
+		uuid = parsed['event-uuid'][0]
+	else:
+		uuid = util.makeUUID()
+
+	# Notification MUST be archived by UUID before any other format
+	uuidArchive(uuid, parsed)
+
+	for callback in archiveCallbacks:
+		f = archiveCallbacks[callback]
+		f(uuid, parsed)
 
 	# Update the uuid cache
 	notifier.uuidcache.insert(0, (uuid, 0))
