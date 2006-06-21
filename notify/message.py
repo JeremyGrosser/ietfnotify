@@ -15,19 +15,15 @@ def updateFilters(parsed):
 	db.query('SELECT field FROM eventTypes WHERE type="filter"')
 	res = db.store_result()
 
-	matched = 0
 	store = []
 	for storedField in res.fetch_row(0):
-		store.append(storedField[0])
+	 	store.append(storedField[0])
 
+	parsed = parsed.keys()
 	for eventField in parsed:
-		for stored in store:
-			if eventField == stored:
-				matched = 1
-		if not matched:
+		if not eventField in store:
 			log.log(log.NORMAL, 'Field "' + eventField + '" does not exist in the database, it will be added.')
 			db.query('INSERT INTO eventTypes SET field="' + eventField + '", type="filter", admin=0')
-			matched = 0
 	
 	db.close()
 
