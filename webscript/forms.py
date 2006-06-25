@@ -5,53 +5,54 @@
 import account
 
 def showLoginMessage():
-	print 'You must be logged in to edit your notifier settings.'
+	return 'You must be logged in to edit your notifier settings.'
 
 def showHelp():
-	print '''<h3>Subscription form</h3>
+	return '''<h3>Subscription form</h3>
 The notification type sets the method in which you'll be notified. Address sets the address the notification will be sent to. Email notifications can only be sent to the address you're logged in with. The pattern is a <a href="http://www.python.org/doc/current/lib/re-syntax.html">regular expression</a> that is searched on the Tag field of the notification. An example tag is <em>draft-ietf-tools-draft-info-04</em>
 <h3>Your subscriptions</h3>
 A list of your current subscriptions is displayed. The fields correspond to the fields on the subscription form. You can modify an existing subscription or remove it using the links to the right.'''
 
 def showSubscriptions(db):
-	subs = account.getSubscriptions(db)
-	print '<strong>Your subscriptions</strong>'
-	print '<table>'
-	count = 0
-
-	print ' <tr class="header">\n  <th>Notification</th>\n  <th>Address</th>\n  <th>doc-tag filter</th>\n </tr>\n'
-	for sub in subs.fetch_row(0):
-		count += 1
-		if count % 2:
-			print '	<tr class="gray">'
-		else:
-			print '	<tr class="white">'
-		for field in sub[2:]:
-			print '<td>' + field + '</td>'
-		print '<td>' + account.getTagFilter(db, int(sub[0])) + '</td>'
-		print '''<td><a href="?action=modify&id=''' + sub[0] + '''">Modify</a></td>
-		<td><a href="?action=remove&id=''' + sub[0] + '''">Remove</a></td>
-        </tr>'''
+	print '''
+<strong>Your subscriptions</strong>
+<table>
+<tr class="header">
+ <th>Notification</th>
+ <th>Address</th>
+ <th>doc-tag filter</th>
+ <th colspan="2">Actions</th>
+</tr>'''
+	for sub in account.getSubscriptions(db):
+		print '''
+<tr class="%(color)s">
+ <td>%(notification)s</td>
+ <td>%(address)s</td>
+ <td>%(filter)s</td>
+ <td><a href="?action=modify&id=%(id)s">Modify</a></td>
+ <td><a href="?action=remove&id=%(id)s">Remove</a></td>
+</tr>''' % sub
+	print '</table>'
 
 def showAllSubscriptions(db):
-	subs = account.getAllSubscriptions(db)
-	print '<strong>All subscriptions</strong>'
-	print '<table>'
-	count = 0
-
-	print ' <tr class="header">\n  <th>Notification</th>\n  <th>Address</th>\n  <th>Admin</th>\n  <th>doc-tag</th>\n </tr>\n'
-	for sub in subs.fetch_row(0):
-		count += 1
-		if count % 2:
-			print ' <tr class="gray">'
-		else:
-			print ' <tr class="white">'
-		for field in sub[2:]:
-			print '<td>' + str(field) + '</td>'
-		print '<td>' + account.getTagFilter(db, int(sub[0])) + '</td>'
-		print '<td><a href="?action=modify&id=' + sub[0] + '">Modify</a></td>'
-		print '<td><a href="?action=remove&id=' + sub[0] + '">Remove</a></td>'
-		print '</tr>'
+	print '''
+<strong>All subscriptions</strong>
+<table>
+<tr class="header">
+ <th>Notification</th>
+ <th>Address</th>
+ <th>doc-tag</th>
+ <th colspan="2">Actions</th>
+</tr>'''
+	for sub in account.getAllSubscriptions(db):
+		print '''
+<tr class="%(color)s">
+ <td>%(notification)s</td>
+ <td>%(address)s</td>
+ <td>%(filter)s</td>
+ <td><a href="?action=modify&id=%(id)s">Modify</a></td>
+ <td><a href="?action=remove&id=%(id)s">Remove</a></td>
+</tr>''' % sub
 	print '</table>'
 
 def showModifyForm(db, recordid):

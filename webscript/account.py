@@ -37,7 +37,43 @@ def getSubscriptions(db):
 	ret = []
 	db.query('SELECT id,username,type,target FROM subscriptions WHERE username=\'' + getUser() + '\'')
 	subs = db.store_result()
-	return subs
+
+	count = 0
+	for sub in subs.fetch_row(0):
+		dict = {}
+		count += 1
+		if count % 2:
+			dict['color'] = 'gray'
+		else:
+			dict['color'] = 'white'
+
+		dict['id'] = sub[0]
+		dict['notification'] = sub[2]
+		dict['address'] = sub[3]
+		dict['filter'] = getTagFilter(db, sub[0])
+		ret.append(dict)
+	return ret
+
+def getAllSubscriptions(db):
+	ret = []
+	db.query('SELECT id,username,type,target FROM subscriptions')
+	subs = db.store_result()
+
+	count = 0
+	for sub in subs.fetch_row(0):
+		dict = {}
+		count += 1
+		if count % 2:
+			dict['color'] = 'gray'
+		else:
+			dict['color'] = 'white'
+
+		dict['id'] = sub[0]
+		dict['notification'] = sub[2]
+		dict['address'] = sub[3]
+		dict['filter'] = getTagFilter(db, sub[0])
+		ret.append(dict)
+	return ret
 
 def getSubscription(db, recordid):
 	if getAdmin(db):
@@ -76,14 +112,6 @@ def getTagFilter(db, recordid):
 		return filter.fetch_row()[0][2]
 	else:
 		return ''
-
-def getAllSubscriptions(db):
-	if getAdmin(db):
-		db.query('SELECT * FROM subscriptions')
-		sub = db.store_result()
-		return sub
-	else:
-		return None
 
 def addSubscription(db, eventType, param):
 	eventType = sanitize(eventType)
