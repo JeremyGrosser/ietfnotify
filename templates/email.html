@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>IETF event notification</title>
+	<style type="text/css">
+	table {
+		border-spacing: 0;
+		border-collapse: collapse;
+	}
+
+	td.field1 { background-color: #AAF; }
+	td.value1 { background-color: #AFA; }
+	td.field2 { background-color: #99C; }
+	td.value2 { background-color: #9C9; }
+
+	td {
+ 		border: 1px;
+		border-style: solid;
+		border-color: #000;
+		padding: 5px;
+	}
+	</style>
+</head>
+
+<body>
+<table>
+	{% for field in fields %}
+	<tr>
+		<td class="field1">{{ field.0 }}</td>
+		<td class="value1">{{ field.1 }}</td>
+	</tr>
+	{% endfor %}
+</table>
+</body>
+</html>
