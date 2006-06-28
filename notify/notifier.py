@@ -42,7 +42,7 @@ def jabberNotification(subscriber, parsed):
 def emailNotification(subscriber, parsed):
 	log.log(log.NORMAL, 'Plain email: ' + repr(subscriber))
 	try:
-		msg = message.textMessage(parsed, '\r\n')
+		msg = message.renderMessage('email.txt', parsed)
 		msg = MIMEText(msg)
 		msg = msg.as_string()
 		eml = 'To: ' + subscriber + '\r\n'
@@ -59,7 +59,7 @@ def emailNotification(subscriber, parsed):
 def htmlEmailNotification(subscriber, parsed):
 	log.log(log.NORMAL, 'HTML email: ' + repr(subscriber))
 	try:
-		msg = message.htmlMessage(parsed)
+		msg = message.renderMessage('email.html', parsed)
 		msg = MIMEText(msg)
 		msg = msg.as_string()
 		eml = 'To: ' + subscriber + '\r\n'

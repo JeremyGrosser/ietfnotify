@@ -3,10 +3,14 @@
 # Copyright (C) 2006 Jeremy Grosser
 
 import _mysql
+import django.template
+import django.conf
 
 import util
 import config
 import log
+
+django.conf.settings.configure()
 
 def updateFilters(parsed):
 	log.log(log.NORMAL, 'Updating filters list in database')
@@ -27,55 +31,25 @@ def updateFilters(parsed):
 	
 	db.close()
 
-def htmlMessage(parsed):
-	log.log(log.NORMAL, 'Building HTML message: ' + parsed['doc-tag'][0])
-	msg = '''<html>
-<head>
- <title>''' + parsed['doc-tag'][0] + '''</title>
- <style type="text/css">
- table {
- 	border-spacing: 0;
-	border-collapse: collapse;
- }
-
- td.field1 { background-color: #AAF; }
- td.value1 { background-color: #AFA; }
- td.field2 { background-color: #99C; }
- td.value2 { background-color: #9C9; }
-
- td {
- 	border: 1px;
-	border-style: solid;
-	border-color: #000;
-	padding: 5px;
- }
- </style>
-</head>
-
-<body>
-<table>'''
-	color = 1
+def renderMessage(templateFile, parsed):
+	log.log(log.NORMAL, 'Rendering django template (' + templateFile + ')')
+	# Reformat the data into something django templates can work with
+	fields = []
 	for field in parsed:
-		for i in parsed[field]:
-			if color == '2':	color = str(1)
-			else:				color = str(2)
-			msg += '''<tr>
- <td class="field''' + color + '''">''' + field + '''</td>
- <td class="value''' + color + '''">''' + i + '''</td>
-</tr>'''
-	msg += '''</table>
-</body>
-</html>'''
-	return msg
+		fields.append([field, parsed[field][0]])
+	
+	# Read the template file
+	template = ''
+	fd = open(config.get('notifier', 'templatepath') + templateFile, 'r')
+	for line in fd.readlines():
+		template += line
+	fd.close()
 
-def textMessage(parsed, newline='\n'):
-	log.log(log.NORMAL, 'Building text message: ' + parsed['doc-tag'][0])
-	msg = ''
-	for field in parsed:
-		for i in parsed[field]:
-			msg += field + ' - ' + i + newline
-	return msg
-
+	# Create the django objects and render
+	template = django.template.Template(template)
+	context = django.template.Context({'fields': fields})
+	return template.render(context)
+	
 def parseMessage(msg, keepdate):
 	log.log(log.NORMAL, 'Parsing message')
 	lines = msg.split('\n')
