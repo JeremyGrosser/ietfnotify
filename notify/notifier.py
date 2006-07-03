@@ -26,6 +26,7 @@ client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
 
 def cleanup():
 	client.disconnect()
+	log.cleanup()
 
 def dummyNotification(subscriber, parsed):
 	log.log(log.NORMAL, 'Dummy: ' + repr(subscriber))
