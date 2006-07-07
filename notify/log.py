@@ -11,7 +11,7 @@ DEBUGGING = 1
 NORMAL = 'NORMAL'
 ERROR = 'ERROR'
 
-logfd = open('/home/synack/ietfnotify/debug.log', 'w')
+logfd = open('/home/jeremy/src/ietfnotify/debug.log', 'w')
 
 def log(priority, msg):
 	if DEBUGGING:

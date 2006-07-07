@@ -9,6 +9,7 @@ import django.conf
 import util
 import config
 import log
+import archive
 
 django.conf.settings.configure()
 
@@ -48,6 +49,30 @@ def renderMessage(templateFile, parsed):
 	# Create the django objects and render
 	template = django.template.Template(template)
 	context = django.template.Context({'fields': fields})
+	return template.render(context)
+
+def renderList(templateFile, uuidList):
+	log.log(log.NORMAL, 'Rendering django list (' + templateFile + ')')
+	
+	# Turn a list of UUIDs into a list of tuples (tag, date)
+	eventList = []
+	for uuid in uuidList:
+		parsed = archive.getArchived(uuid)
+		if ('doc-tag' in parsed) and ('event-date' in parsed):
+			eventList.append( (parsed['doc-tag'], parsed['event-date']) )
+		else:
+			log.log(log.ERROR, 'Missing doc-tag or event-date in archive (uuid:' + uuid + ')')
+
+	# Read the template file
+	template = ''
+	fd = open(config.get('notifier', 'templatepath') + templateFile, 'r')
+	for line in fd.readlines():
+		template += line
+	fd.close()
+
+	# Create django objects and render
+	template = django.template.Template(template)
+	context = django.template.Context({'entries': eventList, 'updated': eventList[-1][1][0], 'feed_uuid': util.makeUUID()})
 	return template.render(context)
 	
 def parseMessage(msg, keepdate):

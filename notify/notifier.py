@@ -77,55 +77,24 @@ def htmlEmailNotification(subscriber, parsed):
 
 def atomNotification(subscriber, parsed):
 	log.log(log.NORMAL, 'Atom: ' + repr(subscriber))
-	fd = open(subscriber[0], 'w')
 
-	if 'event-uuid' in parsed:
-		uuid = parsed['event-uuid'][0]
-	else:
-		uuid = util.makeUUID()
-	if 'event-date' in parsed:
-		date = parsed['event-date'][0]
-	else:
-		date = util.makeTimestamp()
+	# Create a pure uuid list without dates
+	uuidList = []
+	for uuid in uuidcache:
+		uuidList.append(uuid[0])
 
-	fd.write('''<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-	<title>IETF Notification Feed</title>
-	<link href="http://www1.tools.ietf.org/events/atom.xml" rel="self"/>
-	<updated>''' + date + '''</updated>
-	<author>
-		<name>IETF Tools Server</name>
-	</author>
-	<id>urn:uuid:''' + uuid + '''</id>
-	''')
-
-	for entry in uuidcache:
-		e = open(config.get('archive', 'uuid_dir') + '/' + entry[0], 'r')
-		message = ''
-		for line in e.readlines():
-			message += line
-		e.close()
-		ent = message.parseMessage(message, 1)
-		if 'event-subject' in ent:
-			title = ent['event-subject'][0]
-		else:
-			title = 'No title'
-		fd.write('''	<entry>
-		<title>''' + title + '''</title>
-		<link href="http://www1.tools.ietf.org/ietfnotify/events/''' + entry[0] + '''"/>
-		<id>urn:uuid:''' + entry[0] + '''</id>
-		<updated>''' + ent['event-date'][0] + '''</updated>
-		<summary>''' + repr(ent) + '''</summary>
-	</entry>
-''')
-	fd.write('</feed>\n')
-	fd.close()
+	try:
+		fd = open(subscriber, 'w')
+		fd.write(message.renderList('atom.xml', uuidList))
+		fd.close()
+	except IOError:
+		log.log(log.ERROR, 'Error writing atom feed')
 
 notifyCallbacks = {}
 notifyCallbacks['plain_email'] = emailNotification
 notifyCallbacks['html_email'] = htmlEmailNotification
 notifyCallbacks['rss'] = dummyNotification
-notifyCallbacks['atom'] = dummyNotification
+notifyCallbacks['atom'] = atomNotification
 notifyCallbacks['jabber'] = jabberNotification
 
 def sendNotifications(parsed):

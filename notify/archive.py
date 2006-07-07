@@ -8,6 +8,7 @@ import util
 import config
 import notifier
 import log
+import message
 
 def buildUUIDCache():
 	log.log(log.NORMAL, 'Building UUID cache')
@@ -26,6 +27,16 @@ def uuidArchive(uuid, parsed):
 		for i in range(0, len(parsed[key])):
 			fd.write(key + ': ' + parsed[key][i] + '\n')
 	fd.close()
+
+def getArchived(uuid):
+	try:
+		fd = open(config.get('archive', 'uuid_dir') + '/' + uuid, 'r')
+		notparsed = ''
+		for line in fd.readlines():
+			notparsed += line
+		fd.close()
+	except IOError: return 0
+	return message.parseMessage(notparsed, 1)
 
 def dateArchive(uuid, parsed):
 	log.log(log.NORMAL, 'Archive/Date: ' + parsed['doc-tag'][0])

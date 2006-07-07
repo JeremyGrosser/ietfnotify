@@ -2,19 +2,16 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>IETF Notifier</title>
 	<link href="http://www1.tools.ietf.org/events/notify" />
-	<updated>{% updated %}</updated>
+	<updated>{{ updated }}</updated>
 	<author>
 		<name>IETF Tools Server</name>
 	</author>
-	<id>urn:uuid:{% feed_uuid %}</id>
+	<id>urn:uuid:{{ feed_uuid }}</id>
 
 	{% for entry in entries %}
 	<entry>
 		<title>{{ entry.0 }}</title>
-		<link href="{{ entry.1 }}" />
-		<id>urn:uuid:{{ entry.2 }}</id>
-		<updated>{{ entry.3 }}</updated>
-		<summary>{{ entry.4 }}</summary>
+		<updated>{{ entry.1 }}</updated>
 	</entry>
 	{% endfor %}
 </feed>
