@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+	<channel>
+		<title>IETF Event Notifier</title>
+		<link>http://www1.tools.ietf.org/events/notify</link>
+		<pubDate>{{ updated }}</pubDate>
+		{% for entry in entries %}
+		<item>
+			<title>{{ entry.0 }}</title>
+			<pubDate>{{ entry.1 }}</pubDate>
+		</item>
+		{% endfor %}
+	</channel>
+</rss>
