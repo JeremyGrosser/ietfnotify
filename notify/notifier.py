@@ -90,10 +90,24 @@ def atomNotification(subscriber, parsed):
 	except IOError:
 		log.log(log.ERROR, 'Error writing atom feed')
 
+def rssNotification(subscriber, parsed):
+	log.log(log.NORMAL, 'RSS: ' + repr(subscriber))
+
+	uuidList = []
+	for uuid in uuidcache:
+		uuidList.append(uuid[0])
+
+	try:
+		fd = open(subscriber, 'w')
+		fd.write(message.renderList('rss.xml', uuidList))
+		fd.close()
+	except IOError:
+		log.log(log.ERROR, 'Error writing rss feed')
+
 notifyCallbacks = {}
 notifyCallbacks['plain_email'] = emailNotification
 notifyCallbacks['html_email'] = htmlEmailNotification
-notifyCallbacks['rss'] = dummyNotification
+notifyCallbacks['rss'] = rssNotification
 notifyCallbacks['atom'] = atomNotification
 notifyCallbacks['jabber'] = jabberNotification
 
