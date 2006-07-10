@@ -4,8 +4,10 @@
 # Copyright (C) 2006 Jeremy Grosser
 
 import sys
-sys.path.insert(0, '/home/synack/ietfnotify/webscript')
+sys.path.insert(0, '../webscript')
+sys.path.insert(1, '../notify')
 
+import config
 import template, account, forms
 import cgi, os, _mysql
 
@@ -15,7 +17,7 @@ cgitb.enable()
 # DEBUG
 
 form = cgi.FieldStorage()
-db = _mysql.connect('localhost', 'synack', 'rtz2096', 'ietfnotify')
+db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
 
 template.header(db)
 

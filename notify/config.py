@@ -3,15 +3,14 @@
 # Copyright (C) 2006 Jeremy Grosser
 
 import ConfigParser
-import log
 
-CONFIG_FILE = 'server.conf'
-
-log.log(log.NORMAL, 'Reading config file: ' + CONFIG_FILE)
+CONFIG_FILE = '/home/jeremy/src/ietfnotify/server.conf'
 config = ConfigParser.ConfigParser()
-fp = open(CONFIG_FILE, 'r')
-config.readfp(fp)
-fp.close()
+
+def readconfig():
+	fp = open(CONFIG_FILE, 'r')
+	config.readfp(fp)
+	fp.close()
 
 def getint(section, key):
 	return config.getint(section, key)
@@ -35,3 +34,5 @@ def write():
 	fd = open(CONFIG_FILE, 'w')
 	config.write(fd)
 	fd.close()
+
+readconfig()
