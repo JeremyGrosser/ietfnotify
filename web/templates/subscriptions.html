@@ -1,0 +1,21 @@
+{% include header.html %}
+<strong>Your subscriptions</strong>
+<table>
+<tr class="header">
+ <th>Notification</th>
+ <th>Address</th>
+ <th>doc-tag filter</th>
+ <th colspan="2">Actions</th>
+</tr>
+
+{% for sub in subscriptions %}
+<tr class="{{ sub.color }}">
+ <td>{{ sub.notification }}</td>
+ <td>{{ sub.address }}</td>
+ <td>{{ sub.filter }}</td>
+ <td><a href="?action=modify&id={{ sub.id }}">Modify</a></td>
+ <td><a href="?action=remove&id={{ sub.id }}">Remove</a></td>
+</tr>
+{% endfor %}
+</table>
+{% include footer.html %}
