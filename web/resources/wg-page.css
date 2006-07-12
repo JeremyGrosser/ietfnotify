@@ -1,0 +1,114 @@
+    /* wg-page.css */
+    /* HTML element styles */
+    body, th, td	{
+		    font-family: "Times New Roman", times, serif;
+		    font-size: 11pt;
+		    margin: 0;
+		}
+		
+    td		{ vertical-align: top; padding: 0 0 0 0; }
+    h2		{ margin-bottom: 0.5ex; }
+    h4		{ margin: 1ex 0 0 0; }
+    form	{ margin: 2ex; }
+    .menu form	{ margin: 0; }
+
+    input.frugal,textarea.frugal { border-top: groove 2px #bbb; border-left: groove 2px #ccc; border-right: ridge 2px #ddd ; border-bottom: solid 1px #ddd; padding: 1px }
+
+    /* Style classes */
+
+    .page	{ margin: 0.5ex 1ex; }
+
+    /* Link styles */
+    :link, :visited {
+	    text-decoration: underline;
+	    color: #00D;
+	    border-bottom: 0;
+    }
+    :link:hover, :visited:hover {
+	    background-color: inherit;
+	    color: #00D;
+    }
+
+    .version	{
+		  font-family: helvetica, arial, sans-serif;
+		  font-style: italic;
+		  font-size: 8.5pt;
+		  text-align: right;
+		  color: #aaa;
+		  margin: 0;
+		  padding: 0;
+		} 
+    .version a:link	{ color: #aaa; }
+    .version a:visited	{ color: #aaa; }
+    .version a:active	{ color: #aaa; }
+    .version a:hover	{ color: #888; }
+
+    .logo	{ border: 0;  }
+    .wglist	{ border-right: groove gray 2px; width: 10ex; padding: 1ex; }
+    .content	{ margin-left: 1ex; }
+    .date	{ font-size: 9pt; font-family: 'Courier New', monospace; padding: 0.6ex 2em 0 0; }
+    .new	{ font-size: 8pt; font-weight: bold; font-style: italic; color: red;}
+    .rfcsearch	{ font-size: 8pt; margin: 0; }
+    .submit	{ padding: 0; border: outset gray 1px; font-size: 8pt; }
+    .menu	{
+		  width: 100%;
+		  text-align: center;
+		  font-weight: bold;
+		  margin: 0.5ex;
+		  font-family: Verdana, Optima, Helvetica, sans-serif;
+		  font-size: 8pt;
+		}
+    .right	{
+		  float: right;
+		  font-weight: bold;
+		}
+    .navbar	{ 
+		  text-align: center;
+		  font-family: Verdana, Optima, Helvetica, sans-serif;
+		  font-size: 8pt;
+		  width: 100%;
+		}
+    .edit	{ float: left; }
+    .update	{ font-size: 9pt; font-style: italic; text-align: right; width: 100%; }
+    .chairs	{ vertical-align: bottom; text-align: right; font-size: 10pt; font-style: italic; }
+    
+    a:link	{ color: #00D }
+    a:visited	{ color: #408 }
+//    a:active	{ color: #04C }
+    a:hover	{ color: #00F }
+
+    a.external:link	{ color: #800 }
+    a.external:visited	{ color: #840 }
+    a.external:active	{ color: #804 }
+    a.external:hover	{ color: #C00 }
+
+    .active, .active_wg	{ border-left: solid white 0.5ex; padding: 0.5ex 0.5ex 0 0; }
+    .concluded, .concluded_wg { background-color: #F8F8D0; border-left: solid white 0.5ex; padding: 0.5ex 0.5ex 0 0; }
+    .not_a_wg { background-color: #EEF; border-left: solid white 0.5ex; padding: 0.5ex 0.5ex 0 0; }
+
+    .draftspanel { width: 16ex; padding: 2ex; background-color: #EEE; }
+    .concluded_wg .draftspanel { background-color: #EEB; }
+    .not_a_wg .draftspanel { background-color: #DDE; }
+
+    .caption	{ margin: 2em; font-size: 12pt; }
+    .draftspanel { margin: 4ex 0 0 4ex; }
+    .draftslist { }
+    .draftslist td { padding: 1px; }
+    td.rev { padding-left: 0.5ex; }
+
+    .topitem	{ margin-top: 0.5ex; }
+
+    .menuitem	{ margin-bottom: 1ex; }
+    .subitem	{ margin-left: 1ex; margin-bottom: 0.5ex;  }
+    .menuform	{ margin: 0 0 1ex 0; }
+    .subitem form	{ margin: 0 0 1ex 0; }
+    .subitem input	{ width: 7ex; font-size: 8pt; }
+    .subitem button	{ padding: 0; margin: 0px; }
+
+    .spellcheck	{ border-bottom: red solid 2px; text-decoration: none; color: black; }
+    a.spellcheck	{ text-decoration: none; color: black; }
+    a.spellcheck:link	{ text-decoration: none; color: black; }
+    a.spellcheck:visited	{ text-decoration: none; color: black; }
+    a.spellcheck:hover	{ text-decoration: none; color: black; }
+    a.spellcheck:active	{ text-decoration: none; color: black; }
+    
