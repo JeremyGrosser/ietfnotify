@@ -10,7 +10,7 @@ from email.MIMEText import MIMEText
 
 import sys
 import os
-#import xmpp
+import xmpp
 
 import config
 import util

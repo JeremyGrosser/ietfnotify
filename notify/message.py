@@ -77,7 +77,6 @@ def renderList(templateFile, uuidList):
 	return template.render(context)
 	
 def parseMessage(msg, keepdate):
-	log.log(log.NORMAL, 'Parsing message')
 	lines = msg.split('\n')
 	parsed = {}
 

@@ -38,4 +38,5 @@ def startServer():
 	sd = socket.socket(domain, socket.SOCK_STREAM)
 	sd.bind(bindaddr)
 	sd.listen(20)
+	sd.settimeout(float(config.get('general', 'accepttimeout')))
 	return sd
