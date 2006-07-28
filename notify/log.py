@@ -3,26 +3,18 @@
 # Copyright (C) 2006 Jeremy Grosser
 # See LICENSE file in the root of the source distribution for details
 
-import sys, time
-import config
-
-# Set to zero for normal operation
-DEBUGGING = 1
+import logging
 
 # Constants
-NORMAL = 'NORMAL'
-ERROR = 'ERROR'
+NORMAL = logging.INFO
+ERROR = logging.ERROR 
 
-logfd = open(config.get('general', 'debuglog'), 'w')
+syslog = logging.SysLogHandler()
+syslog.setLevel(logging.ERROR)
+logging.getLogger('').addHandler(syslog)
 
 def log(priority, msg):
-	if DEBUGGING:
-		sys.stderr.write(priority + ': ' + msg + '\n')
-		logfd.write(time.strftime('%X %x ') + priority + ': ' + msg + '\n')
-		logfd.flush()
-
-	if priority == NORMAL: pass
-	if priority == ERROR: pass
+	logging.log(priority, msg)
 
 def cleanup():
-	logfd.close()
+	pass
