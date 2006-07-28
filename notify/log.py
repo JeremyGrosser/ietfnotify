@@ -9,9 +9,9 @@ import logging
 NORMAL = logging.INFO
 ERROR = logging.ERROR 
 
-syslog = logging.SysLogHandler()
-syslog.setLevel(logging.ERROR)
-logging.getLogger('').addHandler(syslog)
+#syslog = logging.SysLogHandler()
+#syslog.setLevel(logging.ERROR)
+#logging.getLogger('').addHandler(syslog)
 
 def log(priority, msg):
 	logging.log(priority, msg)
