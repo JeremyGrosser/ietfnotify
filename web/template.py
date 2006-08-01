@@ -11,9 +11,11 @@ def header(db):
 	print fd.read()
 	fd.close()
 
-	fd = open('resources/menu.html', 'r')
+	fd = open('/www/tools.ietf.org/inc/narrow-menu-col.html', 'r')
 	print fd.read()
 	fd.close()
+
+	print '<td><div class="content">'
 
 	print '<div id="notify_actions">'
 	if account.getUser() == '':
@@ -21,6 +23,7 @@ def header(db):
 	else:
 		print '<strong>' + account.getUser() + '</strong>'
 		print '<p><a href="?">List subscriptions</a>'
+		print '<br /><a href="?action=viewarchive">Search archives</a>'
 		if account.getAdmin(db):
 			print '<br /><a href="?action=listall">List all subscriptions</a>'
 			print '<br /><a href="?action=listfields">Edit filter fields</a>'

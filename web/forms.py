@@ -3,16 +3,17 @@
 # Copyright (C) 2006 Jeremy Grosser
 # See LICENSE file in the root of the source distribution for details
 
-import account
+import account, config, archive
+import os, time
 
 def showLoginMessage():
-	return 'You must be logged in to edit your notifier settings.'
+	print 'You must be logged in to edit your notifier settings.'
 
 def showHelp():
-	return '''<h3>Subscription form</h3>
-The notification type sets the method in which you'll be notified. Address sets the address the notification will be sent to. Email notifications can only be sent to the address you're logged in with. The pattern is a <a href="http://www.python.org/doc/current/lib/re-syntax.html">regular expression</a> that is searched on the Tag field of the notification. An example tag is <em>draft-ietf-tools-draft-info-04</em>
-<h3>Your subscriptions</h3>
-A list of your current subscriptions is displayed. The fields correspond to the fields on the subscription form. You can modify an existing subscription or remove it using the links to the right.'''
+	print '''<p><strong>Subscription form</strong>
+<br />The notification type sets the method in which you'll be notified. Address sets the address the notification will be sent to. Email notifications can only be sent to the address you're logged in with. The pattern is a <a href="http://www.python.org/doc/current/lib/re-syntax.html">regular expression</a> that is searched on the Tag field of the notification. An example tag is <em>draft-ietf-tools-draft-info-04</em></p>
+<p><strong>Your subscriptions</strong>
+<br />A list of your current subscriptions is displayed. The fields correspond to the fields on the subscription form. You can modify an existing subscription or remove it using the links to the right.</p>'''
 
 def showSubscriptions(db):
 	print '''
@@ -39,6 +40,7 @@ def showSubscriptions(db):
 def showAllSubscriptions(db):
 	print '''
 <strong>All subscriptions</strong>
+<br />
 <table>
 <tr class="header">
  <th class="subs">Notification</th>
@@ -132,3 +134,49 @@ def showFieldsList(db):
 		print '<td>' + field[0] + '</td>'
 	print '<tr><td align="center" colspan="2"><input type="submit" value="Hide" /></td></tr>'
 	print '</table>\n</form>'
+
+def showArchived(year, month):
+	if month < 1 or month > 12:
+		print '<br />Please enter a month between 1 and 12'
+		return 0
+	if month < 10:
+		monthstr = '0' + str(month)
+	else:
+		monthstr = str(month)
+
+	try:
+		events = os.listdir(config.get('archive', 'date_dir') + '/' + str(year) + '/' + monthstr)
+		for event in events:
+			if event[0] != '.':
+				archived = archive.getArchived(event)
+				for field in archived:
+					for value in archived[field]:
+						print '<br />' + field + ': ' + value
+				print '<hr />'
+	except OSError:
+		# Directory does not exist
+		print '<br />There are no events archived for the given date'
+		return 0
+
+def showArchiveSearch():
+	defaults = {}
+	t = time.gmtime()
+	defaults['currentmonth'] = t[1]
+	defaults['currentyear'] = t[0]
+
+	print '''<form action="" method="GET">
+<input type="hidden" name="action" value="viewarchive" />
+<table>
+<tr>
+	<td>Month:</td>
+	<td><input type="text" name="month" value="%(currentmonth)s" /></td>
+</tr>
+<tr>
+	<td>Year:</td>
+	<td><input type="text" name="year" value="%(currentyear)s" /></td>
+</tr>
+<tr>
+	<td colspan="2"><input type="submit" value="Search" /></td>
+</tr>
+</table>
+</form>''' % defaults

@@ -5,7 +5,6 @@
 # See LICENSE file in the root of the source distribution for details
 
 import sys
-sys.path.insert(0, '../webscript')
 sys.path.insert(1, '../notify')
 
 import config
@@ -63,6 +62,12 @@ if form.getfirst('action') == 'removefields' and account.getAdmin(db):
 	done = 1
 if form.getfirst('action') == 'listfields' and account.getAdmin(db):
 	forms.showFieldsList(db)
+	done = 1
+if form.getfirst('action') == 'viewarchive':
+	if 'year' in form and 'month' in form:
+		forms.showArchived(int(form.getfirst('year')), int(form.getfirst('month')))
+	else:
+		forms.showArchiveSearch()
 	done = 1
 
 if not done:
