@@ -50,6 +50,7 @@ def emailNotification(subscriber, parsed):
 		eml = 'To: ' + subscriber + '\r\n'
 		eml += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
 		eml += 'Subject: ' + parsed['doc-tag'][0] + ' has been updated\r\n'
+		eml += 'Precedence: list\r\n'
 		eml += msg
 
 		smtp = smtplib.SMTP(config.get('notify-email', 'smtphost'), config.getint('notify-email', 'smtpport'))
@@ -67,6 +68,7 @@ def htmlEmailNotification(subscriber, parsed):
 		eml = 'To: ' + subscriber + '\r\n'
 		eml += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
 		eml += 'Subject: ' + parsed['doc-tag'][0] + ' has been updated\r\n'
+		eml += 'Precedence: list\r\n'
 		eml += 'Content-type: text/html; charset=utf-8\r\n'
 		eml += msg
 

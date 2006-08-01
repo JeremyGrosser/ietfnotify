@@ -5,7 +5,7 @@
 
 import ConfigParser
 
-CONFIG_FILE = '/home/jeremy/src/ietfnotify/server.conf'
+CONFIG_FILE = '/home/synack/ietfnotify/server.conf'
 config = ConfigParser.ConfigParser()
 
 def readconfig():

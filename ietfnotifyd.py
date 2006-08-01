@@ -65,8 +65,12 @@ while looping:
 		if (nextpop - time.clock()) < 0:
 			raise timeout
 		else:
-			sd.settimeout(nextpop - time.clock())
-			log(NORMAL, 'Setting timeout to ' + str(nextpop - time.clock()))
+			if len(buffer) > 0:
+				sd.settimeout(nextpop - time.clock())
+				log(NORMAL, 'Setting timeout to ' + str(nextpop - time.clock()))
+			else:
+				sd.settimeout(None)
+				log(NORMAL, 'Event buffer is empty, disabling timeout.')
 		afd.close()
 	except KeyboardInterrupt:
 		print 'Caught keyboard interrupt, cleaning up.'
