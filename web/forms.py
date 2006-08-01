@@ -19,7 +19,7 @@ def showSubscriptions(db):
 	print '''
 <strong>Your subscriptions</strong>
 <br />
-<table>
+<table width="100%">
 <tr class="header">
  <th class="subs">Notification</th>
  <th class="subs">Address</th>
