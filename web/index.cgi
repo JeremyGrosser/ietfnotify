@@ -22,12 +22,18 @@ db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 
 template.header(db)
 
 done = 0
+
+# If nobody is logged in
 if account.getUser() == '':
 	forms.showLoginMessage()
 	done = 1
+
+# Modify an existing notification
 if form.getfirst('action') == 'modify' and 'id' in form:
 	forms.showModifyForm(db, int(form.getfirst('id')))
 	done = 1
+
+# Affect changes on an existing notification
 if form.getfirst('action') == 'update' and 'id' in form:
 	filters = {} 
 	for field in form:
@@ -38,20 +44,30 @@ if form.getfirst('action') == 'update' and 'id' in form:
 		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), filters)
 	else:
 		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), filters)
+
+# Remove an existing notification
 if form.getfirst('action') == 'remove' and 'id' in form:
 	account.removeSubscription(db, int(form.getfirst('id')))
+
+# Create a new notification
 if form.getfirst('action') == 'add':
 	if 'eventType' in form:
 		account.addSubscription(db, form.getfirst('eventType'), account.getUser())
 	else:
 		forms.showModifyForm(db, -1)
 		done = 1
+
+# Admin only - Show all notifications
 if form.getfirst('action') == 'listall' and account.getAdmin(db):
 	forms.showAllSubscriptions(db)
 	done = 1
+
+# Show help page
 if form.getfirst('action') == 'help':
 	forms.showHelp()
 	done = 1
+
+# Hide specified fields from the user form
 if form.getfirst('action') == 'removefields' and account.getAdmin(db):
 	filters = []
 	for field in form:
@@ -60,9 +76,13 @@ if form.getfirst('action') == 'removefields' and account.getAdmin(db):
 	account.removeFilters(db, filters)
 	forms.showFieldsList(db)
 	done = 1
+
+# List all known fields
 if form.getfirst('action') == 'listfields' and account.getAdmin(db):
 	forms.showFieldsList(db)
 	done = 1
+
+# View notification archives
 if form.getfirst('action') == 'viewarchive':
 	if 'year' in form and 'month' in form:
 		forms.showArchived(int(form.getfirst('year')), int(form.getfirst('month')))
@@ -70,6 +90,7 @@ if form.getfirst('action') == 'viewarchive':
 		forms.showArchiveSearch()
 	done = 1
 
+# When all else fails, show the user's subscriptions
 if not done:
 	forms.showSubscriptions(db)
 

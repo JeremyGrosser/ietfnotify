@@ -28,12 +28,10 @@ def header(db):
 	#	print '<strong>' + account.getUser() + '</strong>'
 	#	print '<p><a href="?">List subscriptions</a>'
 	#	print '<br /><a href="?action=viewarchive">Search archives</a>'
-	#	if account.getAdmin(db):
-	#		print '<br /><a href="?action=listall">List all subscriptions</a>'
-	#		print '<br /><a href="?action=listfields">Edit filter fields</a>'
-	#	print '<br /><a href="?action=add">New notification</a>'
-	#	print '<br /><a href="?action=help">Help</a></p>'
-	#print '''</div>'''
+	if account.getAdmin(db):
+		print ' | <a href="?action=listall">List all subscriptions</a> |'
+		print '<a href="?action=listfields">Edit filter fields</a>'
+	print '</div>'
 
 def footer():
 	fd = open('resources/footer.html', 'r')

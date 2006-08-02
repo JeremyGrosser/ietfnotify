@@ -11,7 +11,7 @@ def showLoginMessage():
 
 def showHelp():
 	print '''<p><strong>Subscription form</strong>
-<br />The notification type sets the method in which you'll be notified. Address sets the address the notification will be sent to. Email notifications can only be sent to the address you're logged in with. The pattern is a <a href="http://www.python.org/doc/current/lib/re-syntax.html">regular expression</a> that is searched on the Tag field of the notification. An example tag is <em>draft-ietf-tools-draft-info-04</em></p>
+<br />The notification type sets the method in which you'll be notified. Address sets the address the notification will be sent to. Email notifications can only be sent to the address you're logged in with. The pattern is a <a href="http://www.python.org/doc/current/lib/re-syntax.html">regular expression</a>. An example tag is <em>draft-ietf-tools-draft-info-04</em></p>
 <p><strong>Your subscriptions</strong>
 <br />A list of your current subscriptions is displayed. The fields correspond to the fields on the subscription form. You can modify an existing subscription or remove it using the links to the right.</p>'''
 
@@ -41,7 +41,7 @@ def showAllSubscriptions(db):
 	print '''
 <strong>All subscriptions</strong>
 <br />
-<table>
+<table width="100%">
 <tr class="header">
  <th class="subs">Notification</th>
  <th class="subs">Address</th>
