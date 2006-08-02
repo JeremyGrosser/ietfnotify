@@ -14,7 +14,7 @@ from socket import timeout
 
 # The full module must be loaded first to run init code
 import notify.log
-from notify.log import NORMAL, ERROR, log
+from notify.log import DEBUG, ERROR, log
 
 # Build a uuid cache for feeds
 notify.archive.buildUUIDCache()
@@ -37,7 +37,7 @@ while looping:
 
 		# Reset the socket timeout
 		sd.settimeout(nextpop - lastpop)
-		log(NORMAL, 'Setting timeout to ' + str(nextpop - lastpop))
+		log(DEBUG, 'Setting timeout to ' + str(nextpop - lastpop))
 
 		# Get the data from the socket and make some sense of it
 		msg = notify.message.parseMessage(notify.network.getMessage(afd), 0)
@@ -67,10 +67,10 @@ while looping:
 		else:
 			if len(buffer) > 0:
 				sd.settimeout(nextpop - time.clock())
-				log(NORMAL, 'Setting timeout to ' + str(nextpop - time.clock()))
+				log(DEBUG, 'Setting timeout to ' + str(nextpop - time.clock()))
 			else:
 				sd.settimeout(None)
-				log(NORMAL, 'Event buffer is empty, disabling timeout.')
+				log(DEBUG, 'Event buffer is empty, disabling timeout.')
 		afd.close()
 	except KeyboardInterrupt:
 		print 'Caught keyboard interrupt, cleaning up.'
@@ -80,7 +80,7 @@ while looping:
 	except timeout:
 		if len(buffer) > 0:
 			msg = buffer.pop()
-			log(NORMAL, 'Processing buffered event. Remaining events in buffer: ' + str(len(buffer)))
+			log(DEBUG, 'Processing buffered event. Remaining events in buffer: ' + str(len(buffer)))
 			notify.notifier.sendNotifications(msg)
 			notify.message.updateFilters(msg)
 

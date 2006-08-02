@@ -30,10 +30,10 @@ def cleanup():
 	log.cleanup()
 
 def dummyNotification(subscriber, parsed):
-	log.log(log.NORMAL, 'Dummy: ' + repr(subscriber))
+	log.log(log.DEBUG, 'Dummy: ' + repr(subscriber))
 
 def jabberNotification(subscriber, parsed):
-	log.log(log.NORMAL, 'Jabber: ' + repr(subscriber))
+	log.log(log.DEBUG, 'Jabber: ' + repr(subscriber))
 	msg = ''
 	for field in parsed:
 		for i in parsed[field]:
@@ -42,7 +42,7 @@ def jabberNotification(subscriber, parsed):
 	client.send(xmpp.protocol.Message(subscriber, msg))
 
 def emailNotification(subscriber, parsed):
-	log.log(log.NORMAL, 'Plain email: ' + repr(subscriber))
+	log.log(log.DEBUG, 'Plain email: ' + repr(subscriber))
 	try:
 		msg = message.renderMessage('email.txt', parsed)
 		msg = MIMEText(msg)
@@ -61,7 +61,7 @@ def emailNotification(subscriber, parsed):
 		log.log(log.ERROR, 'Error sending email notification: ' + subscriber)
 
 def htmlEmailNotification(subscriber, parsed):
-	log.log(log.NORMAL, 'HTML email: ' + repr(subscriber))
+	log.log(log.DEBUG, 'HTML email: ' + repr(subscriber))
 	try:
 		msg = message.renderMessage('email.html', parsed)
 		msg = MIMEText(msg)
@@ -81,7 +81,7 @@ def htmlEmailNotification(subscriber, parsed):
 		log.log(log.ERROR, 'Error sending email notification: ' + subscriber)
 
 def atomNotification(subscriber, parsed):
-	log.log(log.NORMAL, 'Atom: ' + repr(subscriber))
+	log.log(log.DEBUG, 'Atom: ' + repr(subscriber))
 
 	# Create a pure uuid list without dates
 	uuidList = []
@@ -96,7 +96,7 @@ def atomNotification(subscriber, parsed):
 		log.log(log.ERROR, 'Error writing atom feed')
 
 def rssNotification(subscriber, parsed):
-	log.log(log.NORMAL, 'RSS: ' + repr(subscriber))
+	log.log(log.DEBUG, 'RSS: ' + repr(subscriber))
 
 	uuidList = []
 	for uuid in uuidcache:
@@ -117,7 +117,7 @@ notifyCallbacks['atom'] = atomNotification
 notifyCallbacks['jabber'] = jabberNotification
 
 def sendNotifications(parsed):
-	log.log(log.NORMAL, 'Sending notifications')
+	log.log(log.DEBUG, 'Sending notifications')
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
 	db.query('SELECT type,target,id FROM subscriptions')
 	subs = db.store_result()

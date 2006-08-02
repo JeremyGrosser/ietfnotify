@@ -12,7 +12,7 @@ import log
 import message
 
 def buildUUIDCache():
-	log.log(log.NORMAL, 'Building UUID cache')
+	log.log(log.DEBUG, 'Building UUID cache')
 	listing = os.listdir(config.get('archive', 'uuid_dir'))
 	for file in listing:
 		st = os.stat(config.get('archive', 'uuid_dir') + '/' + file)
@@ -21,7 +21,7 @@ def buildUUIDCache():
 	notifier.uuidcache = notifier.uuidcache[:config.getint('notify-atom', 'feedlength')]
 
 def uuidArchive(uuid, parsed):
-	log.log(log.NORMAL, 'Archive/UUID: ' + parsed['doc-tag'][0])
+	log.log(log.DEBUG, 'Archive/UUID: ' + parsed['doc-tag'][0])
 	os.chdir(config.get('archive', 'uuid_dir'))
 	fd = open(uuid, 'w+')
 	for key in parsed:
@@ -40,7 +40,7 @@ def getArchived(uuid):
 	return message.parseMessage(notparsed, 1)
 
 def dateArchive(uuid, parsed):
-	log.log(log.NORMAL, 'Archive/Date: ' + parsed['doc-tag'][0])
+	log.log(log.DEBUG, 'Archive/Date: ' + parsed['doc-tag'][0])
 	if 'event-date' in parsed:
 		year = parsed['event-date'][0][:4]
 		month = parsed['event-date'][0][8:10]
@@ -65,7 +65,7 @@ archiveCallbacks = {}
 archiveCallbacks['date'] = dateArchive
 
 def archiveMessage(parsed):
-	log.log(log.NORMAL, 'Archiving message: ' + parsed['doc-tag'][0])
+	log.log(log.DEBUG, 'Archiving message: ' + parsed['doc-tag'][0])
 	# Use the UUID from the event or generate one if the event didn't specify
 	if 'event-uuid' in parsed:
 		uuid = parsed['event-uuid'][0]

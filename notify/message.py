@@ -15,7 +15,7 @@ import archive
 django.conf.settings.configure()
 
 def updateFilters(parsed):
-	log.log(log.NORMAL, 'Updating filters list in database')
+	log.log(log.DEBUG, 'Updating filters list in database')
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
 
 	db.query('SELECT field FROM eventTypes WHERE type="filter"')
@@ -28,13 +28,13 @@ def updateFilters(parsed):
 	parsed = parsed.keys()
 	for eventField in parsed:
 		if not eventField in store:
-			log.log(log.NORMAL, 'Field "' + eventField + '" does not exist in the database, it will be added.')
+			log.log(log.DEBUG, 'Field "' + eventField + '" does not exist in the database, it will be added.')
 			db.query('INSERT INTO eventTypes SET field="' + eventField + '", type="filter", admin=0')
 	
 	db.close()
 
 def renderMessage(templateFile, parsed):
-	log.log(log.NORMAL, 'Rendering django template (' + templateFile + ')')
+	log.log(log.DEBUG, 'Rendering django template (' + templateFile + ')')
 	# Reformat the data into something django templates can work with
 	fields = []
 	for field in parsed:
@@ -53,7 +53,7 @@ def renderMessage(templateFile, parsed):
 	return template.render(context)
 
 def renderList(templateFile, uuidList):
-	log.log(log.NORMAL, 'Rendering django list (' + templateFile + ')')
+	log.log(log.DEBUG, 'Rendering django list (' + templateFile + ')')
 	
 	# Turn a list of UUIDs into a list of tuples (tag, date)
 	eventList = []
@@ -98,7 +98,7 @@ def parseMessage(msg, keepdate):
 	return parsed
 
 def checkRequired(parsed):
-	log.log(log.NORMAL, 'Checking required fields')
+	log.log(log.DEBUG, 'Checking required fields')
 	if not 'doc-tag' in parsed:
 		log.log(log.ERROR, 'No tag specified')
 		return (1, 'No tag specified')
