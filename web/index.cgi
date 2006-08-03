@@ -90,6 +90,10 @@ if form.getfirst('action') == 'viewarchive':
 		forms.showArchiveSearch()
 	done = 1
 
+# Duplicate an existing subscription
+if form.getfirst('action') == 'duplicate':
+	account.duplicateSubscription(db, int(form.getfirst('id')))
+
 # When all else fails, show the user's subscriptions
 if not done:
 	forms.showSubscriptions(db)

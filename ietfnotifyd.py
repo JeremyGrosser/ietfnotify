@@ -14,7 +14,7 @@ from socket import timeout
 
 # The full module must be loaded first to run init code
 import notify.log
-from notify.log import DEBUG, ERROR, log
+from notify.log import DEBUG, ERROR, INFO, log
 
 # Build a uuid cache for feeds
 notify.archive.buildUUIDCache()
@@ -28,8 +28,10 @@ buffer = []
 looping = 1
 lastpop = 0.0
 nextpop = float(notify.config.get('general', 'accepttimeout'))
+lastuuid = ''
 while looping:
 	try:
+		log(INFO, 'timeout(' + str(nextpop - lastpop) + ')\tbuffer(' + str(len(buffer)) + ')\tlastuuid(' + lastuuid + ')')
 		# Block on accepting a connection... The timeout is set by accepttimeout
 		# in the general section of the config file.
 		accepted = sd.accept()
@@ -55,9 +57,11 @@ while looping:
 				if retnum:
 					notify.network.sendMessage(afd, 'ERR-', retmsg + '\n')
 				else:
-					msg['uuid'] = [retmsg]
+					msg['event-uuid'] = [retmsg]
 					notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
 					buffer.append(msg)
+					log(DEBUG, 'Message received with UUID ' + msg['event-uuid'][0])
+					lastuuid = msg['event-uuid']
 		else:
 			# The buffer is full. Log it, tell the socket, and do nothing
 			log(ERROR, 'Event buffer is full, lost an event')
@@ -80,7 +84,7 @@ while looping:
 	except timeout:
 		if len(buffer) > 0:
 			msg = buffer.pop()
-			log(DEBUG, 'Processing buffered event. Remaining events in buffer: ' + str(len(buffer)))
+			log(DEBUG, 'Buffer size: ' + str(len(buffer)))
 			notify.notifier.sendNotifications(msg)
 			notify.message.updateFilters(msg)
 

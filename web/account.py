@@ -148,6 +148,30 @@ def removeSubscription(db, recordid):
 	db.query('DELETE FROM subscriptions WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
 	db.query('DELETE FROM filters WHERE parent_id=' + str(recordid))
 
+def duplicateSubscription(db, recordid):
+	db.query('SELECT * FROM subscriptions WHERE id=' + str(recordid))
+	original = db.store_result()
+	db.query('SELECT * FROM filters WHERE id=' + str(recordid))
+	filters = db.store_result()
+
+	newquery = 'INSERT INTO subscriptions SET '
+	if original.num_rows() > 0:
+		row = original.fetch_row(1, 1)[0]
+		for field in row:
+			if field != 'id':
+				newquery += field + '="' + row[field] + '", '
+		db.query(newquery[:-2])
+
+		for filter in filters.fetch_row(0, 1):
+			print repr(filter)
+			newfilter = 'INSERT INTO filters SET '
+			for field in filter:
+				if field != 'id':
+					newfilter += field + '="' + filter[field] + '", '
+			db.query(newfilter[:-2])
+	else:
+		return ''
+
 def removeFilters(db, fields):
 	for field in fields:
 		db.query('UPDATE eventTypes SET admin=1 WHERE field="' + field + '" AND type="filter"')

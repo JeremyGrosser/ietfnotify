@@ -117,7 +117,6 @@ notifyCallbacks['atom'] = atomNotification
 notifyCallbacks['jabber'] = jabberNotification
 
 def sendNotifications(parsed):
-	log.log(log.DEBUG, 'Sending notifications')
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
 	db.query('SELECT type,target,id FROM subscriptions')
 	subs = db.store_result()
@@ -132,12 +131,15 @@ def sendNotifications(parsed):
 			if filter[0] in parsed:
 				if regex.search(parsed[filter[0]][0]):
 					filtered = 1
+			else:
+				if regex.search(''):
+					filtered = 1
 
-		if not subscription[1] in notified and not filtered:
+		if not subscription[2] in notified and not filtered:
 			if subscription[0] in notifyCallbacks:
 				f = notifyCallbacks[subscription[0]]
 				f(subscription[1], parsed)
-				notified.append(subscription[1])
+				notified.append(subscription[2])
 			else:
 				log.log(log.ERROR, 'Unknown notification type: ' + repr(subscription))
 	db.close()

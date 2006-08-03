@@ -14,14 +14,15 @@ INFO = 'INFO'
 #syslog.setLevel(logging.ERROR)
 #logging.getLogger('').addHandler(syslog)
 
-fd = open(config.get('general', 'logfile'), 'w')
+fd = open(config.get('general', 'logfile'), 'a')
 
 def log(priority, msg):
 	#logging.log(priority, msg)
 	logmsg = str(priority) + ' ' + time.strftime('%X %x: ') + msg + '\n'
 	fd.write(logmsg)
 	fd.flush()
-	sys.stderr.write(logmsg)
+	if priority != DEBUG:
+		sys.stderr.write(logmsg)
 
 def cleanup():
 	pass
