@@ -25,67 +25,44 @@ sd = notify.network.startServer()
 # Create a buffer for incoming events
 buffer = []
 
-looping = 1
-lastpop = 0.0
-nextpop = float(notify.config.get('general', 'accepttimeout'))
-lastuuid = ''
-while looping:
-	try:
-		log(INFO, 'timeout(' + str(nextpop - lastpop) + ')\tbuffer(' + str(len(buffer)) + ')\tlastuuid(' + lastuuid + ')')
-		# Block on accepting a connection... The timeout is set by accepttimeout
-		# in the general section of the config file.
-		accepted = sd.accept()
-		afd = accepted[0]
+inc = int(notify.config.get('general', 'accepttimeout'))
+target = time.time() + inc
+try:
+	while True:
+		newtimeout = target - time.time()
+		if newtimeout < 0.0:
+			newtimeout = 0.1
+		sd.settimeout(newtimeout)
+		log(INFO, 'timeout(' + str(newtimeout) + ')\tbuffer(' + str(len(buffer)) + ')')
 
-		# Reset the socket timeout
-		sd.settimeout(nextpop - lastpop)
-		log(DEBUG, 'Setting timeout to ' + str(nextpop - lastpop))
-
-		# Get the data from the socket and make some sense of it
-		msg = notify.message.parseMessage(notify.network.getMessage(afd), 0)
-
-		# Make sure the buffer isn't full
-		if len(buffer) < int(notify.config.get('general', 'eventbuffer')):
-			# Check the validity of the event
-			retnum, retmsg = notify.message.checkRequired(msg)
-			if retnum:
-				log(ERROR, 'Error checking required fields: ' + retmsg + '\n')
-				notify.network.sendMessage(afd, 'ERR-' + retmsg + '\n')
-			else:
-				# Archive the event
-				retnum, retmsg = notify.archive.archiveMessage(msg)
-				if retnum:
-					notify.network.sendMessage(afd, 'ERR-', retmsg + '\n')
-				else:
-					msg['event-uuid'] = [retmsg]
-					notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
-					buffer.append(msg)
-					log(DEBUG, 'Message received with UUID ' + msg['event-uuid'][0])
-					lastuuid = msg['event-uuid']
-		else:
-			# The buffer is full. Log it, tell the socket, and do nothing
-			log(ERROR, 'Event buffer is full, lost an event')
-			notify.network.sendMessage(afd, 'ERR-Event buffer is full, not processing event\n')
-		if (nextpop - time.clock()) < 0:
-			raise timeout
-		else:
+		try:
+			afd, address = sd.accept()
+		except timeout:
+			log(INFO, 'target(' + str(target) + ')\ttime.now(' + str(time.time()) + ')')
 			if len(buffer) > 0:
-				sd.settimeout(nextpop - time.clock())
-				log(DEBUG, 'Setting timeout to ' + str(nextpop - time.clock()))
-			else:
-				sd.settimeout(None)
-				log(DEBUG, 'Event buffer is empty, disabling timeout.')
-		afd.close()
-	except KeyboardInterrupt:
-		print 'Caught keyboard interrupt, cleaning up.'
-		notify.notifier.cleanup()
-		sd.close()
-		looping = 0
-	except timeout:
-		if len(buffer) > 0:
-			msg = buffer.pop()
-			log(DEBUG, 'Buffer size: ' + str(len(buffer)))
-			notify.notifier.sendNotifications(msg)
-			notify.message.updateFilters(msg)
+				msg = buffer.pop()
+				notify.notifier.sendNotifications(msg)
+				notify.message.updateFilters(msg)
+			target += inc
+			continue
 
-		nextpop = time.clock() + float(notify.config.get('general', 'accepttimeout'))
+		msg = notify.network.getMessage(afd)
+		msg = notify.message.parseMessage(msg, 0)
+		retnum, retmsg = notify.message.checkRequired(msg)
+		if not retnum:
+			if len(buffer) > int(notify.config.get('general', 'eventbuffer')):
+				retnum = 1
+				retmsg = 'Buffer full'
+			else:
+				buffer.append(msg)
+		if not retnum:
+			retnum, retmsg = notify.archive.archiveMessage(msg)
+		if not retnum:
+			notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
+			msg['event-uuid'] = [retmsg]
+		else:
+			notify.network.sendMessage(afd, 'ERR-' + retmsg + '\n')
+except KeyboardInterrupt:
+	print 'Caught keyboard interrupt, cleaning up.'
+	notify.notifier.cleanup()
+	sd.close()

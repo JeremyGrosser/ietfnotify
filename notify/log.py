@@ -9,6 +9,7 @@ import logging, time, sys, config
 DEBUG = 'DEBUG'
 ERROR = 'ERROR'
 INFO = 'INFO'
+NETWORK = 'NETWORK'
 
 #syslog = logging.SysLogHandler()
 #syslog.setLevel(logging.ERROR)
@@ -18,7 +19,7 @@ fd = open(config.get('general', 'logfile'), 'a')
 
 def log(priority, msg):
 	#logging.log(priority, msg)
-	logmsg = str(priority) + ' ' + time.strftime('%X %x: ') + msg + '\n'
+	logmsg = str(priority) + ' ' + time.strftime('%x %X: ') + msg + '\n'
 	fd.write(logmsg)
 	fd.flush()
 	if priority != DEBUG:

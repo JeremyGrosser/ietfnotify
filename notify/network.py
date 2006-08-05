@@ -19,7 +19,6 @@ def getMessage(sock):
 	return msg
 
 def sendMessage(sock, message):
-	log.log(log.DEBUG, 'Sending message to socket')
 	msglen = len(message)
 	while msglen > 0:
 		sent = sock.send(message)
