@@ -60,6 +60,7 @@ try:
 			msg['event-uuid'] = [retmsg]
 		else:
 			notify.network.sendMessage(afd, 'ERR-' + retmsg + '\n')
+		afd.close()
 except KeyboardInterrupt:
 	print 'Caught keyboard interrupt, cleaning up.'
 	notify.notifier.cleanup()

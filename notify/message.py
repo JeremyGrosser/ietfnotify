@@ -35,6 +35,12 @@ def updateFilters(parsed):
 
 def renderMessage(templateFile, parsed):
 	log.log(log.DEBUG, 'Rendering django template (' + templateFile + ')')
+
+	# Convert literal \n to newline in parsed fields
+	for field in parsed:
+		for value in field:
+			value = value.replace('\\n', '\n')
+
 	# Reformat the data into something django templates can work with
 	fields = []
 	for field in parsed:

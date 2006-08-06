@@ -121,7 +121,7 @@ def showFieldsList(db):
   <th>Field</th>
  </tr>'''
 
-	db.query('SELECT field,admin FROM eventTypes WHERE type="filter"')
+	db.query('SELECT field,admin FROM eventTypes WHERE type="filter" ORDER BY field')
 	res = db.store_result()
 	count = 0
 	for field in res.fetch_row(0):
