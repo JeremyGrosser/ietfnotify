@@ -29,9 +29,7 @@ inc = int(notify.config.get('general', 'accepttimeout'))
 target = time.time() + inc
 try:
 	while True:
-		newtimeout = target - time.time()
-		if newtimeout < 0.0:
-			newtimeout = 0.1
+		newtimeout = max( target - time.time(), 0.1)
 		sd.settimeout(newtimeout)
 		log(INFO, 'timeout(' + str(newtimeout) + ')\tbuffer(' + str(len(buffer)) + ')')
 
