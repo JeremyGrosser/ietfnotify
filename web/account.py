@@ -103,10 +103,7 @@ def getFilters(db, recordid):
 	return result
 
 def getTagFilter(db, recordid):
-	if getAdmin(db):
-		db.query('SELECT * FROM filters WHERE parent_id=' + str(recordid) + ' AND field="doc-tag"')
-	else:
-		db.query('SELECT * FROM filters WHERE parent_id=' + str(recordid) + ' AND field="doc-tag" AND username="' + getUser() + '"')
+	db.query('SELECT * FROM filters WHERE parent_id=' + str(recordid) + ' AND field="doc-tag"')
 
 	filter = db.store_result()
 	if filter.num_rows() > 0:
@@ -149,28 +146,25 @@ def removeSubscription(db, recordid):
 	db.query('DELETE FROM filters WHERE parent_id=' + str(recordid))
 
 def duplicateSubscription(db, recordid):
-	db.query('SELECT * FROM subscriptions WHERE id=' + str(recordid))
+	if getAdmin(db):
+		db.query('SELECT * FROM subscriptions WHERE id=' + str(recordid))
+	else:
+		db.query('SELECT * FROM subscriptions WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
 	original = db.store_result()
-	db.query('SELECT * FROM filters WHERE id=' + str(recordid))
+	db.query('SELECT * FROM filters WHERE parent_id=' + str(recordid))
 	filters = db.store_result()
 
-	newquery = 'INSERT INTO subscriptions SET '
 	if original.num_rows() > 0:
-		row = original.fetch_row(1, 1)[0]
-		for field in row:
-			if field != 'id':
-				newquery += field + '="' + row[field] + '", '
-		db.query(newquery[:-2])
+		db.query('INSERT INTO subscriptions (username,type,target,is_admin) SELECT username,type,target,is_admin FROM subscriptions WHERE id=' + str(recordid))
+		db.query('SELECT LAST_INSERT_ID()')
+		newid = db.store_result()
+		newidrow = newid.fetch_row()
+		newid = newidrow[0][0]
 
-		for filter in filters.fetch_row(0, 1):
-			print repr(filter)
-			newfilter = 'INSERT INTO filters SET '
-			for field in filter:
-				if field != 'id':
-					newfilter += field + '="' + filter[field] + '", '
-			db.query(newfilter[:-2])
+		db.query('INSERT INTO filters (type,pattern,field) SELECT type,pattern,field FROM filters WHERE parent_id=' + str(recordid))
+		db.query('UPDATE filters SET parent_id=' + newid + ' WHERE id=LAST_INSERT_ID()')
 	else:
-		return ''
+		print 'Error: Subscription does not exist<br />'
 
 def removeFilters(db, fields):
 	for field in fields:

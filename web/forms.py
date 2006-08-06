@@ -24,7 +24,7 @@ def showSubscriptions(db):
  <th class="subs">Notification</th>
  <th class="subs">Address</th>
  <th class="subs">doc-tag filter</th>
- <th class="subs" colspan="2">Actions</th>
+ <th class="subs" colspan="3">Actions</th>
 </tr>'''
 	for sub in account.getSubscriptions(db):
 		print '''
@@ -34,6 +34,7 @@ def showSubscriptions(db):
  <td class="subs">%(filter)s</td>
  <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a></td>
  <td class="subs"><a href="?action=remove&id=%(id)s">Remove</a></td>
+ <td class="subs"><a href="?action=duplicate&id=%(id)s">Duplicate</a></td>
 </tr>''' % sub
 	print '</table>'
 
@@ -46,7 +47,7 @@ def showAllSubscriptions(db):
  <th class="subs">Notification</th>
  <th class="subs">Address</th>
  <th class="subs">doc-tag</th>
- <th class="subs" colspan="2">Actions</th>
+ <th class="subs" colspan="3">Actions</th>
 </tr>'''
 	for sub in account.getAllSubscriptions(db):
 		print '''
@@ -56,6 +57,7 @@ def showAllSubscriptions(db):
  <td class="subs">%(filter)s</td>
  <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a></td>
  <td class="subs"><a href="?action=remove&id=%(id)s">Remove</a></td>
+ <td class="subs"><a href="?action=duplicate&id=%(id)s">Duplicate</a></td>
 </tr>''' % sub
 	print '</table>'
 
