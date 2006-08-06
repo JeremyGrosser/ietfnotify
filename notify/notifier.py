@@ -118,7 +118,7 @@ notifyCallbacks['jabber'] = jabberNotification
 
 def sendNotifications(parsed):
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
-	db.query('SELECT type,target,id FROM subscriptions')
+	db.query('SELECT type,target,id FROM subscriptions WHERE enabled=1')
 	subs = db.store_result()
 
 	notified = []

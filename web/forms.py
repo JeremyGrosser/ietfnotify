@@ -24,7 +24,7 @@ def showSubscriptions(db):
  <th class="subs">Notification</th>
  <th class="subs">Address</th>
  <th class="subs">doc-tag filter</th>
- <th class="subs" colspan="3">Actions</th>
+ <th class="subs" colspan="4">Actions</th>
 </tr>'''
 	for sub in account.getSubscriptions(db):
 		print '''
@@ -35,6 +35,7 @@ def showSubscriptions(db):
  <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a></td>
  <td class="subs"><a href="?action=remove&id=%(id)s">Remove</a></td>
  <td class="subs"><a href="?action=duplicate&id=%(id)s">Duplicate</a></td>
+ <td class="subs" bgcolor="%(enablebg)s"><a href="?action=%(enableaction)s&id=%(id)s">%(enableaction)s</a></td>
 </tr>''' % sub
 	print '</table>'
 

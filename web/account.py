@@ -36,7 +36,7 @@ def getAdmin(db):
 
 def getSubscriptions(db):
 	ret = []
-	db.query('SELECT id,username,type,target FROM subscriptions WHERE username=\'' + getUser() + '\'')
+	db.query('SELECT id,username,type,target,enabled FROM subscriptions WHERE username=\'' + getUser() + '\'')
 	subs = db.store_result()
 
 	count = 0
@@ -52,6 +52,13 @@ def getSubscriptions(db):
 		dict['notification'] = sub[2]
 		dict['address'] = sub[3]
 		dict['filter'] = getTagFilter(db, sub[0])
+
+		if sub[4] == '1':
+			dict['enableaction'] = 'Disable'
+			dict['enablebg'] = '#090'
+		else:
+			dict['enableaction'] = 'Enable'
+			dict['enablebg'] = '#F00'
 		ret.append(dict)
 	return ret
 
@@ -144,6 +151,18 @@ def updateSubscription(db, recordid, eventType, param, filters):
 def removeSubscription(db, recordid):
 	db.query('DELETE FROM subscriptions WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
 	db.query('DELETE FROM filters WHERE parent_id=' + str(recordid))
+
+def enableSubscription(db, recordid):
+	if getAdmin(db):
+		db.query('UPDATE subscriptions SET enabled=1 WHERE id=' + str(recordid))
+	else:
+		db.query('UPDATE subscriptions SET enabled=1 WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
+
+def disableSubscription(db, recordid):
+	if getAdmin(db):
+		db.query('UPDATE subscriptions SET enabled=0 WHERE id=' + str(recordid))
+	else:
+		db.query('UPDATE subscriptions SET enabled=0 WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
 
 def duplicateSubscription(db, recordid):
 	if getAdmin(db):

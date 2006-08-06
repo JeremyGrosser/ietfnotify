@@ -94,6 +94,12 @@ if form.getfirst('action') == 'viewarchive':
 if form.getfirst('action') == 'duplicate':
 	account.duplicateSubscription(db, int(form.getfirst('id')))
 
+# Enable/Disable a subscription
+if form.getfirst('action') == 'Enable':
+	account.enableSubscription(db, int(form.getfirst('id')))
+if form.getfirst('action') == 'Disable':
+	account.disableSubscription(db, int(form.getfirst('id')))
+
 # When all else fails, show the user's subscriptions
 if not done:
 	forms.showSubscriptions(db)
