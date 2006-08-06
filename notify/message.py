@@ -6,6 +6,7 @@
 import _mysql
 import django.template
 import django.conf
+import re
 
 import util
 import config
@@ -81,6 +82,15 @@ def renderList(templateFile, uuidList):
 	template = django.template.Template(template)
 	context = django.template.Context({'entries': eventList, 'updated': eventList[-1][1][0], 'feed_uuid': util.makeUUID()})
 	return template.render(context)
+
+def removeHidden(db, parsed):
+	db.query('SELECT field FROM eventTypes WHERE type="filter" AND admin=1')
+	res = db.store_result()
+
+	for field in res.fetch_rows():
+		del parsed[field][0]
+	
+	return parsed
 	
 def parseMessage(msg, keepdate):
 	lines = msg.split('\n')
@@ -101,6 +111,16 @@ def parseMessage(msg, keepdate):
 	# Generate a timestamp
 	if not keepdate:
 		parsed['event-date'] = [util.makeTimestamp()]
+
+	# Strip off the field date tag
+	#datere = re.compile(';[12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$')
+	#for field in parsed:
+	#	for value in field:
+	#		res = datere.search(parsed)
+	#		if res:
+	#			date = value[res.start:]
+	#			value = value[:res.start]
+
 	return parsed
 
 def checkRequired(parsed):

@@ -32,10 +32,10 @@ def showSubscriptions(db):
  <td class="subs">%(notification)s</td>
  <td class="subs">%(address)s</td>
  <td class="subs">%(filter)s</td>
- <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a></td>
- <td class="subs"><a href="?action=remove&id=%(id)s">Remove</a></td>
- <td class="subs"><a href="?action=duplicate&id=%(id)s">Duplicate</a></td>
- <td class="subs"><a href="?action=%(enableaction)s&id=%(id)s">%(enableaction)s</a></td>
+ <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a> | 
+ <a href="?action=remove&id=%(id)s">Remove</a> | 
+ <a href="?action=duplicate&id=%(id)s">Duplicate</a> | 
+ <a href="?action=%(enableaction)s&id=%(id)s">%(enableaction)s</a></td>
 </tr>''' % sub
 	print '</table>'
 
@@ -48,7 +48,7 @@ def showAllSubscriptions(db):
  <th class="subs">Notification</th>
  <th class="subs">Address</th>
  <th class="subs">doc-tag</th>
- <th class="subs" colspan="4">Actions</th>
+ <th class="subs">Actions</th>
 </tr>'''
 	for sub in account.getAllSubscriptions(db):
 		print '''
@@ -56,10 +56,10 @@ def showAllSubscriptions(db):
  <td class="subs">%(notification)s</td>
  <td class="subs">%(address)s</td>
  <td class="subs">%(filter)s</td>
- <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a></td>
- <td class="subs"><a href="?action=remove&id=%(id)s">Remove</a></td>
- <td class="subs"><a href="?action=duplicate&id=%(id)s">Duplicate</a></td>
- <td class="subs"><a href="?action=%(enableaction)s&id=%(id)s">%(enableaction)s</a></td>
+ <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a> | 
+ <a href="?action=remove&id=%(id)s">Remove</a> | 
+ <a href="?action=duplicate&id=%(id)s">Duplicate</a> | 
+ <a href="?action=%(enableaction)s&id=%(id)s">%(enableaction)s</a></td>
 </tr>''' % sub
 	print '</table>'
 
@@ -103,8 +103,10 @@ def showModifyForm(db, recordid):
 			<td><input type="text" name="param" value="''' + param + '''" /></td>
 		</tr>'''
 	res = account.getFilters(db, recordid)
+	res = res.items()
+	res.sort()
 	for field in res:
-		print '<tr><td>' + field + '</td><td><input type="text" name="filter-' + field + '" value="' + res[field] + '" /></td></tr>\n'
+		print '<tr><td>' + field[0] + '</td><td><input type="text" name="filter-' + field[0] + '" value="' + field[1] + '" /></td></tr>\n'
 	print '''		<tr>
 		<tr>
 			<td colspan="2" align="center"><input type="submit" value="Submit" /></td>
