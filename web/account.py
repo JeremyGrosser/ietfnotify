@@ -55,16 +55,14 @@ def getSubscriptions(db):
 
 		if sub[4] == '1':
 			dict['enableaction'] = 'Disable'
-			dict['enablebg'] = '#090'
 		else:
 			dict['enableaction'] = 'Enable'
-			dict['enablebg'] = '#F00'
 		ret.append(dict)
 	return ret
 
 def getAllSubscriptions(db):
 	ret = []
-	db.query('SELECT id,username,type,target FROM subscriptions')
+	db.query('SELECT id,username,type,target,enabled FROM subscriptions')
 	subs = db.store_result()
 
 	count = 0
@@ -80,6 +78,11 @@ def getAllSubscriptions(db):
 		dict['notification'] = sub[2]
 		dict['address'] = sub[3]
 		dict['filter'] = getTagFilter(db, sub[0])
+
+		if sub[4] == '1':
+			dict['enableaction'] = 'Disable'
+		else:
+			dict['enableaction'] = 'Enable'
 		ret.append(dict)
 	return ret
 
