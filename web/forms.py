@@ -21,6 +21,7 @@ def showSubscriptions(db):
 <br />
 <table width="100%">
 <tr class="header">
+ <th class="subs">Name</th>
  <th class="subs">Notification</th>
  <th class="subs">Address</th>
  <th class="subs">doc-tag filter</th>
@@ -29,13 +30,14 @@ def showSubscriptions(db):
 	for sub in account.getSubscriptions(db):
 		print '''
 <tr class="%(color)s">
+ <td class="subs">%(name)s</td>
  <td class="subs">%(notification)s</td>
  <td class="subs">%(address)s</td>
  <td class="subs">%(filter)s</td>
- <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a> | 
- <a href="?action=remove&id=%(id)s">Remove</a> | 
- <a href="?action=duplicate&id=%(id)s">Duplicate</a> | 
- <a href="?action=%(enableaction)s&id=%(id)s">%(enableaction)s</a></td>
+ <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a></td>
+ <td class="subs"><a href="?action=duplicate&id=%(id)s">Copy</a></td>
+ <td class="subs"><a href="?action=%(enableaction)s&id=%(id)s">%(enableaction)s</a></td>
+ <td class="subs"><a href="?action=remove&id=%(id)s">Remove</a></td>
 </tr>''' % sub
 	print '</table>'
 
@@ -45,6 +47,7 @@ def showAllSubscriptions(db):
 <br />
 <table width="100%">
 <tr class="header">
+ <th class="subs">Name</th>
  <th class="subs">Notification</th>
  <th class="subs">Address</th>
  <th class="subs">doc-tag</th>
@@ -53,13 +56,14 @@ def showAllSubscriptions(db):
 	for sub in account.getAllSubscriptions(db):
 		print '''
 <tr class="%(color)s">
+ <td class="subs">%(name)s</td>
  <td class="subs">%(notification)s</td>
  <td class="subs">%(address)s</td>
  <td class="subs">%(filter)s</td>
- <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a> | 
- <a href="?action=remove&id=%(id)s">Remove</a> | 
- <a href="?action=duplicate&id=%(id)s">Duplicate</a> | 
- <a href="?action=%(enableaction)s&id=%(id)s">%(enableaction)s</a></td>
+ <td class="subs"><a href="?action=modify&id=%(id)s">Modify</a></td>
+ <td class="subs"><a href="?action=duplicate&id=%(id)s">Copy</a></td>
+ <td class="subs"><a href="?action=%(enableaction)s&id=%(id)s">%(enableaction)s</a></td>
+ <td class="subs"><a href="?action=remove&id=%(id)s">Remove</a></td>
 </tr>''' % sub
 	print '</table>'
 
@@ -67,18 +71,24 @@ def showModifyForm(db, recordid):
 	action = 'update'
 	if recordid == -1:
 		eventType = ''
-		param = ''
+		param = account.getUser()
 		action = 'add'
+		name = ''
 	else:
 		sub = account.getSubscription(db, recordid)
 		sub = sub.fetch_row()
 		eventType = sub[0][1]
 		param = sub[0][2]
+		name = sub[0][3]
 	print '''<form action="" name="modifyForm" method="POST">
 	<input type="hidden" name="action" value="''' + action + '''" />'''
 	if not recordid == -1:
 		print '<input type="hidden" name="id" value="' + str(recordid) + '" />'
 	print '''<table>
+		<tr>
+			<td>Name:</td>
+			<td><input type="text" name="name" value="''' + name + '''" />
+		</tr>
 		<tr>
 			<td>Notification type:</td>
 			<td><select name="eventType" onChange="disableAddress()">'''

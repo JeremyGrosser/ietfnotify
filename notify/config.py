@@ -5,13 +5,27 @@
 
 import ConfigParser
 
-CONFIG_FILE = '/home/synack/ietfnotify/server.conf'
+CONFIG_FILES = [
+#        '/etc/ietfnotify/ietfnotifyd.conf',
+#        'ietfnotifyd.conf',
+        '/home/synack/ietfnotify/server.conf',
+    ]
+
 config = ConfigParser.ConfigParser()
+configfile = None
 
 def readconfig():
-	fp = open(CONFIG_FILE, 'r')
-	config.readfp(fp)
-	fp.close()
+    for file in CONFIG_FILES:
+        try:
+            fp = open(file, 'r')
+            config.readfp(fp)
+            fp.close()
+            configfile = file
+            return
+        except:
+            pass
+    if not configfile:
+        raise Exception("Could not find a configuration file")
 
 def getint(section, key):
 	return config.getint(section, key)
@@ -32,7 +46,7 @@ def set(section, key, value):
 	return config.set(section, key, value)
 
 def write():
-	fd = open(CONFIG_FILE, 'w')
+	fd = open(configfile, 'w')
 	config.write(fd)
 	fd.close()
 

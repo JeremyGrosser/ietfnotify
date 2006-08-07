@@ -36,7 +36,7 @@ def getAdmin(db):
 
 def getSubscriptions(db):
 	ret = []
-	db.query('SELECT id,username,type,target,enabled FROM subscriptions WHERE username=\'' + getUser() + '\'')
+	db.query('SELECT id,username,type,target,enabled,name FROM subscriptions WHERE username=\'' + getUser() + '\'')
 	subs = db.store_result()
 
 	count = 0
@@ -52,6 +52,7 @@ def getSubscriptions(db):
 		dict['notification'] = sub[2]
 		dict['address'] = sub[3]
 		dict['filter'] = getTagFilter(db, sub[0])
+		dict['name'] = sub[5]
 
 		if sub[4] == '1':
 			dict['enableaction'] = 'Disable'
@@ -62,7 +63,7 @@ def getSubscriptions(db):
 
 def getAllSubscriptions(db):
 	ret = []
-	db.query('SELECT id,username,type,target,enabled FROM subscriptions')
+	db.query('SELECT id,username,type,target,enabled,name FROM subscriptions')
 	subs = db.store_result()
 
 	count = 0
@@ -78,6 +79,7 @@ def getAllSubscriptions(db):
 		dict['notification'] = sub[2]
 		dict['address'] = sub[3]
 		dict['filter'] = getTagFilter(db, sub[0])
+		dict['name'] = sub[5]
 
 		if sub[4] == '1':
 			dict['enableaction'] = 'Disable'
@@ -88,9 +90,9 @@ def getAllSubscriptions(db):
 
 def getSubscription(db, recordid):
 	if getAdmin(db):
-		db.query('SELECT username,type,target FROM subscriptions WHERE id=' + str(recordid))
+		db.query('SELECT username,type,target,name FROM subscriptions WHERE id=' + str(recordid))
 	else:
-		db.query('SELECT username,type,target FROM subscriptions WHERE username=\'' + getUser() + '\' AND id=' + str(recordid))
+		db.query('SELECT username,type,target,name FROM subscriptions WHERE username=\'' + getUser() + '\' AND id=' + str(recordid))
 	sub = db.store_result()
 	return sub
 
@@ -100,9 +102,9 @@ def getFilters(db, recordid):
 	fields = db.store_result()
 
 	if getAdmin(db):
-		db.query('SELECT field, pattern FROM filters WHERE parent_id=' + str(recordid))
+		db.query('SELECT field, pattern, id FROM filters WHERE parent_id=' + str(recordid))
 	else:
-		db.query('SELECT field, pattern FROM filters WHERE parent_id=' + str(recordid) + ' AND username="' + getUser() + '"')
+		db.query('SELECT field, pattern, id FROM filters WHERE parent_id=' + str(recordid) + ' AND username="' + getUser() + '"')
 	filters = db.store_result()
 
 	result = {}
@@ -111,6 +113,17 @@ def getFilters(db, recordid):
 	for filter in filters.fetch_row(0):
 		result[filter[0]] = filter[1]
 	return result
+
+# This method is no longer used!
+def removeFilter(db, parentid, field):
+	field = regex_sanitize(field)
+	if getAdmin(db):
+		db.query('DELETE FROM filters WHERE field="' + field + '" AND parent_id=' + str(parentid))
+	else:
+		db.query('SELECT * FROM subscriptions WHERE id=' + str(parentid) + ' AND username="' + getUser() + '"')
+		res = db.store_result()
+		if res.num_rows() > 0:
+			db.query('DELETE FROM filters WHERE field="' + field + '" AND parent_id=' + str(parentid))
 
 def getTagFilter(db, recordid):
 	db.query('SELECT * FROM filters WHERE parent_id=' + str(recordid) + ' AND field="doc-tag"')
@@ -121,35 +134,37 @@ def getTagFilter(db, recordid):
 	else:
 		return ''
 
-def addSubscription(db, eventType, param):
+def addSubscription(db, eventType, param, name, filters):
 	eventType = sanitize(eventType)
 	param = sanitize(param)
+	name = regex_sanitize(name)
 	if eventType == None or param == None:
 		return
-	db.query('INSERT INTO subscriptions SET username=\'' + getUser() + '\', type=\'' + eventType + '\', target=\'' + param + '\'')
+	db.query('INSERT INTO subscriptions SET username=\'' + getUser() + '\', type=\'' + eventType + '\', target=\'' + param + '\', name=\'' + name + '\'')
 
-def updateSubscription(db, recordid, eventType, param, filters):
+	db.query('SELECT LAST_INSERT_ID()')
+	res = db.store_result()
+	recordid = res.fetch_row()
+	recordid = int(recordid[0][0])
+
+	for field in filters:
+		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid))
+
+def updateSubscription(db, recordid, eventType, param, filters, name):
 	# Sanitize the inputs
 	eventType = regex_sanitize(eventType)
 	param = regex_sanitize(param)
+	name = regex_sanitize(name)
+	db.query('DELETE FROM filters WHERE parent_id=' + str(recordid))
 	for field in filters:
 		filters[field] = regex_sanitize(filters[field])
-		# Check to see if the filter already exists
-		db.query('SELECT id FROM filters WHERE type="' + eventType + '" AND field="' + field + '" AND parent_id=' + str(recordid))
-		res = db.store_result()
-		if res.num_rows() > 0:
-			# Modify existing filter
-			existsid = res.fetch_row()
-			existsid = existsid[0][0]
-			db.query('UPDATE filters SET pattern="' + filters[field] + '" WHERE id=' + str(existsid))
-		else:
-			# Create a new filter
-			db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' +filters[field] + '", field="' + field + '", parent_id=' + str(recordid)) 
+		# Create a new filter
+		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' +filters[field] + '", field="' + field + '", parent_id=' + str(recordid)) 
 
 	# Make sure we have the right data
 	if eventType == None or param == None:
 		return
-	db.query('UPDATE subscriptions SET type="' + eventType + '", target="' + param + '" WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
+	db.query('UPDATE subscriptions SET type="' + eventType + '", target="' + param + '", name="' + name + '" WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
 
 def removeSubscription(db, recordid):
 	db.query('DELETE FROM subscriptions WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
@@ -177,7 +192,7 @@ def duplicateSubscription(db, recordid):
 	filters = db.store_result()
 
 	if original.num_rows() > 0:
-		db.query('INSERT INTO subscriptions (username,type,target,is_admin) SELECT username,type,target,is_admin FROM subscriptions WHERE id=' + str(recordid))
+		db.query('INSERT INTO subscriptions (username,type,target,is_admin,name) SELECT username,type,target,is_admin,name FROM subscriptions WHERE id=' + str(recordid))
 		db.query('SELECT LAST_INSERT_ID()')
 		newid = db.store_result()
 		newidrow = newid.fetch_row()

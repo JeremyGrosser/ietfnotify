@@ -41,9 +41,9 @@ if form.getfirst('action') == 'update' and 'id' in form:
 			filters[field[7:]] = form.getfirst(field)
 
 	if form.getfirst('eventType') == 'html_email' or form.getfirst('eventType') == 'plain_email':
-		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), filters)
+		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), filters, form.getfirst('name'))
 	else:
-		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), filters)
+		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), filters, form.getfirst('name'))
 
 # Remove an existing notification
 if form.getfirst('action') == 'remove' and 'id' in form:
@@ -52,7 +52,18 @@ if form.getfirst('action') == 'remove' and 'id' in form:
 # Create a new notification
 if form.getfirst('action') == 'add':
 	if 'eventType' in form:
-		account.addSubscription(db, form.getfirst('eventType'), account.getUser())
+		if not 'name' in form:
+			name = ''
+			print 'no name passed'
+		else:
+			name = form.getfirst('name')
+			print 'name=' + name
+		filters = {}
+		for field in form:
+			if field.startswith('filter-'):
+				filters[field[7:]] = form.getfirst(field)
+
+		account.addSubscription(db, form.getfirst('eventType'), account.getUser(), name, filters)
 	else:
 		forms.showModifyForm(db, -1)
 		done = 1
@@ -99,6 +110,10 @@ if form.getfirst('action') == 'Enable':
 	account.enableSubscription(db, int(form.getfirst('id')))
 if form.getfirst('action') == 'Disable':
 	account.disableSubscription(db, int(form.getfirst('id')))
+
+# Remove an existing filter from a notification
+if form.getfirst('action') == 'removefilter':
+	account.removeFilter(db, int(form.getfirst('id')), form.getfirst('field'))
 
 # When all else fails, show the user's subscriptions
 if not done:

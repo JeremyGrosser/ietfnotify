@@ -21,13 +21,7 @@ def header(db):
 	print fd.read()
 	fd.close()
 
-	#print '<div id="notify_actions">'
-	#if account.getUser() == '':
-	#	print '<strong>Not logged in</strong>'
-	#else:
-	#	print '<strong>' + account.getUser() + '</strong>'
-	#	print '<p><a href="?">List subscriptions</a>'
-	#	print '<br /><a href="?action=viewarchive">Search archives</a>'
+	print '<a href="?action=viewarchive">Last 24 hours</a>'
 	if account.getAdmin(db):
 		print ' | <a href="?action=listall">List all subscriptions</a> |'
 		print '<a href="?action=listfields">Edit filter fields</a>'
