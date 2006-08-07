@@ -15,7 +15,7 @@ from socket import timeout
 
 # The full module must be loaded first to run init code
 import notify.log
-from notify.log import DEBUG, ERROR, INFO, log
+from notify.log import DEBUG, ERROR, INFO, log, info, debug
 
 # Build a uuid cache for feeds
 notify.archive.buildUUIDCache()
@@ -28,16 +28,20 @@ buffer = []
 
 inc = int(notify.config.get('general', 'accepttimeout'))
 target = time.time() + inc
+
+info("Starting up notifcation daemon. Listening on %s:%s." % (notify.config.get('general', 'bindaddr'), notify.config.getint('general', 'bindport')))
+
+
 try:
 	while True:
 		newtimeout = max( target - time.time(), 0.1)
 		sd.settimeout(newtimeout)
-		log(INFO, 'timeout(' + str(newtimeout) + ')\tbuffer(' + str(len(buffer)) + ')')
+		debug('timeout(' + str(newtimeout) + ')\tbuffer(' + str(len(buffer)) + ')')
 
 		try:
 			afd, address = sd.accept()
 		except timeout:
-			log(INFO, 'target(' + str(target) + ')\ttime.now(' + str(time.time()) + ')')
+			debug('target(' + str(target) + ')\ttime.now(' + str(time.time()) + ')')
 			if len(buffer) > 0:
 				msg = buffer.pop()
 				notify.notifier.sendNotifications(msg)
@@ -63,6 +67,6 @@ try:
 			notify.network.sendMessage(afd, 'ERR-' + retmsg + '\n')
 		afd.close()
 except KeyboardInterrupt:
-	print 'Caught keyboard interrupt, cleaning up.'
+	info('Caught keyboard interrupt, cleaning up.')
 	notify.notifier.cleanup()
 	sd.close()

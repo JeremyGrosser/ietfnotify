@@ -6,9 +6,9 @@
 import ConfigParser
 
 CONFIG_FILES = [
-#        '/etc/ietfnotify/ietfnotifyd.conf',
-#        'ietfnotifyd.conf',
-        '/home/synack/ietfnotify/server.conf',
+        '/etc/ietfnotify/ietfnotifyd.conf',
+        'ietfnotifyd.conf',
+#        '/home/synack/ietfnotify/server.conf',
     ]
 
 config = ConfigParser.ConfigParser()

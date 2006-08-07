@@ -121,7 +121,7 @@ def sendNotifications(parsed):
 	db.query('SELECT type,target,id FROM subscriptions WHERE enabled=1')
 	subs = db.store_result()
 
-	parsed = message.removeHidden(parsed)
+	parsed = message.removeHidden(db, parsed)
 
 	notified = []
 	for subscription in subs.fetch_row(0):

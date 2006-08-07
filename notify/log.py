@@ -3,7 +3,9 @@
 # Copyright (C) 2006 Jeremy Grosser
 # See LICENSE file in the root of the source distribution for details
 
-import logging, time, sys, config
+
+import sys
+import syslog
 
 # Constants
 DEBUG = 'DEBUG'
@@ -11,19 +13,35 @@ ERROR = 'ERROR'
 INFO = 'INFO'
 NETWORK = 'NETWORK'
 
-#syslog = logging.SysLogHandler()
-#syslog.setLevel(logging.ERROR)
-#logging.getLogger('').addHandler(syslog)
 
-fd = open(config.get('general', 'logfile'), 'a')
+# ----------------------------------------------------------------------
 
-def log(priority, msg):
-	#logging.log(priority, msg)
-	logmsg = str(priority) + ' ' + time.strftime('%x %X: ') + msg + '\n'
-	fd.write(logmsg)
-	fd.flush()
-	if priority != DEBUG:
-		sys.stderr.write(logmsg)
+syslog.openlog("ietfnotify", syslog.LOG_PID, syslog.LOG_USER)
+syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_INFO))
+
+def debug(msg):
+    syslog.syslog(syslog.LOG_DEBUG, msg)
+def info(msg):
+    syslog.syslog(syslog.LOG_INFO, msg)
+def note(msg):
+    syslog.syslog(syslog.LOG_NOTICE, msg)
+def warn(msg):
+    syslog.syslog(syslog.LOG_WARNING, msg)
+def err(msg):
+    syslog.syslog(syslog.LOG_ERR, msg)
+
+# ---- compatibility function ----
+
+def log(pri, msg):
+    if pri == DEBUG:
+        debug(msg)
+    if pri == INFO:
+        info(msg)
+    if pri == NETWORK:
+        warn(msg)
+    if pri == ERROR:
+        err(msg)
 
 def cleanup():
-	pass
+    pass
+    

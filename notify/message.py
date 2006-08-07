@@ -12,6 +12,7 @@ import util
 import config
 import log
 import archive
+import os.path
 
 django.conf.settings.configure()
 
@@ -49,7 +50,7 @@ def renderMessage(templateFile, parsed):
 	
 	# Read the template file
 	template = ''
-	fd = open(config.get('notifier', 'templatepath') + templateFile, 'r')
+	fd = open(os.path.join(config.get('notifier', 'templatepath'), templateFile), 'r')
 	for line in fd.readlines():
 		template += line
 	fd.close()
@@ -73,7 +74,7 @@ def renderList(templateFile, uuidList):
 
 	# Read the template file
 	template = ''
-	fd = open(config.get('notifier', 'templatepath') + templateFile, 'r')
+	fd = open(os.path.join(config.get('notifier', 'templatepath'), templateFile), 'r')
 	for line in fd.readlines():
 		template += line
 	fd.close()
@@ -87,9 +88,13 @@ def removeHidden(db, parsed):
 	db.query('SELECT field FROM eventTypes WHERE type="filter" AND admin=1')
 	res = db.store_result()
 
-	for field in res.fetch_rows():
-		del parsed[field][0]
-	
+        if res:
+            for field in res.fetch_row():
+                try:
+                    del parsed[field][0]
+                except:
+                    pass                # XXX needs further investigation
+
 	return parsed
 	
 def parseMessage(msg, keepdate):
