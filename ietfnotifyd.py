@@ -10,7 +10,7 @@ import notify.notifier
 import notify.message
 import notify.config
 import time
-import os, sys
+import os, sys, getopt
 
 from socket import timeout
 
@@ -18,8 +18,14 @@ from socket import timeout
 import notify.log
 from notify.log import DEBUG, ERROR, INFO, log, info, debug
 
-# TODO: Implement command line arguments
-daemon = True
+daemon = False
+opts, args = getopt.getopt(sys.argv, 'dDv')
+for arg in args:
+	if arg== 'd':	daemon = True
+	if arg== 'D':	notify.log.debugMode = True
+	if arg== 'v':
+		print '$Id'
+		sys.exit(0)
 
 def main():
 	# Build a uuid cache for feeds

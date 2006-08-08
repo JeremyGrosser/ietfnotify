@@ -12,6 +12,7 @@ DEBUG = 'DEBUG'
 ERROR = 'ERROR'
 INFO = 'INFO'
 NETWORK = 'NETWORK'
+debugMode = False
 
 
 # ----------------------------------------------------------------------
@@ -41,6 +42,8 @@ def log(pri, msg):
         warn(msg)
     if pri == ERROR:
         err(msg)
+	if debugMode:
+		print msg
 
 def cleanup():
     pass
