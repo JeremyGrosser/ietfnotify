@@ -1,5 +1,5 @@
 README
-ietfnotifyd.py
+ietfnotifyd
 setup.py
 ietfnotify/__init__.py
 ietfnotify/archive.py
