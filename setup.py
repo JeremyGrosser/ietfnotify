@@ -8,8 +8,8 @@ setup(name='ietfnotify',
 	author='Jeremy Grosser',
 	author_email='synack@csh.rit.edu',
 	url='http://sourceforge.net/projects/ietfnotify',
-	packages=['ietfnotify', 'ietfnotify.web']
-	scripts=['ietfnotifyd.py', 'web/index.cgi']
+	packages=['ietfnotify', 'ietfnotify.web'],
+	scripts=['ietfnotifyd'],
 	data_files=[('/etc/ietfnotify', 'doc/ietfnotify.conf'),
 				('/etc/ietfnotify', 'templates/')]
 	)
