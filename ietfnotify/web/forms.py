@@ -3,7 +3,9 @@
 # Copyright (C) 2006 Jeremy Grosser
 # See LICENSE file in the root of the source distribution for details
 
-import account, config, archive
+import ietfnotify.web.account as account
+import ietfnotify.config as config
+import ietfnotify.archive as archive
 import os, time
 
 def showLoginMessage():

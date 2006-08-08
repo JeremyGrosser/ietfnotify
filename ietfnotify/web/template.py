@@ -3,7 +3,7 @@
 # Copyright (C) 2006 Jeremy Grosser
 # See LICENSE file in the root of the source distribution for details
 
-import account
+import ietfnotify.web.account as account
 
 def header(db):
 	print 'Content-type: text/html\n\n'

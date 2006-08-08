@@ -3,4 +3,4 @@
 # Copyright (C) 2006 Jeremy Grosser
 # See LICENSE file in the root of the source distribution for details
 
-__all__ = ['network', 'config', 'util', 'archive', 'notifier', 'message', 'log']
+__all__ = ['network', 'config', 'util', 'archive', 'notifier', 'message', 'log', 'web']

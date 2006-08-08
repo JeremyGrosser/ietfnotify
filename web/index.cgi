@@ -5,10 +5,12 @@
 # See LICENSE file in the root of the source distribution for details
 
 import sys
-sys.path.insert(1, '../notify')
+sys.path.insert(0, '/home/synack/ietfnotify')
 
-import config
-import template, account, forms
+import ietfnotify.config as config
+import ietfnotify.web.template as template
+import ietfnotify.web.account as account
+import ietfnotify.web.forms as forms
 import cgi, os, _mysql
 
 # DEBUG

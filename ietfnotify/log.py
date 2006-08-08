@@ -14,6 +14,12 @@ ERROR = 'ERROR'
 INFO = 'INFO'
 NETWORK = 'NETWORK'
 
+class LogStream:
+	def __init__(self, f):
+		self.f = f
+	def write(self, s):
+		self.f.write(s)
+		self.f.flush()
 
 # ----------------------------------------------------------------------
 # Utility functions
