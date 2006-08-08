@@ -1,2 +1,31 @@
-{% for field in fields %}{{ field.0 }} - {{ field.1 }}
-{% endfor %}
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: {{ attrib.doctag }} {% if attrib.docphase %}({{ attrib.docphase }}) {% endif %}is in state {{ attrib.docstate }}
+
+
+Changes have occurred for {{ attrib.doctag }} which match a notification filter
+you have set up.
+					
+{%	      if attrib.doctitle      %}    Title:	{{ attrib.doctitle }}
+{% endif %}{% if attrib.docauthor     %}    Author(s):	{{ attrib.docauthor }}
+{% endif %}{% if attrib.doctag        %}    Filename:	{{ attrib.doctag }}-{{ attrib.docrev}}.txt
+{% endif %}{% if attrib.docsubmitted  %}    Submitted:	{{ attrib.docsubmitted }}
+{% endif %}
+
+Changes:
+
+   Old xxxxx(<<date>>): << old value >>
+   New xxxxx(<<date>>): << new value >>
+
+   ...
+
+Abstract:
+{% if attrib.docabstract  %}   {{ attrib.docabstract }}{% endif %}
+
+
+------------------------------------------------------------------------
+
+
+{% for field in fields %}{% ifnotequal field.0 "doc-abstract" %}{{ field.0|capfirst|stringformat:"20s" }}: {{ field.1 }}
+{% endifnotequal %}{% endfor %}
