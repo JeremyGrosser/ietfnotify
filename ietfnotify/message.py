@@ -41,23 +41,33 @@ def renderMessage(templateFile, parsed):
 	# Convert literal \n to newline in parsed fields
 	for field in parsed:
 		for value in field:
-			value = value.replace('\\n', '\n')
+			parsed[field][value] = value.replace('\\n', '\n')
 
 	# Reformat the data into something django templates can work with
 	fields = []
-	for field in parsed:
-		fields.append([field, parsed[field][0]])
+	attrib = {}
+	date = {}
+	keys = parsed.keys()
+	keys.sort()
+	for field in keys:
+		attr = field.replace("-", "")
+		value = parsed[field][0]
+		valuedate = re.split(";([12][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])$", value)
+
+		if len(valuedate) >= 2:
+			value, date[attr] = valuedate[:2]
+		value = value.replace("\\n", "\n   ").replace("\\x27", "'").replace("\\\\", "\\")
+		fields.append([field, value])
+		attrib[attr] = value
 	
 	# Read the template file
 	template = ''
 	fd = open(os.path.join(config.get('notifier', 'templatepath'), templateFile), 'r')
-	for line in fd.readlines():
-		template += line
-	fd.close()
+	template = fd.read()
 
 	# Create the django objects and render
 	template = django.template.Template(template)
-	context = django.template.Context({'fields': fields})
+	context = django.template.Context({'fields': fields, 'attrib': attrib})
 	return template.render(context)
 
 def renderList(templateFile, uuidList):

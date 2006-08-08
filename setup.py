@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='ietfnotify',
-	version='0.01',
+	version='0.11',
 	description='IETF Event Notification Service',
 	author='Jeremy Grosser',
 	author_email='synack@csh.rit.edu',

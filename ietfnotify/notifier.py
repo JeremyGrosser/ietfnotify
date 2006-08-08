@@ -6,7 +6,7 @@
 import _mysql
 import smtplib
 import re
-from email.MIMEText import MIMEText
+#from email.MIMEText import MIMEText
 
 import sys
 import os
@@ -45,11 +45,11 @@ def emailNotification(subscriber, parsed):
 	log.log(log.DEBUG, 'Plain email: ' + repr(subscriber))
 	try:
 		msg = message.renderMessage('email.txt', parsed)
-		msg = MIMEText(msg)
-		msg = msg.as_string()
+		#msg = MIMEText(msg)
+		#msg = msg.as_string()
 		eml = 'To: ' + subscriber + '\r\n'
 		eml += 'From: IETF Notifier <' + config.get('notify-email', 'smtpfrom') + '>\r\n'
-		eml += 'Subject: ' + parsed['doc-tag'][0] + ' has been updated\r\n'
+		#eml += 'Subject: ' + parsed['doc-tag'][0] + ' has been updated\r\n'
 		eml += 'Precedence: list\r\n'
 		eml += 'Auto-submitted: auto-generated\r\n'
 		eml += msg
