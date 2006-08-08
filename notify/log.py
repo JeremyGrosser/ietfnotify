@@ -14,6 +14,12 @@ INFO = 'INFO'
 NETWORK = 'NETWORK'
 debugMode = False
 
+class LogStream:
+	def __init__(self, f):
+		self.f = f
+	def write(self, s):
+		self.f.write(s)
+		self.f.flush()
 
 # ----------------------------------------------------------------------
 

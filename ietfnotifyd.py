@@ -18,13 +18,13 @@ from socket import timeout
 import notify.log
 from notify.log import DEBUG, ERROR, INFO, log, info, debug
 
-daemon = False
+daemon = True
 opts, args = getopt.getopt(sys.argv, 'dDv')
 for arg in args:
-	if arg== 'd':	daemon = True
-	if arg== 'D':	notify.log.debugMode = True
-	if arg== 'v':
-		print '$Id'
+	if arg == '-d':	daemon = False
+	if arg == '-D':	notify.log.debugMode = True
+	if arg == '-v':
+		print 'ietfnotifyd v0.01 ($Id$)'
 		sys.exit(0)
 
 def main():
@@ -84,6 +84,7 @@ def main():
 
 # Fork if we're in daemon mode
 if daemon:
+	sys.stdout = sys.stderr = notify.log.LogStream(open(notify.config.get('general', 'logfile'), 'a+'))
 	try:
 		pid = os.fork()
 		if pid > 0:
@@ -94,14 +95,14 @@ if daemon:
 		os.chdir('/')
 		os.setsid()
 
-try:
-	pid = os.fork()
-	if pid > 0:
-		debug('Forked to PID ' + str(pid))
-		open(notify.config.get('general', 'pidfile'), 'w').write(str(pid))
-		sys.exit(0)
-except OSError, e:
-	print 'Second fork failed: ' + e.strerror
-	sys.exit(1)
+	try:
+		pid = os.fork()
+		if pid > 0:
+			debug('Forked to PID ' + str(pid))
+			open(notify.config.get('general', 'pidfile'), 'w').write(str(pid))
+			sys.exit(0)
+	except OSError, e:
+		print 'Second fork failed: ' + e.strerror
+		sys.exit(1)
 
 main()
