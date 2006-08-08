@@ -10,6 +10,7 @@ import notify.notifier
 import notify.message
 import notify.config
 import time
+import os, sys
 
 from socket import timeout
 
@@ -17,56 +18,84 @@ from socket import timeout
 import notify.log
 from notify.log import DEBUG, ERROR, INFO, log, info, debug
 
-# Build a uuid cache for feeds
-notify.archive.buildUUIDCache()
+# TODO: Implement command line arguments
+daemon = True
 
-# Start a new listening socket
-sd = notify.network.startServer()
+def main():
+	# Build a uuid cache for feeds
+	notify.archive.buildUUIDCache()
 
-# Create a buffer for incoming events
-buffer = []
+	# Start a new listening socket
+	sd = notify.network.startServer()
 
-inc = int(notify.config.get('general', 'accepttimeout'))
-target = time.time() + inc
+	# Create a buffer for incoming events
+	buffer = []
 
-info("Starting up notifcation daemon. Listening on %s:%s." % (notify.config.get('general', 'bindaddr'), notify.config.getint('general', 'bindport')))
+	inc = int(notify.config.get('general', 'accepttimeout'))
+	target = time.time() + inc
 
+	info("Starting up notifcation daemon. Listening on %s:%s." % (notify.config.get('general', 'bindaddr'), notify.config.getint('general', 'bindport')))
+
+
+	try:
+		while True:
+			newtimeout = max( target - time.time(), 0.1)
+			sd.settimeout(newtimeout)
+			debug('timeout(' + str(newtimeout) + ')\tbuffer(' + str(len(buffer)) + ')')
+	
+			try:
+				afd, address = sd.accept()
+			except timeout:
+				debug('target(' + str(target) + ')\ttime.now(' + str(time.time()) + ')')
+				if len(buffer) > 0:
+					msg = buffer.pop()
+					notify.notifier.sendNotifications(msg)
+					notify.message.updateFilters(msg)
+				target += inc
+				continue
+	
+			msg = notify.network.getMessage(afd)
+			msg = notify.message.parseMessage(msg, 1)
+			retnum, retmsg = notify.message.checkRequired(msg)
+			if not retnum:
+				if len(buffer) > int(notify.config.get('general', 'eventbuffer')):
+					retnum = 1
+					retmsg = 'Buffer full'
+				else:
+					buffer.append(msg)
+			if not retnum:
+				retnum, retmsg = notify.archive.archiveMessage(msg)
+			if not retnum:
+				notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
+				msg['event-uuid'] = [retmsg]
+			else:
+				notify.network.sendMessage(afd, 'ERR-' + retmsg + '\n')
+			afd.close()
+	except KeyboardInterrupt:
+		info('Caught keyboard interrupt, cleaning up.')
+		notify.notifier.cleanup()
+		sd.close()
+
+# Fork if we're in daemon mode
+if daemon:
+	try:
+		pid = os.fork()
+		if pid > 0:
+			sys.exit(0)
+	except OSError, e:
+		print 'First fork failed: ' + e.strerror
+		sys.exit(1)
+		os.chdir('/')
+		os.setsid()
 
 try:
-	while True:
-		newtimeout = max( target - time.time(), 0.1)
-		sd.settimeout(newtimeout)
-		debug('timeout(' + str(newtimeout) + ')\tbuffer(' + str(len(buffer)) + ')')
+	pid = os.fork()
+	if pid > 0:
+		debug('Forked to PID ' + str(pid))
+		open(notify.config.get('general', 'pidfile'), 'w').write(str(pid))
+		sys.exit(0)
+except OSError, e:
+	print 'Second fork failed: ' + e.strerror
+	sys.exit(1)
 
-		try:
-			afd, address = sd.accept()
-		except timeout:
-			debug('target(' + str(target) + ')\ttime.now(' + str(time.time()) + ')')
-			if len(buffer) > 0:
-				msg = buffer.pop()
-				notify.notifier.sendNotifications(msg)
-				notify.message.updateFilters(msg)
-			target += inc
-			continue
-
-		msg = notify.network.getMessage(afd)
-		msg = notify.message.parseMessage(msg, 0)
-		retnum, retmsg = notify.message.checkRequired(msg)
-		if not retnum:
-			if len(buffer) > int(notify.config.get('general', 'eventbuffer')):
-				retnum = 1
-				retmsg = 'Buffer full'
-			else:
-				buffer.append(msg)
-		if not retnum:
-			retnum, retmsg = notify.archive.archiveMessage(msg)
-		if not retnum:
-			notify.network.sendMessage(afd, 'OK-' + retmsg + '\n')
-			msg['event-uuid'] = [retmsg]
-		else:
-			notify.network.sendMessage(afd, 'ERR-' + retmsg + '\n')
-		afd.close()
-except KeyboardInterrupt:
-	info('Caught keyboard interrupt, cleaning up.')
-	notify.notifier.cleanup()
-	sd.close()
+main()

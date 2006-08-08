@@ -10,7 +10,7 @@ def makeTimestamp():
 	tz = time.strftime('%z')
 	tz = '-' + tz[1:]
 	tz = tz[:3] + ':' + tz[3:]
-	return time.strftime('%Y-%d-%mT%H:%M:%S') + tz
+	return time.strftime('%Y-%m-%dT%H:%M:%S%:z') + tz
 
 def makeUUID():
 	uuid = os.popen('uuidgen -t', 'r').readlines()
