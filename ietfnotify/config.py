@@ -3,28 +3,28 @@
 # Copyright (C) 2006 Jeremy Grosser
 # See LICENSE file in the root of the source distribution for details
 
-import ConfigParser
+import ConfigParser, os
 
 CONFIG_FILES = [
-        '/etc/ietfnotify/ietfnotify.conf',
-        'ietfnotifyd.conf',
+        '/etc/ietfnotify/ietfnotifyd.conf',
+        'ietfnotify.conf'
     ]
 
 config = ConfigParser.ConfigParser()
 configfile = None
 
 def readconfig():
-    for file in CONFIG_FILES:
-        try:
-            fp = open(file, 'r')
-            config.readfp(fp)
-            fp.close()
-            configfile = file
-            return
-        except:
-            pass
-    if not configfile:
-        raise Exception("Could not find a configuration file")
+	global configfile
+	for file in CONFIG_FILES:
+		if os.path.exists(file):
+			fp = open(file, 'r')
+			config.readfp(fp)
+			fp.close()
+			configfile = file
+			return
+
+	if not configfile:
+		raise Exception("Could not find a configuration file")
 
 def getint(section, key):
 	return config.getint(section, key)
