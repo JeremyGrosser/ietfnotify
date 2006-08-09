@@ -122,6 +122,8 @@ def main():
                 afd.close()
             except KeyboardInterrupt:
                 raise
+			except SystemExit:
+				raise
             except Exception, e:
                 warn("Exception caught: %s -- returning to loop" % e)
 
@@ -129,6 +131,9 @@ def main():
         info('Caught keyboard interrupt, cleaning up.')
         ietfnotify.notifier.cleanup()
         sd.close()
+	except SystemExit:
+		ietfnotify.notifier.cleanup()
+		sd.close()
 
 # Fork if we're in daemon mode
 if daemon:

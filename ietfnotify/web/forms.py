@@ -118,7 +118,7 @@ def showModifyForm(db, recordid):
 	res = res.items()
 	res.sort()
 	for field in res:
-		print '<tr><td>' + field[0] + '</td><td><input type="text" name="filter-' + field[0] + '" value="' + field[1] + '" /></td></tr>\n'
+		print '<tr><td>' + field[0] + '</td><td><input type="text" name="filter-' + field[0] + '" value="' + field[1][0] + '" /><input type="checkbox" name="filter-' + field[0] + '-ignore" ' + field[1][1] + '/></td></tr>\n'
 	print '''		<tr>
 		<tr>
 			<td colspan="2" align="center"><input type="submit" value="Submit" /></td>

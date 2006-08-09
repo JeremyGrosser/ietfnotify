@@ -6,6 +6,7 @@
 import _mysql
 import smtplib
 import re
+import sets
 #from email.MIMEText import MIMEText
 
 import sys
@@ -122,26 +123,37 @@ def sendNotifications(parsed):
 	subs = db.store_result()
 
 	parsed = message.removeHidden(db, parsed)
+	changed = message.parseChanges(parsed, 'State-change')
+	added = message.parseChanges(parsed, 'State-added')
+	changed = changes.union(added)
 
 	notified = []
 	for subscription in subs.fetch_row(0):
-		db.query('SELECT field,pattern FROM filters WHERE parent_id=' + str(subscription[2]))
-		filter_res = db.store_result()
-		filtered = 0
-		for filter in filter_res.fetch_row(0):
-			regex = re.compile(filter[1])
-			if filter[0] in parsed:
-				if regex.search(parsed[filter[0]][0]):
-					filtered = 1
-			else:
-				if regex.search(''):
-					filtered = 1
+		try:
+			db.query('SELECT field,pattern,ignoreChanges FROM filters WHERE parent_id=' + str(subscription[2]))
+			filter_res = db.store_result()
+			filtered = 0
+			subChanges = changed.copy()
+			for filter in filter_res.fetch_row(0):
+				regex = re.compile(filter[1])
+				if filter[0] in parsed:
+					if regex.search(parsed[filter[0]][0]):
+						filtered = 1
+				else:
+					if regex.search(''):
+						filtered = 1
 
-		if not subscription[2] in notified and not filtered:
-			if subscription[0] in notifyCallbacks:
-				f = notifyCallbacks[subscription[0]]
-				f(subscription[1], parsed)
-				notified.append(subscription[2])
-			else:
-				log.log(log.ERROR, 'Unknown notification type: ' + repr(subscription))
-	db.close()
+				# Update the changes list for this subscription
+				if filter[0] in subChanges and filter[2] == '0':
+					subChanges.remove(filter[2])
+
+			if not subscription[2] in notified and not filtered and len(subChanges) > 0:
+				if subscription[0] in notifyCallbacks:
+					f = notifyCallbacks[subscription[0]]
+					f(subscription[1], parsed)
+					notified.append(subscription[2])
+				else:
+					log.log(log.ERROR, 'Unknown notification type: ' + repr(subscription))
+		except Exception, e:
+			log.warn("Caught exception in subscription loop of sendNotifications(): '%s'" % e)
+		db.close()

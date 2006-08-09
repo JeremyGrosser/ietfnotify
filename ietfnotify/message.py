@@ -7,6 +7,7 @@ import _mysql
 import django.template
 import django.conf
 import re
+import sets
 
 import util
 import config
@@ -38,11 +39,6 @@ def updateFilters(parsed):
 def renderMessage(templateFile, parsed):
 	log.log(log.DEBUG, 'Rendering django template (' + templateFile + ')')
 
-	# Convert literal \n to newline in parsed fields
-	for field in parsed:
-		for value in field:
-			parsed[field][value] = value.replace('\\n', '\n')
-
 	# Reformat the data into something django templates can work with
 	fields = []
 	attrib = {}
@@ -64,6 +60,7 @@ def renderMessage(templateFile, parsed):
 	template = ''
 	fd = open(os.path.join(config.get('notifier', 'templatepath'), templateFile), 'r')
 	template = fd.read()
+	fd.close()
 
 	# Create the django objects and render
 	template = django.template.Template(template)
@@ -85,8 +82,7 @@ def renderList(templateFile, uuidList):
 	# Read the template file
 	template = ''
 	fd = open(os.path.join(config.get('notifier', 'templatepath'), templateFile), 'r')
-	for line in fd.readlines():
-		template += line
+	template = fd.read()
 	fd.close()
 
 	# Create django objects and render
@@ -137,6 +133,12 @@ def parseMessage(msg, keepdate):
 	#			value = value[:res.start]
 
 	return parsed
+
+def parseChanged(parsed, changeField):
+	changes = []
+	for change in parsed[changeField][0].split(' '):
+		changes.append(change)
+	return sets.Set(changes)
 
 def checkRequired(parsed):
 	log.log(log.DEBUG, 'Checking required fields')

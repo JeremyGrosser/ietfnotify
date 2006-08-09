@@ -98,20 +98,25 @@ def getSubscription(db, recordid):
 
 def getFilters(db, recordid):
 	# Get all possible filter types
-	db.query('SELECT field FROM eventTypes WHERE type="filter" AND admin=0')
+	db.query('SELECT field, defaultIgnore FROM eventTypes WHERE type="filter" AND admin=0')
 	fields = db.store_result()
 
-	if getAdmin(db):
-		db.query('SELECT field, pattern, id FROM filters WHERE parent_id=' + str(recordid))
-	else:
-		db.query('SELECT field, pattern, id FROM filters WHERE parent_id=' + str(recordid) + ' AND username="' + getUser() + '"')
+	db.query('SELECT field, pattern, ignoreChanges FROM filters WHERE parent_id=' + str(recordid))
 	filters = db.store_result()
 
 	result = {}
 	for field in fields.fetch_row(0):
-		result[field[0]] = ''
+		if field[1] == '1':
+			checked = 'checked '
+		else:
+			checked = ''
+		result[field[0]] = ('', checked)
 	for filter in filters.fetch_row(0):
-		result[filter[0]] = filter[1]
+		if filter[2] == '1':
+			checked = 'checked '
+		else:
+			checked = ''
+		result[filter[0]] = (filter[1], checked)
 	return result
 
 # This method is no longer used!
@@ -159,7 +164,7 @@ def updateSubscription(db, recordid, eventType, param, filters, name):
 	for field in filters:
 		filters[field] = regex_sanitize(filters[field])
 		# Create a new filter
-		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' +filters[field] + '", field="' + field + '", parent_id=' + str(recordid)) 
+		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid)) 
 
 	# Make sure we have the right data
 	if eventType == None or param == None:

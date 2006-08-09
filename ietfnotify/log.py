@@ -6,7 +6,7 @@
 
 import sys
 import syslog
-import notify.config as conf
+import ietfnotify.config as conf
 
 # Constants
 DEBUG = 'DEBUG'

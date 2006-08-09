@@ -32,9 +32,7 @@ def uuidArchive(uuid, parsed):
 def getArchived(uuid):
 	try:
 		fd = open(config.get('archive', 'uuid_dir') + '/' + uuid, 'r')
-		notparsed = ''
-		for line in fd.readlines():
-			notparsed += line
+		notparsed = fd.read()
 		fd.close()
 	except IOError: return 0
 	return message.parseMessage(notparsed, 1)
