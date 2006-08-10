@@ -88,10 +88,13 @@ if form.getfirst('action') == 'help':
 # Hide specified fields from the user form
 if form.getfirst('action') == 'removefields' and account.getAdmin(db):
 	filters = []
+	ignored = []
 	for field in form:
 		if field.startswith('filter-') and form.getfirst(field) == 'on':
 			filters.append(field[7:])
-	account.removeFilters(db, filters)
+		if field.startswith('ignore-') and form.getfirst(field) == 'on':
+			ignored.append(field[7:])
+	account.updateFilters(db, filters, ignored)
 	forms.showFieldsList(db)
 	done = 1
 

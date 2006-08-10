@@ -166,7 +166,12 @@ def updateSubscription(db, recordid, eventType, param, filters, ignore, name):
 	for field in filters:
 		filters[field] = regex_sanitize(filters[field])
 		# Create a new filter
-		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid) + ', ignoreChanges=' + ignore.get(field, '0')) 
+		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid) + ', ignoreChanges=' + ignore.get(field, '0'))
+		if field in ignore:
+			del ignore[field]
+	
+	for i in ignore:
+		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="", field="' + i + '", parent_id=' + str(recordid) + ', ignoreChanges=' + ignore[i])
 
 	# Make sure we have the right data
 	if eventType == None or param == None:
@@ -210,6 +215,9 @@ def duplicateSubscription(db, recordid):
 	else:
 		print 'Error: Subscription does not exist<br />'
 
-def removeFilters(db, fields):
+def updateFilters(db, fields, ignored):
+	db.query('UPDATE eventTypes SET admin=0, defaultIgnore=0 WHERE type="filter"')
 	for field in fields:
 		db.query('UPDATE eventTypes SET admin=1 WHERE field="' + field + '" AND type="filter"')
+	for ignore in ignored:
+		db.query('UPDATE eventTypes set defaultIgnore=1 WHERE field="' + ignore + '" AND type="filter"')

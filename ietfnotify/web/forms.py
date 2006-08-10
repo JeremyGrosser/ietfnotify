@@ -133,10 +133,11 @@ def showFieldsList(db):
 <table>
  <tr class="header">
   <th>Hidden</th>
+  <th>Ignored</th>
   <th>Field</th>
  </tr>'''
 
-	db.query('SELECT field,admin FROM eventTypes WHERE type="filter" ORDER BY field')
+	db.query('SELECT field,admin,defaultIgnore FROM eventTypes WHERE type="filter" ORDER BY field')
 	res = db.store_result()
 	count = 0
 	for field in res.fetch_row(0):
@@ -145,11 +146,16 @@ def showFieldsList(db):
 			checked = 'checked '
 		else:
 			checked = ''
+		if field[2] == '1':
+			ignored = 'checked '
+		else:
+			ignored = ''
 		if count % 2:
 			print '<tr class="white">'
 		else:
 			print '<tr class="gray">'
 		print '<td><input type="checkbox" name="filter-' + field[0] + '" ' + checked + '/></td>'
+		print '<td><input type="checkbox" name="ignore-' + field[0] + '" ' + ignored + '/></td>'
 		print '<td>' + field[0] + '</td>'
 	print '<tr><td align="center" colspan="2"><input type="submit" value="Hide" /></td></tr>'
 	print '</table>\n</form>'
