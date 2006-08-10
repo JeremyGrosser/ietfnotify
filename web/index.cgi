@@ -5,7 +5,8 @@
 # See LICENSE file in the root of the source distribution for details
 
 import sys
-sys.path.insert(0, '/www/tools.ietf.org/tools/ietfnotify/')
+#sys.path.insert(0, '/www/tools.ietf.org/tools/ietfnotify/')
+sys.path.insert(0, '/home/synack/ietfnotify/')
 
 import ietfnotify.config as config
 import ietfnotify.web.template as template
@@ -38,14 +39,18 @@ if form.getfirst('action') == 'modify' and 'id' in form:
 # Affect changes on an existing notification
 if form.getfirst('action') == 'update' and 'id' in form:
 	filters = {} 
+	ignore = {}
 	for field in form:
 		if field.startswith('filter-'):
-			filters[field[7:]] = form.getfirst(field)
+			if field.endswith('-ignore'):
+				ignore[field[7:-7]] = form.getfirst(field)
+			else:
+				filters[field[7:]] = form.getfirst(field)
 
 	if form.getfirst('eventType') == 'html_email' or form.getfirst('eventType') == 'plain_email':
-		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), filters, form.getfirst('name'))
+		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), filters, ignore, form.getfirst('name'))
 	else:
-		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), filters, form.getfirst('name'))
+		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), filters, ignore, form.getfirst('name'))
 
 # Remove an existing notification
 if form.getfirst('action') == 'remove' and 'id' in form:

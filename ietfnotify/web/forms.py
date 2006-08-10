@@ -114,11 +114,12 @@ def showModifyForm(db, recordid):
 			<td>Address:</td>
 			<td><input type="text" name="param" value="''' + param + '''" /></td>
 		</tr>'''
-	res = account.getFilters(db, recordid)
+	res, checked = account.getFilters(db, recordid)
 	res = res.items()
 	res.sort()
+
 	for field in res:
-		print '<tr><td>' + field[0] + '</td><td><input type="text" name="filter-' + field[0] + '" value="' + field[1] + '" /></td></tr>\n'
+		print '<tr><td>' + field[0] + '</td><td><input type="text" name="filter-' + field[0] + '" value="' + field[1] + '" /><input type="checkbox" name="filter-' + field[0] + '-ignore" ' + checked.get(field[0], '') + ' /></td></tr>\n'
 	print '''
 		<tr>
 			<td colspan="2" align="center"><input type="submit" value="Submit" /></td>

@@ -105,19 +105,16 @@ def getFilters(db, recordid):
 	filters = db.store_result()
 
 	result = {}
+	checked = {}
 	for field in fields.fetch_row(0):
 		if field[1] == '1':
-			checked = 'checked '
-		else:
-			checked = ''
-		result[field[0]] = ('', checked)
+			checked[field[0]] = 'checked '
+		result[field[0]] = ''
 	for filter in filters.fetch_row(0):
 		if filter[2] == '1':
-			checked = 'checked '
-		else:
-			checked = ''
-		result[filter[0]] = (filter[1], checked)
-	return result
+			checked[filter[0]] = 'checked '
+		result[filter[0]] = filter[1]
+	return result, checked
 
 # This method is no longer used!
 def removeFilter(db, parentid, field):
@@ -155,16 +152,21 @@ def addSubscription(db, eventType, param, name, filters):
 	for field in filters:
 		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid))
 
-def updateSubscription(db, recordid, eventType, param, filters, name):
+def updateSubscription(db, recordid, eventType, param, filters, ignore, name):
 	# Sanitize the inputs
 	eventType = regex_sanitize(eventType)
 	param = regex_sanitize(param)
 	name = regex_sanitize(name)
+	for ig in ignore:
+		ignore[ig] = regex_sanitize(ignore[ig])
+		if ignore[ig] == 'on':
+			ignore[ig] = '1'
+
 	db.query('DELETE FROM filters WHERE parent_id=' + str(recordid))
 	for field in filters:
 		filters[field] = regex_sanitize(filters[field])
 		# Create a new filter
-		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid)) 
+		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid) + ', ignoreChanges=' + ignore.get(field, '0')) 
 
 	# Make sure we have the right data
 	if eventType == None or param == None:
