@@ -53,7 +53,7 @@ def showAllSubscriptions(db):
  <th class="subs">Notification</th>
  <th class="subs">Address</th>
  <th class="subs">doc-tag</th>
- <th class="subs">Actions</th>
+ <th class="subs" colspan="4">Actions</th>
 </tr>'''
 	for sub in account.getAllSubscriptions(db):
 		print '''
@@ -89,7 +89,7 @@ def showModifyForm(db, recordid):
 	print '''<table>
 		<tr>
 			<td>Name:</td>
-			<td><input type="text" name="name" value="''' + name + '''" />
+			<td><input type="text" name="name" value="''' + name + '''" /></td>
 		</tr>
 		<tr>
 			<td>Notification type:</td>
@@ -118,8 +118,8 @@ def showModifyForm(db, recordid):
 	res = res.items()
 	res.sort()
 	for field in res:
-		print '<tr><td>' + field[0] + '</td><td><input type="text" name="filter-' + field[0] + '" value="' + field[1][0] + '" /><input type="checkbox" name="filter-' + field[0] + '-ignore" ' + field[1][1] + '/></td></tr>\n'
-	print '''		<tr>
+		print '<tr><td>' + field[0] + '</td><td><input type="text" name="filter-' + field[0] + '" value="' + field[1] + '" /></td></tr>\n'
+	print '''
 		<tr>
 			<td colspan="2" align="center"><input type="submit" value="Submit" /></td>
 		</tr>

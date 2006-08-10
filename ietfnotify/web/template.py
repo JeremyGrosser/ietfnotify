@@ -11,12 +11,6 @@ def header(db):
 	print fd.read()
 	fd.close()
 
-	fd = open('/www/tools.ietf.org/inc/narrow-menu-col.html', 'r')
-	print fd.read()
-	fd.close()
-
-	print '<td><div class="content">'
-
 	fd = open('resources/topnav.html', 'r')
 	print fd.read()
 	fd.close()
@@ -26,6 +20,9 @@ def header(db):
 		print ' | <a href="?action=listall">List all subscriptions</a> |'
 		print '<a href="?action=listfields">Edit filter fields</a>'
 	print '</div>'
+	print '</div>'
+        print '<hr />'
+        print '<div class="notify">'
 
 def footer():
 	fd = open('resources/footer.html', 'r')

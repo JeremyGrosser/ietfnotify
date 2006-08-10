@@ -5,7 +5,7 @@
 # See LICENSE file in the root of the source distribution for details
 
 import sys
-sys.path.insert(0, '/home/synack/ietfnotify')
+sys.path.insert(0, '/www/tools.ietf.org/tools/ietfnotify/')
 
 import ietfnotify.config as config
 import ietfnotify.web.template as template
