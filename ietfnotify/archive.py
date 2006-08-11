@@ -10,6 +10,7 @@ import config
 import notifier
 import log
 import message
+import time
 
 def buildUUIDCache():
 	log.log(log.DEBUG, 'Building UUID cache')
@@ -43,13 +44,13 @@ def dateArchive(uuid, parsed):
 		year = parsed['event-date'][0][:4]
 		month = parsed['event-date'][0][8:10]
 	else:
-		year = gmtime()[0]
-		month = gmtime()[1]
+		year = time.gmtime()[0]
+		month = time.gmtime()[1]
 	symlink_source = config.get('archive', 'uuid_dir') + '/' + uuid
-	symlink_dest = config.get('archive', 'date_dir') + '/' + year + '/' + month + '/' + uuid
+	symlink_dest = config.get('archive', 'date_dir') + '/' + str(year) + '/' + str(month) + '/' + uuid
 
 	try:
-		os.makedirs(config.get('archive', 'date_dir') + '/' + year + '/' + month)
+		os.makedirs(config.get('archive', 'date_dir') + '/' + str(year) + '/' + str(month))
 	except OSError: pass
 
 	try:

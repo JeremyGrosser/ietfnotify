@@ -21,13 +21,13 @@ import log
 uuidcache = []
 
 # Login to jabber
-jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
-client = xmpp.Client(jid.getDomain(), debug=[])
-client.connect()
-client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
+#jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
+#client = xmpp.Client(jid.getDomain(), debug=[])
+#client.connect()
+#client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
 
 def cleanup():
-	client.disconnect()
+	#client.disconnect()
 	log.cleanup()
 
 def dummyNotification(subscriber, parsed):
@@ -123,9 +123,9 @@ def sendNotifications(parsed):
 	subs = db.store_result()
 
 	parsed = message.removeHidden(db, parsed)
-	changed = message.parseChanges(parsed, 'State-change')
-	added = message.parseChanges(parsed, 'State-added')
-	changed = changes.union(added)
+	changed = message.parseChanges(parsed, 'state-change')
+	added = message.parseChanges(parsed, 'state-added')
+	changed.update(added)
 
 	notified = []
 	for subscription in subs.fetch_row(0):
@@ -145,9 +145,9 @@ def sendNotifications(parsed):
 
 				# Update the changes list for this subscription
 				if filter[0] in subChanges and filter[2] == '0':
-					subChanges.remove(filter[2])
+					del subChanges[filter[2]]
 
-			if not subscription[2] in notified and not filtered and len(subChanges) > 0:
+			if not subscription[2] in notified and not filtered and len(subChanges):
 				if subscription[0] in notifyCallbacks:
 					f = notifyCallbacks[subscription[0]]
 					f(subscription[1], parsed)

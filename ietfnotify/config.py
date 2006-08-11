@@ -6,7 +6,7 @@
 import ConfigParser, os
 
 CONFIG_FILES = [
-        '/etc/ietfnotify/ietfnotifyd.conf',
+        '/etc/ietfnotify/ietfnotify.conf',
         'ietfnotify.conf'
     ]
 

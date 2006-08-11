@@ -3,9 +3,11 @@
 # Copyright (C) 2006 Jeremy Grosser
 # See LICENSE file in the root of the source distribution for details
 
-import _mysql
-import django.template
 import django.conf
+django.conf.settings.configure()
+import django.template
+
+import _mysql
 import re
 import sets
 
@@ -14,8 +16,6 @@ import config
 import log
 import archive
 import os.path
-
-django.conf.settings.configure()
 
 def updateFilters(parsed):
 	log.log(log.DEBUG, 'Updating filters list in database')
@@ -134,11 +134,11 @@ def parseMessage(msg, keepdate):
 
 	return parsed
 
-def parseChanged(parsed, changeField):
-	changes = []
+def parseChanges(parsed, changeField):
+	changes = {}
 	for change in parsed[changeField][0].split(' '):
-		changes.append(change)
-	return sets.Set(changes)
+		changes[change] = 1
+	return changes
 
 def checkRequired(parsed):
 	log.log(log.DEBUG, 'Checking required fields')
