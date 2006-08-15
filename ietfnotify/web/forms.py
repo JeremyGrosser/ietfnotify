@@ -198,11 +198,10 @@ def showArchived(year, month):
 		print '<br />There are no events archived for the given date'
 		return 0
 
-def showArchiveSearch():
+def showArchiveSearch(year, month):
 	defaults = {}
-	t = time.gmtime()
-	defaults['currentmonth'] = t[1]
-	defaults['currentyear'] = t[0]
+	defaults['currentmonth'] = month
+	defaults['currentyear'] = year
 
 	print '''<form action="" method="GET">
 <input type="hidden" name="action" value="viewarchive" />

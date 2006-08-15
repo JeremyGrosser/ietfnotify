@@ -222,7 +222,7 @@ def duplicateSubscription(db, recordid):
 	filters = db.store_result()
 
 	if original.num_rows() > 0:
-		db.query('INSERT INTO subscriptions (username,type,target,is_admin,name) SELECT username,type,target,is_admin,name FROM subscriptions WHERE id=' + str(recordid))
+		db.query('INSERT INTO subscriptions (username,type,target,is_admin,name,ignorebit) SELECT username,type,target,is_admin,name,ignorebit FROM subscriptions WHERE id=' + str(recordid))
 		db.query('SELECT LAST_INSERT_ID()')
 		newid = db.store_result()
 		newidrow = newid.fetch_row()

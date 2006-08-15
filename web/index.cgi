@@ -5,15 +5,14 @@
 # See LICENSE file in the root of the source distribution for details
 
 import sys
-sys.path.insert(0, '/www/tools.ietf.org/tools/ietfnotify/')
-sys.path.insert(0, '/home/jeremy/src/ietfnotify/')
+sys.path.insert(0, '/home/synack/ietfnotify/')
 
 import ietfnotify.config as config
 import ietfnotify.util as util
 import ietfnotify.web.template as template
 import ietfnotify.web.account as account
 import ietfnotify.web.forms as forms
-import cgi, os, _mysql
+import cgi, os, _mysql, time
 
 # DEBUG
 import cgitb
@@ -109,9 +108,12 @@ if form.getfirst('action') == 'listfields' and account.getAdmin(db):
 # View notification archives
 if form.getfirst('action') == 'viewarchive':
 	if 'year' in form and 'month' in form:
+		forms.showArchiveSearch(int(form.getfirst('year')), int(form.getfirst('month')))
 		forms.showArchived(int(form.getfirst('year')), int(form.getfirst('month')))
 	else:
-		forms.showArchiveSearch()
+		now = time.gmtime()
+		forms.showArchiveSearch(now.tm_year, now.tm_mon)
+		forms.showArchived(now.tm_year, now.tm_mon)
 	done = 1
 
 # Duplicate an existing subscription

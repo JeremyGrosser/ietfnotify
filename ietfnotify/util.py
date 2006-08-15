@@ -47,13 +47,14 @@ def encodeBitstring(db, fields):
 
 def decodeBitstring(db, bitstring):
 	fields = {}
-	for i in range(0, len(bitstring)):
-		db.query('SELECT field FROM eventTypes WHERE id=' + str(i))
-		res = db.store_result()
-		if res.num_rows() > 0:
-			field = res.fetch_row()
-			field = field[0][0]
-			fields[field] = bitstring[i]
+	if bitstring:
+		for i in range(0, len(bitstring)):
+			db.query('SELECT field FROM eventTypes WHERE id=' + str(i))
+			res = db.store_result()
+			if res.num_rows() > 0:
+				field = res.fetch_row()
+				field = field[0][0]
+				fields[field] = bitstring[i]
 	return fields
 
 def addField(db, field):

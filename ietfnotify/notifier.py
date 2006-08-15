@@ -7,7 +7,7 @@ import _mysql
 import smtplib
 import re
 import sets
-#from email.MIMEText import MIMEText
+from email.MIMEText import MIMEText
 
 import sys
 import os
@@ -21,10 +21,10 @@ import log
 uuidcache = []
 
 # Login to jabber
-#jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
-#client = xmpp.Client(jid.getDomain(), debug=[])
-#client.connect()
-#client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
+jid = xmpp.protocol.JID(config.get('notify-jabber', 'jid'))
+client = xmpp.Client(jid.getDomain(), debug=[])
+client.connect()
+client.auth(jid.getNode(), config.get('notify-jabber', 'password'))
 
 def cleanup():
 	#client.disconnect()
@@ -130,7 +130,7 @@ def sendNotifications(parsed):
 	notified = []
 	for subscription in subs.fetch_row(0):
 		try:
-			ignore = util.decodeBitstring(subscription[3])
+			ignore = util.decodeBitstring(db, subscription[3])
 			db.query('SELECT field,pattern FROM filters WHERE parent_id=' + str(subscription[2]))
 			filter_res = db.store_result()
 			filtered = 0
@@ -157,4 +157,4 @@ def sendNotifications(parsed):
 					log.log(log.ERROR, 'Unknown notification type: ' + repr(subscription))
 		except Exception, e:
 			log.warn("Caught exception in subscription loop of sendNotifications(): '%s'" % e)
-		db.close()
+	db.close()
