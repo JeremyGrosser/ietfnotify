@@ -107,9 +107,9 @@ def getFilters(db, recordid, usedefaults):
 	if res.num_rows() > 0:
 		row = res.fetch_row()
 		ignorebit = row[0][0]
-		ignore = util.decodeBitstring(ignorebit)
+		ignore = util.decodeBitstring(db, ignorebit)
 	else:
-		ignore = util.decodeBitstring('0')
+		ignore = util.decodeBitstring(db, '0')
 
 	for i in ignore:
 		if ignore[i] == '1':

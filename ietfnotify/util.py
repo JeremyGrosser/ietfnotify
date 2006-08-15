@@ -7,8 +7,6 @@ import time
 import os
 import config
 
-fieldmap = []
-
 def makeTimestamp():
 	return time.strftime('%Y-%m-%dT%H:%M:%S%:z')
 
@@ -17,26 +15,24 @@ def makeUUID():
 	uuid = uuid[0]
 	return uuid[:-1]
 
-def encodeBitstring(fields):
-	fieldmap = loadFieldMap()
+def encodeBitstring(db, fields):
 	bitstring = []
 	for field in fields:
 		# Figure out what string index the field is in
-		if field in fieldmap:
-			bit = fieldmap.index(field)
+		db.query('SELECT id FROM eventTypes WHERE field="' + field + '"')
+		res = db.store_result()
+		if res.num_rows() > 0:
+			bit = res.fetch_row()
+			bit = int(bit[0][0])
 		else:
 			# The field isn't known, add it to the map and append to the mapfile
-			fieldmap.append(field)
-			bit = len(fieldmap) - 1
-			fd = open(config.get('general', 'mapfile'), 'a')
-			fd.write(field + '\n')
-			fd.close()
+			bit = addField(db, field)
 
 		# Pad the bitstring if necessary
 		for i in range(len(bitstring), bit + 1):
 			bitstring.append(0)
 
-		# Load the bit values into the string
+		# Load the bit value into the string
 		if fields[field] == 'on':
 			bitstring[bit] = 1
 		else:
@@ -49,17 +45,21 @@ def encodeBitstring(fields):
 	
 	return realstring
 
-def decodeBitstring(bitstring):
-	fieldmap = loadFieldMap()
+def decodeBitstring(db, bitstring):
 	fields = {}
 	for i in range(0, len(bitstring)):
-		fields[fieldmap[i]] = bitstring[i]
+		db.query('SELECT field FROM eventTypes WHERE id=' + str(i))
+		res = db.store_result()
+		if res.num_rows() > 0:
+			field = res.fetch_row()
+			field = field[0][0]
+			fields[field] = bitstring[i]
 	return fields
 
-def loadFieldMap():
-	map = []
-	fd = open(config.get('general', 'mapfile'), 'r')
-	for line in fd.readlines():
-		map.append(line[:-1])
-	fd.close()
-	return map
+def addField(db, field):
+	db.query('INSERT INTO eventTypes SET field="' + field + '", type="filter", admin=0, defaultIgnore=0')
+	db.query('SELECT LAST_INSERT_ID()')
+	res = db.store_result()
+	last = res.fetch_row()
+	last = last[0][0]
+	return int(last)

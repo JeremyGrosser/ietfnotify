@@ -46,7 +46,7 @@ if form.getfirst('action') == 'update' and 'id' in form:
 			filters[field[7:]] = form.getfirst(field)
 		if field.startswith('ignore-'):
 			ignore[field[7:]] = form.getfirst(field)
-	ignorebits = util.encodeBitstring(ignore)
+	ignorebits = util.encodeBitstring(db, ignore)
 
 	if form.getfirst('eventType') == 'html_email' or form.getfirst('eventType') == 'plain_email':
 		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), filters, ignorebits, form.getfirst('name'))
@@ -71,7 +71,7 @@ if form.getfirst('action') == 'add':
 				filters[field[7:]] = form.getfirst(field)
 			if field.startswith('ignore-'):
 				ignore[field[7:]] = form.getfirst(field)
-		ignorebits = util.encodeBitstring(ignore)
+		ignorebits = util.encodeBitstring(db, ignore)
 
 		account.addSubscription(db, form.getfirst('eventType'), account.getUser(), name, filters, ignorebits)
 	else:
