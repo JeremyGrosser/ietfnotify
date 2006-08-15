@@ -17,9 +17,18 @@
   <!--#include virtual="/css/wg-page.css" -->
   <!--#include virtual="resources/notify.css" -->
   </style>
+  <script language="JavaScript"><!--
+   function disableAddress() {
+       if(document.modifyForm.eventType.value == "html_email" || document.modifyForm.eventType.value == "plain_email") {
+	   document.modifyForm.param.disabled = true;
+       }else{
+	   document.modifyForm.param.disabled = false;
+       }
+   }
+  //--></script>
 </head>
 
-<body >
+<body onLoad="disableAddress();">
   <div class="page">
     <table border="0" width="100%" >
       <tr>
