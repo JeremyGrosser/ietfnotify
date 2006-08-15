@@ -6,9 +6,10 @@
 
 import sys
 sys.path.insert(0, '/www/tools.ietf.org/tools/ietfnotify/')
-#sys.path.insert(0, '/home/jeremy/src/ietfnotify/')
+sys.path.insert(0, '/home/jeremy/src/ietfnotify/')
 
 import ietfnotify.config as config
+import ietfnotify.util as util
 import ietfnotify.web.template as template
 import ietfnotify.web.account as account
 import ietfnotify.web.forms as forms
@@ -42,15 +43,15 @@ if form.getfirst('action') == 'update' and 'id' in form:
 	ignore = {}
 	for field in form:
 		if field.startswith('filter-'):
-			if field.endswith('-ignore'):
-				ignore[field[7:-7]] = form.getfirst(field)
-			else:
-				filters[field[7:]] = form.getfirst(field)
+			filters[field[7:]] = form.getfirst(field)
+		if field.startswith('ignore-'):
+			ignore[field[7:]] = form.getfirst(field)
+	ignorebits = util.encodeBitstring(ignore)
 
 	if form.getfirst('eventType') == 'html_email' or form.getfirst('eventType') == 'plain_email':
-		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), filters, ignore, form.getfirst('name'))
+		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), account.getUser(), filters, ignorebits, form.getfirst('name'))
 	else:
-		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), filters, ignore, form.getfirst('name'))
+		account.updateSubscription(db, int(form.getfirst('id')), form.getfirst('eventType'), form.getfirst('param'), filters, ignorebits, form.getfirst('name'))
 
 # Remove an existing notification
 if form.getfirst('action') == 'remove' and 'id' in form:
@@ -61,16 +62,18 @@ if form.getfirst('action') == 'add':
 	if 'eventType' in form:
 		if not 'name' in form:
 			name = ''
-			print 'no name passed'
 		else:
 			name = form.getfirst('name')
-			print 'name=' + name
 		filters = {}
+		ignore = {}
 		for field in form:
 			if field.startswith('filter-'):
 				filters[field[7:]] = form.getfirst(field)
+			if field.startswith('ignore-'):
+				ignore[field[7:]] = form.getfirst(field)
+		ignorebits = util.encodeBitstring(ignore)
 
-		account.addSubscription(db, form.getfirst('eventType'), account.getUser(), name, filters)
+		account.addSubscription(db, form.getfirst('eventType'), account.getUser(), name, filters, ignorebits)
 	else:
 		forms.showModifyForm(db, -1)
 		done = 1

@@ -119,18 +119,19 @@ notifyCallbacks['jabber'] = jabberNotification
 
 def sendNotifications(parsed):
 	db = _mysql.connect(config.get('notifier', 'mysqlhost'), config.get('notifier', 'mysqluser'), config.get('notifier', 'mysqlpass'), config.get('notifier', 'mysqldb'))
-	db.query('SELECT type,target,id FROM subscriptions WHERE enabled=1')
+	db.query('SELECT type,target,id,ignorebit FROM subscriptions WHERE enabled=1')
 	subs = db.store_result()
 
 	parsed = message.removeHidden(db, parsed)
 	changed = message.parseChanges(parsed, 'state-change')
-	added = message.parseChanges(parsed, 'state-added')
-	changed.update(added)
+	#added = message.parseChanges(parsed, 'state-added')
+	#changed.update(added)
 
 	notified = []
 	for subscription in subs.fetch_row(0):
 		try:
-			db.query('SELECT field,pattern,ignoreChanges FROM filters WHERE parent_id=' + str(subscription[2]))
+			ignore = util.decodeBitstring(subscription[3])
+			db.query('SELECT field,pattern FROM filters WHERE parent_id=' + str(subscription[2]))
 			filter_res = db.store_result()
 			filtered = 0
 			subChanges = changed.copy()
@@ -144,8 +145,8 @@ def sendNotifications(parsed):
 						filtered = 1
 
 				# Update the changes list for this subscription
-				if filter[0] in subChanges and filter[2] == '0':
-					del subChanges[filter[2]]
+				if filter[0] in subChanges and ignore[filter[0]] == '0':
+					del subChanges[filter[0]]
 
 			if not subscription[2] in notified and not filtered and len(subChanges):
 				if subscription[0] in notifyCallbacks:

@@ -76,12 +76,14 @@ def showModifyForm(db, recordid):
 		param = account.getUser()
 		action = 'add'
 		name = ''
+		defaultfilters = True
 	else:
 		sub = account.getSubscription(db, recordid)
 		sub = sub.fetch_row()
 		eventType = sub[0][1]
 		param = sub[0][2]
 		name = sub[0][3]
+		defaultfilters = False
 	print '''<form action="" name="modifyForm" method="POST">
 	<input type="hidden" name="action" value="''' + action + '''" />'''
 	if not recordid == -1:
@@ -114,12 +116,25 @@ def showModifyForm(db, recordid):
 			<td>Address:</td>
 			<td><input type="text" name="param" value="''' + param + '''" /></td>
 		</tr>'''
-	res, checked = account.getFilters(db, recordid)
+	res = account.getFilters(db, recordid, defaultfilters)
 	res = res.items()
 	res.sort()
 
 	for field in res:
-		print '<tr><td>' + field[0] + '</td><td><input type="text" name="filter-' + field[0] + '" value="' + field[1] + '" /><input type="checkbox" name="filter-' + field[0] + '-ignore" ' + checked.get(field[0], '') + ' /></td></tr>\n'
+		dict = {}
+		dict['name'] = field[0]
+		dict['value'] = field[1][0]
+		dict['ignore'] = field[1][1]
+
+		if dict['ignore'] == 1:
+			dict['ignore'] = 'checked '
+		else:
+			dict['ignore'] = ''
+
+		print '''<tr>
+	<td>%(name)s</td>
+	<td><input type="text" name="filter-%(name)s" value="%(value)s" /><input type="checkbox" name="ignore-%(name)s" %(ignore)s/></td>
+</tr>''' % dict
 	print '''
 		<tr>
 			<td colspan="2" align="center"><input type="submit" value="Submit" /></td>

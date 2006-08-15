@@ -9,6 +9,7 @@ CONFIG_FILES = [
         '/etc/ietfnotify/ietfnotify.conf',
         'ietfnotify.conf'
     ]
+VERSION = '0.25'
 
 config = ConfigParser.ConfigParser()
 configfile = None

@@ -7,6 +7,8 @@ import os
 import _mysql
 import re
 
+import ietfnotify.util as util
+
 def regex_sanitize(pattern):
 	regex = re.compile('\\\\$|(\'|\")')
 	if regex.search(pattern):
@@ -96,25 +98,49 @@ def getSubscription(db, recordid):
 	sub = db.store_result()
 	return sub
 
-def getFilters(db, recordid):
-	# Get all possible filter types
+def getFilters(db, recordid, usedefaults):
+	result = {}
+	checked = {}
+
+	db.query('SELECT ignorebit FROM subscriptions WHERE id=' + str(recordid))
+	res = db.store_result()
+	if res.num_rows() > 0:
+		row = res.fetch_row()
+		ignorebit = row[0][0]
+		ignore = util.decodeBitstring(ignorebit)
+	else:
+		ignore = util.decodeBitstring('0')
+
+	for i in ignore:
+		if ignore[i] == '1':
+			ignore[i] = 1
+		else:
+			ignore[i] = 0
+
 	db.query('SELECT field, defaultIgnore FROM eventTypes WHERE type="filter" AND admin=0')
 	fields = db.store_result()
 
-	db.query('SELECT field, pattern, ignoreChanges FROM filters WHERE parent_id=' + str(recordid))
+	db.query('SELECT field, pattern FROM filters WHERE parent_id=' + str(recordid))
 	filters = db.store_result()
 
 	result = {}
-	checked = {}
 	for field in fields.fetch_row(0):
-		if field[1] == '1':
-			checked[field[0]] = 'checked '
-		result[field[0]] = ''
+		name = field[0]
+		defaultIgnore = field[1]
+		if defaultIgnore == '1' and usedefaults:
+			defaultIgnore = 1
+		else:
+			defaultIgnore = 0
+
+		ignorebit = defaultIgnore | ignore.get(name, 0)
+		result[name] = ['', ignorebit]
+
 	for filter in filters.fetch_row(0):
-		if filter[2] == '1':
-			checked[filter[0]] = 'checked '
-		result[filter[0]] = filter[1]
-	return result, checked
+		name = filter[0]
+		value = filter[1]
+
+		result[name][0] = value
+	return result
 
 # This method is no longer used!
 def removeFilter(db, parentid, field):
@@ -128,21 +154,21 @@ def removeFilter(db, parentid, field):
 			db.query('DELETE FROM filters WHERE field="' + field + '" AND parent_id=' + str(parentid))
 
 def getTagFilter(db, recordid):
-	db.query('SELECT * FROM filters WHERE parent_id=' + str(recordid) + ' AND field="doc-tag"')
-
+	db.query('SELECT pattern FROM filters WHERE parent_id=' + str(recordid) + ' AND field="doc-tag"')
 	filter = db.store_result()
 	if filter.num_rows() > 0:
-		return filter.fetch_row()[0][2]
-	else:
+		return filter.fetch_row()[0][0]
+ 	else:
 		return ''
 
-def addSubscription(db, eventType, param, name, filters):
+
+def addSubscription(db, eventType, param, name, filters, ignore):
 	eventType = sanitize(eventType)
 	param = sanitize(param)
 	name = regex_sanitize(name)
 	if eventType == None or param == None:
 		return
-	db.query('INSERT INTO subscriptions SET username=\'' + getUser() + '\', type=\'' + eventType + '\', target=\'' + param + '\', name=\'' + name + '\'')
+	db.query('INSERT INTO subscriptions SET username="' + getUser() + '", type="' + eventType + '", target="' + param + '", name="' + name + '", ignorebit="' + ignore +'"')
 
 	db.query('SELECT LAST_INSERT_ID()')
 	res = db.store_result()
@@ -150,37 +176,29 @@ def addSubscription(db, eventType, param, name, filters):
 	recordid = int(recordid[0][0])
 
 	for field in filters:
-		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid))
+		db.query('INSERT INTO filters SET pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid))
 
 def updateSubscription(db, recordid, eventType, param, filters, ignore, name):
 	# Sanitize the inputs
 	eventType = regex_sanitize(eventType)
 	param = regex_sanitize(param)
 	name = regex_sanitize(name)
-	for ig in ignore:
-		ignore[ig] = regex_sanitize(ignore[ig])
-		if ignore[ig] == 'on':
-			ignore[ig] = '1'
+
+	db.query('UPDATE subscriptions SET ignorebit="' + ignore + '" WHERE id=' + str(recordid)) 
 
 	db.query('DELETE FROM filters WHERE parent_id=' + str(recordid))
 	for field in filters:
 		filters[field] = regex_sanitize(filters[field])
 		# Create a new filter
-		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid) + ', ignoreChanges=' + ignore.get(field, '0'))
-		if field in ignore:
-			del ignore[field]
-	
-	for i in ignore:
-		db.query('INSERT INTO filters SET type="' + eventType + '", pattern="", field="' + i + '", parent_id=' + str(recordid) + ', ignoreChanges=' + ignore[i])
+		db.query('INSERT INTO filters SET pattern="' + filters[field] + '", field="' + field + '", parent_id=' + str(recordid))
 
 	# Make sure we have the right data
 	if eventType == None or param == None:
 		return
-	db.query('UPDATE subscriptions SET type="' + eventType + '", target="' + param + '", name="' + name + '" WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
+	db.query('UPDATE subscriptions SET type="' + eventType + '", target="' + param + '", name="' + name + '", ignorebit="' + ignore + '" WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
 
 def removeSubscription(db, recordid):
 	db.query('DELETE FROM subscriptions WHERE id=' + str(recordid) + ' AND username="' + getUser() + '"')
-	db.query('DELETE FROM filters WHERE parent_id=' + str(recordid))
 
 def enableSubscription(db, recordid):
 	if getAdmin(db):
@@ -210,7 +228,7 @@ def duplicateSubscription(db, recordid):
 		newidrow = newid.fetch_row()
 		newid = newidrow[0][0]
 
-		db.query('INSERT INTO filters (type,pattern,field) SELECT type,pattern,field FROM filters WHERE parent_id=' + str(recordid))
+		db.query('INSERT INTO filters (pattern,field) SELECT pattern,field FROM filters WHERE parent_id=' + str(recordid))
 		db.query('UPDATE filters SET parent_id=' + newid + ' WHERE id=LAST_INSERT_ID()')
 	else:
 		print 'Error: Subscription does not exist<br />'

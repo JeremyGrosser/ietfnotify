@@ -57,7 +57,7 @@ for arg in args:
         print __doc__
         sys.exit(0)
     if arg in ['-v', '--version' ]:
-        print 'ietfnotifyd 0.11 ($Id$)'
+        print 'ietfnotifyd ' + ietfnotify.config.VERSION + ' ($Id$)'
         sys.exit(0)
 
 import signal
