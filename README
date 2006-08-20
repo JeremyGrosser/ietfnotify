@@ -1,11 +1,19 @@
 Name:		IETF Event Notification System v0.01
 Author: 	Jeremy Grosser
-Description:
+Description:A daemon and web interface for creating, managing, and acting upon subscriptions to 
+			events sent by an external program in the form specified in doc/eventprotocol.txt
 
 License
+This program is licensed under the GNU General Public License Version 2. The full license
+terms may be found in the LICENSE file in the root of this repository.
 
 Installation
 	Requirements
+		- Python 2.3 (2.4 should work)					http://www.python.org/
+		- Django (Subversion trunk August 20, 2006)		http://www.djangoproject.org/
+		- Web server with Python CGI configured
+		- Working mail configuration
+		- MySQL database version 4.x or 5.x				http://www.mysql.org/
 	setup.py
 	Configuration
 	Templates
